@@ -7,7 +7,7 @@ if (rootEl) {
   const root = ReactDOM.createRoot(rootEl);
   root.render(
     <React.StrictMode>
-      <AuthApp />
+      <AuthApp standalone={true} />
     </React.StrictMode>,
   );
 }

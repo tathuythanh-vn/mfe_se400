@@ -20,9 +20,9 @@ export default defineConfig({
         auth: 'auth@http://localhost:3001/remoteEntry.js',
       },
       exposes: {
-        './Sidebar': './src/Sidebar.tsx',
+        './MainLayout': './src/components/MainLayout.tsx',
       },
-      shared: ['react', 'react-dom'],
+      shared: ['react', 'react-dom', 'react-router-dom'],
     }),
   ],
 });

@@ -1,28 +1,46 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Route,
+  RouterProvider,
+  Routes,
+} from 'react-router-dom';
 import App from '../App';
 import Login from '../page/Login';
 import Signup from '../page/Signup';
 
-const router = createBrowserRouter(
-  [
-    {
-      path: '/',
-      element: <App />,
-    },
-    {
-      path: 'login',
-      element: <Login />,
-    },
-    {
-      path: 'signup',
-      element: <Signup />,
-    },
-  ],
+const authRoutes = [
   {
-    basename: '/auth',
+    path: '/',
+    element: <App />,
   },
-);
+  {
+    path: 'login',
+    element: <Login />,
+  },
+  {
+    path: 'signup',
+    element: <Signup />,
+  },
+];
 
-export default function AuthApp() {
-  return <RouterProvider router={router} />;
+const router = createBrowserRouter(authRoutes, {
+  basename: '/auth',
+});
+
+type AuthAppProps = {
+  standalone?: boolean;
+};
+
+export default function AuthApp({ standalone = false }: AuthAppProps) {
+  if (standalone) {
+    return <RouterProvider router={router} />;
+  }
+
+  return (
+    <Routes>
+      {authRoutes.map((route) => (
+        <Route key={route.path} path={route.path} element={route.element} />
+      ))}
+    </Routes>
+  );
 }

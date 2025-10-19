@@ -21,6 +21,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
   },
-  "include": ["src"],
+  "include": ["src", "../home/src/components/SafeComponent.tsx"],
   "exclude": ["node_modules", "dist"]
 }

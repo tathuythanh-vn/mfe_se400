@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/memeber/*',
+    path: '/member/*',
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <AuthContent />

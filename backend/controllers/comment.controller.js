@@ -31,7 +31,7 @@ const CommentController = () => {
         query['status'] = status
       }
       const comments = await Comment.find(query).populate('accountId').sort({createdAt: -1})
-      return sendResponse(res, 200, 'Laays binhf luanj',comments)
+      return sendResponse(res, 200, "Lấy bình luận", comments);
     } catch (error) {
       return sendResponse(res, 500, "Có lỗi xảy ra");
     }
@@ -43,7 +43,7 @@ const CommentController = () => {
       const comment = await Comment.findById(id)
       comment.status= comment.status == 'locked' ? 'active' :'locked'
       await comment.save()
-      return sendResponse(res, 200, 'Laays binhf luanj',)
+      return sendResponse(res, 200, 'Lấy bình luận',)
       
     } catch (error) {
         return sendResponse(res, 500, "Có lỗi xảy ra");

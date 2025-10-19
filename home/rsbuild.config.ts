@@ -1,6 +1,9 @@
-import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
+import { defineConfig } from '@rsbuild/core';
+import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 export default defineConfig({
   server: {
@@ -9,6 +12,12 @@ export default defineConfig({
 
   output: {
     assetPrefix: 'http://localhost:3000/',
+  },
+
+  source: {
+    define: {
+      'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL),
+    },
   },
 
   plugins: [
@@ -21,6 +30,9 @@ export default defineConfig({
       },
       exposes: {
         './MainLayout': './src/components/MainLayout.tsx',
+        './SafeComponent': './src/components/SafeComponent.tsx',
+        './store': './src/stores/index.ts',
+        './styles': './src/App.css',
       },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),

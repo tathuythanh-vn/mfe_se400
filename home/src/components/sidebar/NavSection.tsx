@@ -6,9 +6,11 @@ import {
   ROLE,
 } from '../../constants/nav-items';
 import { NavLink } from 'react-router-dom';
+import { useGetProfileQuery } from '../../stores';
 
 const NavSection = () => {
-  const [role, setRole] = useState<ROLE>(ROLE.MEMBER);
+  const { data, isLoading } = useGetProfileQuery();
+  const role = data?.data?.role;
 
   let navList;
   switch (role) {

@@ -19,6 +19,9 @@ export default defineConfig({
       remotes: {
         home: 'home@http://localhost:3000/remoteEntry.js',
       },
+      exposes: {
+        './MemberContent': './src/routes/index.tsx',
+      },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),
   ],

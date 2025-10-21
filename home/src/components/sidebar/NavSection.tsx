@@ -12,6 +12,11 @@ const NavSection = () => {
   const { data, isLoading } = useGetProfileQuery();
   const role = data?.data?.role;
 
+  // if (isLoading || !role) {
+  //   // You can replace this with a spinner or skeleton if desired
+  //   return null;
+  // }
+
   let navList;
   switch (role) {
     case ROLE.ADMIN:

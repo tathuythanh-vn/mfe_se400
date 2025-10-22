@@ -6,6 +6,20 @@ import { useRegisterMutation, useGetChaptersQuery } from 'home/store';
 // TODO: Add logo when available
 // import logo from "../assets/logo.webp";
 
+interface Chapter {
+  _id: string;
+  status: 'active' | 'locked';
+  name: string;
+  affiliated: string;
+  address: string;
+  establishedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  fullname: string | null;
+  avatar: string | null;
+}
+
 export default function Signup() {
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
@@ -17,7 +31,7 @@ export default function Signup() {
   });
 
   const chapters =
-    chaptersData?.data.result.map((chapter: any) => ({
+    chaptersData?.data.result.map((chapter: Chapter) => ({
       value: chapter._id,
       name: chapter.name,
     })) || [];
@@ -333,8 +347,8 @@ export default function Signup() {
               <option value="" disabled>
                 Chọn chi đoàn quản lý
               </option>
-              {chapters.map((item: any, index: number) => (
-                <option key={index} value={item.value}>
+              {chapters.map((item: any) => (
+                <option key={item.value} value={item.value}>
                   {item.name}
                 </option>
               ))}

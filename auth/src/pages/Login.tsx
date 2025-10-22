@@ -112,7 +112,7 @@ export default function Login() {
         <div className="text-center text-sm">
           <span className="text-gray-600">Bạn chưa có tài khoản. </span>
           <NavLink
-            to="/register"
+            to="/auth/signup"
             className="text-primary font-semibold hover:text-primary/80 hover:underline transition-colors"
           >
             Đăng ký ngay

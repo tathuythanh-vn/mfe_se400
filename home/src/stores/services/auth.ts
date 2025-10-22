@@ -4,6 +4,8 @@ import type {
   GetProfileResponse,
   LoginRequest,
   LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
 } from '../interfaces/auth';
 
 // Define a service using a base URL and expected endpoints
@@ -35,9 +37,18 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Auth'],
     }),
+    register: builder.mutation<RegisterResponse, RegisterRequest>({
+      query: (credentials) => ({
+        url: 'register',
+        method: 'POST',
+        body: credentials,
+      }),
+      invalidatesTags: ['Auth'],
+    }),
   }),
 });
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetProfileQuery, useLoginMutation } = authApi;
+export const { useGetProfileQuery, useLoginMutation, useRegisterMutation } =
+  authApi;

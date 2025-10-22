@@ -1,4 +1,4 @@
-import type { ROLE } from "../../constants/nav-items";
+import type { ROLE } from '../../constants/nav-items';
 
 export interface LoginRequest {
   email: string;
@@ -36,4 +36,34 @@ export interface GetProfileResponse {
   success: boolean;
   message?: string;
   data: GetProfileData | null;
+}
+
+export interface RegisterRequest {
+  account: {
+    email: string;
+    phone: string;
+    fullname: string;
+    birthday: string;
+    gender: 'male' | 'female' | 'other';
+    password: string;
+    role: Exclude<ROLE, ROLE.ADMIN>;
+  };
+  roleInfo: {
+    managerOf?: string;
+    memberOf?: string;
+    cardCode?: string;
+    position?: string;
+    address?: string;
+    hometown?: string;
+    ethnicity?: string;
+    religion?: string;
+    eduLevel?: string;
+    joinedAt?: string;
+  };
+}
+
+export interface RegisterResponse {
+  success: boolean;
+  message?: string;
+  data?: any;
 }

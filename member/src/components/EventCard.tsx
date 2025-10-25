@@ -139,9 +139,9 @@ const EventCard = ({ event }: EventCardProps) => {
 
         {/* Tags */}
         <div className="flex flex-row gap-2.5 mb-3">
-          {event.tags.map((item, index) => (
+          {event.tags.map((item: Event) => (
             <div
-              key={index}
+              key={item._id}
               className="bg-[#3d85c6] text-white px-2 py-1 rounded-[10px]"
             >
               {item}
@@ -152,11 +152,11 @@ const EventCard = ({ event }: EventCardProps) => {
         {/* Images */}
         {event.images.length > 0 && (
           <div className="flex gap-2.5 h-[260px] overflow-auto p-2.5 mb-3">
-            {event.images.map((item, index) => (
+            {event.images.map((item: Event) => (
               <img
-                key={index}
+                key={item._id}
                 src={item.path}
-                alt={`image-${index}`}
+                alt={`image-${item._id}`}
                 className="rounded-[10px] shadow-[0_0_3px_black]"
               />
             ))}
@@ -207,8 +207,8 @@ const EventCard = ({ event }: EventCardProps) => {
             </div>
 
             <div className="my-5 mx-2.5 max-h-[240px] overflow-auto bg-[#f0f8ff] outline-[10px] outline-[#f0f8ff] px-2.5 rounded-[5px]">
-              {comments.map((item: Comment, idx: number) => (
-                <div key={idx} className="my-5">
+              {comments.map((item: Comment) => (
+                <div key={item._id} className="my-5">
                   <div className="flex items-start gap-2.5">
                     <img
                       src={item.accountId?.avatar?.path || avatar}

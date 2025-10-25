@@ -2,6 +2,7 @@ import { useGetEventsInPageQuery } from 'home/store';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import EventCard from '../components/EventCard';
+import { Event } from 'home/store';
 
 const News = () => {
   const { data, isLoading, isError, error } = useGetEventsInPageQuery({
@@ -38,7 +39,7 @@ const News = () => {
     <>
       <div className="min-h-screen bg-[#f0f8ff] p-[60px]">
         <div className="flex flex-col gap-5 items-center justify-center">
-          {events.map((event: any) => (
+          {events.map((event: Event) => (
             <EventCard key={event._id} event={event} />
           ))}
         </div>

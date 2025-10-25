@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   adminNavList,
   managerNavList,
@@ -9,7 +8,7 @@ import { NavLink } from 'react-router-dom';
 import { useGetProfileQuery } from '../../stores';
 
 const NavSection = () => {
-  const { data, isLoading } = useGetProfileQuery();
+  const { data } = useGetProfileQuery();
   const role = data?.data?.role;
 
   // if (isLoading || !role) {

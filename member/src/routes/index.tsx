@@ -4,14 +4,15 @@ import {
   RouterProvider,
   Routes,
 } from 'react-router-dom';
-import App from '../App';
-import News from '../pages/news';
+import MainLayout from 'home/MainLayout';
+import News from '../pages/News';
 import MemberDocument from '../pages/MemberDocument';
+import '../App.css';
 
 const memberRoutes = [
   {
     path: '/',
-    element: <App />,
+    element: <News />,
   },
   {
     path: 'news',
@@ -31,16 +32,22 @@ type MemberAppProps = {
   standalone?: boolean;
 };
 
-export default function AuthApp({ standalone = false }: MemberAppProps) {
+export default function MemberApp({ standalone = false }: MemberAppProps) {
   if (standalone) {
-    return <RouterProvider router={router} />;
+    return (
+      <MainLayout>
+        <RouterProvider router={router} />
+      </MainLayout>
+    );
   }
 
   return (
-    <Routes>
-      {memberRoutes.map((route) => (
-        <Route key={route.path} path={route.path} element={route.element} />
-      ))}
-    </Routes>
+    <MainLayout>
+      <Routes>
+        {memberRoutes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element} />
+        ))}
+      </Routes>
+    </MainLayout>
   );
 }

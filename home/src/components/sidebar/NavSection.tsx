@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   adminNavList,
   managerNavList,
@@ -9,7 +8,7 @@ import { NavLink } from 'react-router-dom';
 import { useGetProfileQuery } from '../../stores';
 
 const NavSection = () => {
-  const { data, isLoading } = useGetProfileQuery();
+  const { data } = useGetProfileQuery();
   const role = data?.data?.role;
 
   // if (isLoading || !role) {
@@ -34,12 +33,16 @@ const NavSection = () => {
   return (
     <ul className="gap-2 grow-1">
       {navList.map((item) => (
-        <li
-          key={item.route}
-          className="cursor-pointer hover:bg-sidebar-hover p-2 rounded transition"
-        >
-          <NavLink to={item.route}>
-            <p className="text-white">{item.navLabel}</p>
+        <li key={item.route}>
+          <NavLink
+            to={item.route}
+            className={({ isActive }) =>
+              `cursor-pointer hover:bg-sidebar-hover rounded transition block p-4 text-white my-2 ${
+                isActive ? 'bg-sidebar-hover' : ''
+              }`
+            }
+          >
+            <p>{item.navLabel}</p>
           </NavLink>
         </li>
       ))}

@@ -30,7 +30,7 @@ export default function Signup() {
     limit: 10000,
   });
 
-  const chapters =
+  const chapters: { value: string; name: string }[] =
     chaptersData?.data.result.map((chapter: Chapter) => ({
       value: chapter._id,
       name: chapter.name,
@@ -347,8 +347,8 @@ export default function Signup() {
               <option value="" disabled>
                 Chọn chi đoàn quản lý
               </option>
-              {chapters.map((item: any) => (
-                <option key={item.value} value={item.value}>
+              {chapters.map((item) => (
+                <option key={item.name} value={item.value}>
                   {item.name}
                 </option>
               ))}
@@ -375,8 +375,8 @@ export default function Signup() {
                 <option value="" disabled>
                   Chọn chi đoàn sinh hoạt
                 </option>
-                {chapters.map((item: any, index: number) => (
-                  <option key={index} value={item.value}>
+                {chapters.map((item: any) => (
+                  <option key={item.value} value={item.value}>
                     {item.name}
                   </option>
                 ))}

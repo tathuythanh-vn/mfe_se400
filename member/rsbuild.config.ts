@@ -22,7 +22,13 @@ export default defineConfig({
       exposes: {
         './MemberContent': './src/routes/index.tsx',
       },
-      shared: ['react', 'react-dom', 'react-router-dom'],
+      shared: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        'react-redux',
+        '@reduxjs/toolkit',
+      ],
     }),
   ],
 });

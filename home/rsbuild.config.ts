@@ -35,7 +35,13 @@ export default defineConfig({
         './store': './src/stores/index.ts',
         './styles': './src/App.css',
       },
-      shared: ['react', 'react-dom', 'react-router-dom'],
+      shared: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        'react-redux',
+        '@reduxjs/toolkit',
+      ],
     }),
   ],
 });

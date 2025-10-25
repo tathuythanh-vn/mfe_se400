@@ -4,8 +4,6 @@ import mongoosePaginate from 'mongoose-paginate-v2';
 const FavoriteSchema = new mongoose.Schema({
   accountId: { type: Schema.Types.ObjectId, ref: 'Account', default: null},
   eventId: { type: Schema.Types.ObjectId, ref: 'Event', default: null },
- 
-  
 }, {
   timestamps: true
 });

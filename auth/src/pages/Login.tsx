@@ -1,12 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useLoginMutation } from 'home/store';
-import { NavLink } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 
 // TODO: Update the logo path - you can import from home app or copy to auth/src/assets
 // import logo from "../assets/logo.webp";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const [account, setAccount] = useState({
     email: '',
     password: '',
@@ -30,9 +32,10 @@ export default function Login() {
 
       const { token, role } = data.data;
 
+      // TODO: Handle successful login (store token, navigate, etc.)
       localStorage.setItem('token', token);
 
-      // TODO: Handle successful login (store token, navigate, etc.)
+      navigate('/' + role);
     } catch (error) {
       console.error('Login failed:', error);
       alert('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');

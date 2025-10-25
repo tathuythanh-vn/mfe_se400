@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "pkg:install": "cd auth && pnpm i && cd ../admin && pnpm i && cd ../manager && pnpm i && cd ../member && pnpm i && cd ../chat && pnpm i && cd ../home && pnpm i && cd ../backend && npm i",
+    "pkg:install": "pnpm i && cd auth && pnpm i && cd ../admin && pnpm i && cd ../manager && pnpm i && cd ../member && pnpm i && cd ../chat && pnpm i && cd ../home && pnpm i && cd ../backend && npm i",
     "dev": "concurrently \"cd auth && pnpm run dev\" \"cd admin && pnpm run dev\"  \"cd manager && pnpm run dev\"  \"cd member && pnpm run dev\"  \"cd chat && pnpm run dev\" \"cd home && pnpm run dev\" \"cd backend && npm run dev\""
   },
   "dependencies": {

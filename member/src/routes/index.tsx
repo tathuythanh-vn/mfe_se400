@@ -5,7 +5,7 @@ import {
   Routes,
 } from 'react-router-dom';
 import App from '../App';
-import News from '../pages/news';
+import News from '../pages/News';
 import MemberDocument from '../pages/MemberDocument';
 
 const memberRoutes = [
@@ -31,7 +31,7 @@ type MemberAppProps = {
   standalone?: boolean;
 };
 
-export default function AuthApp({ standalone = false }: MemberAppProps) {
+export default function MemberApp({ standalone = false }: MemberAppProps) {
   if (standalone) {
     return <RouterProvider router={router} />;
   }

@@ -10,21 +10,11 @@ import {
   useRegisterForEventMutation,
 } from 'home/store';
 import avatar from '../assets/avatar.png';
+import { formatVietnamTime } from '../utils/format-time';
 
 interface EventCardProps {
   event: Event;
 }
-
-const formatVietnamTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('vi-VN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
 
 const EventCard = ({ event }: EventCardProps) => {
   const [openComment, setOpenComment] = useState(false);
@@ -60,6 +50,7 @@ const EventCard = ({ event }: EventCardProps) => {
       await toggleFavorite({ eventId: event._id }).unwrap();
     } catch (error) {
       console.error('Lỗi khi yêu thích:', error);
+      toast.error('Đã xảy ra lỗi khi thực hiện yêu thích. Vui lòng thử lại!');
     }
   };
 
@@ -81,6 +72,7 @@ const EventCard = ({ event }: EventCardProps) => {
       setComment('');
     } catch (error) {
       console.error('Lỗi khi gửi bình luận:', error);
+      toast.error('Có lỗi xảy ra khi gửi bình luận');
     }
   };
 
@@ -139,9 +131,9 @@ const EventCard = ({ event }: EventCardProps) => {
 
         {/* Tags */}
         <div className="flex flex-row gap-2.5 mb-3">
-          {event.tags.map((item: Event) => (
+          {event.tags.map((item: string) => (
             <div
-              key={item._id}
+              key={item}
               className="bg-[#3d85c6] text-white px-2 py-1 rounded-[10px]"
             >
               {item}
@@ -152,11 +144,11 @@ const EventCard = ({ event }: EventCardProps) => {
         {/* Images */}
         {event.images.length > 0 && (
           <div className="flex gap-2.5 h-[260px] overflow-auto p-2.5 mb-3">
-            {event.images.map((item: Event) => (
+            {event.images.map((item: { path: string }) => (
               <img
-                key={item._id}
+                key={item.path}
                 src={item.path}
-                alt={`image-${item._id}`}
+                alt={`image-${item.path}`}
                 className="rounded-[10px] shadow-[0_0_3px_black]"
               />
             ))}

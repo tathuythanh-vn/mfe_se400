@@ -46,7 +46,7 @@ export {
 // Re-export the chapter API hooks for use in other microfrontends
 export {
   useGetChaptersInPageQuery,
-  useGetChapterStatisticQuery,
+  useGetStatisticQuery,
   useGetChapterByIdQuery,
   useCreateChapterMutation,
   useUpdateChapterByIdMutation,
@@ -82,5 +82,15 @@ export {
   useCheckInToEventMutation,
   useCancelEventRegistrationMutation,
 } from './services/eventRegistration';
+
+// Re-export TypeScript interfaces for use in other microfrontends
+export type { Event, EventImage } from './interfaces/event';
+export type { Chapter } from './interfaces/chapter';
+export type { Comment } from './interfaces/comment';
+export type { Favorite } from './interfaces/favorite';
+export type {
+  EventRegistration,
+  MyEvent,
+} from './interfaces/eventRegistration';
 
 export default store;

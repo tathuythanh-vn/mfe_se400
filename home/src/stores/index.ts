@@ -6,6 +6,7 @@ import { eventApi } from './services/event';
 import { commentApi } from './services/comment';
 import { favoriteApi } from './services/favorite';
 import { eventRegistrationApi } from './services/eventRegistration';
+import { documentApi } from './services/document';
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     [commentApi.reducerPath]: commentApi.reducer,
     [favoriteApi.reducerPath]: favoriteApi.reducer,
     [eventRegistrationApi.reducerPath]: eventRegistrationApi.reducer,
+    [documentApi.reducerPath]: documentApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -24,6 +26,7 @@ export const store = configureStore({
       commentApi.middleware,
       favoriteApi.middleware,
       eventRegistrationApi.middleware,
+      documentApi.middleware,
     ),
 });
 
@@ -83,6 +86,15 @@ export {
   useCancelEventRegistrationMutation,
 } from './services/eventRegistration';
 
+// Re-export the document API hooks for use in other microfrontends
+export {
+  useGetDocumentsInPageQuery,
+  useGetDocumentByIdQuery,
+  useCreateDocumentMutation,
+  useUpdateDocumentByIdMutation,
+  useGetDocumentStatisticQuery,
+} from './services/document';
+
 // Re-export TypeScript interfaces for use in other microfrontends
 export type { Event, EventImage } from './interfaces/event';
 export type { Chapter } from './interfaces/chapter';
@@ -92,5 +104,6 @@ export type {
   EventRegistration,
   MyEvent,
 } from './interfaces/eventRegistration';
+export type { Document } from './interfaces/document';
 
 export default store;

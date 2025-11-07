@@ -3,6 +3,7 @@ import {
   Route,
   RouterProvider,
   Routes,
+  Navigate,
 } from 'react-router-dom';
 import MainLayout from 'home/MainLayout';
 import News from '../pages/News';
@@ -12,7 +13,7 @@ import '../App.css';
 const memberRoutes = [
   {
     path: '/',
-    element: <News />,
+    element: <Navigate to="news" replace />,
   },
   {
     path: 'news',

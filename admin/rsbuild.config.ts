@@ -11,6 +11,12 @@ export default defineConfig({
     assetPrefix: 'http://localhost:3002/',
   },
 
+ source: {
+    define: {
+      'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL),
+    },
+  },
+
   plugins: [
     pluginReact(),
     pluginModuleFederation({

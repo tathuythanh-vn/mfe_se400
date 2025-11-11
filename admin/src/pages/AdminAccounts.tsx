@@ -241,7 +241,7 @@ export default function AdminAccounts() {
     pending: "Chờ duyệt",
   };
 
-  // ✅ ĐÚNG – đọc biến môi trường từ Rsbuild
+  // ✅ Đọc API từ biến môi trường Rsbuild
   const API_URL = import.meta.env.VITE_BACKEND_URL;
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -250,62 +250,54 @@ export default function AdminAccounts() {
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
-  const [accountId, setAccountId] = useState("");
-  const [openDetails, setOpenDetails] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!API_URL) {
+      console.error("Lỗi: VITE_BACKEND_URL không tồn tại!");
+      return;
+    }
+
     const controller = new AbortController();
-    let retryInterval: any = null;
-    let timeout: any = null;
-    let isMounted = true;
 
     const fetchAccounts = async () => {
+      setLoading(true);
+
       try {
-        // ✅ URL CHUẨN
         const url = `${API_URL}/accounts?page=${currentPage}&limit=6&search=${search}&role=${role}&status=${status}`;
+        console.log("Fetching:", url);
 
         const res = await fetch(url, { signal: controller.signal });
 
-        // ✅ Nếu backend lỗi, res trả về HTML => tránh lỗi JSON
+        // Nếu server trả về HTML => báo lỗi (không thể parse JSON)
         const contentType = res.headers.get("content-type") || "";
         if (!contentType.includes("application/json")) {
-          console.error("Server trả về HTML, URL:", url);
+          console.error("Server trả về HTML, không phải JSON:", url);
           setLoading(false);
           return;
         }
 
         const result = await res.json();
 
-        if (isMounted && result.success && result.data?.accounts) {
-          clearInterval(retryInterval);
-          clearTimeout(timeout);
+        if (result.success && result.data?.accounts) {
           setData(result.data.accounts);
           setTotalPages(result.data.totalPages);
-          setLoading(false);
+        } else {
+          setData([]);
         }
       } catch (err: any) {
-        if (err.name !== "AbortError") console.error(err);
+        if (err.name !== "AbortError") {
+          console.error("Fetch error:", err);
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
-    setLoading(true);
     fetchAccounts();
 
-    retryInterval = setInterval(fetchAccounts, 5000);
-
-    timeout = setTimeout(() => {
-      clearInterval(retryInterval);
-      setLoading(false);
-    }, 60000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(retryInterval);
-      clearTimeout(timeout);
-      controller.abort();
-    };
-  }, [search, currentPage, role, status, openDetails]);
+    return () => controller.abort();
+  }, [API_URL, currentPage, search, role, status]);
 
   return (
     <div className="w-full h-full flex flex-col items-center p-5 gap-10 box-border">
@@ -383,10 +375,6 @@ export default function AdminAccounts() {
               <div
                 key={item._id}
                 className="flex p-4 border-b hover:bg-blue-100 cursor-pointer items-center"
-                onClick={() => {
-                  setAccountId(item._id);
-                  setOpenDetails(true);
-                }}
               >
                 <div style={{ flex: fields[0].flex }} className="text-center pr-10">
                   {index + 1 + (currentPage - 1) * 6}

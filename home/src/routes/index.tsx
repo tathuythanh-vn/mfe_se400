@@ -18,6 +18,12 @@ const MemberContent = lazy(() =>
   })),
 );
 
+const AdminContent = lazy(() =>
+  import('admin/AdminContent').catch(() => ({
+    default: () => <div>Admin service is not available</div>,
+  })),
+);
+
 export const router = createBrowserRouter([
   {
     path: '',
@@ -35,7 +41,7 @@ export const router = createBrowserRouter([
     path: '/admin/*',
     element: (
       <Suspense fallback={<Loading message="Loading admin panel..." />}>
-        <AuthContent />
+        <AdminContent />
       </Suspense>
     ),
   },

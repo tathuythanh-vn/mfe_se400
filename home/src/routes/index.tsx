@@ -3,17 +3,18 @@ import App from '../App';
 import { Suspense, lazy } from 'react';
 import RoleGuard from '../components/auth/RoleGuard';
 import { ROLE } from '../constants/nav-items';
+import { Loading, ErrorPage } from '../pages';
 
 // Lazy load remote apps to handle loading errors gracefully
 const AuthContent = lazy(() =>
   import('auth/AuthContent').catch(() => ({
-    default: () => <div>Auth service is not available</div>,
+    default: () => <ErrorPage message="Auth service is not available" />,
   })),
 );
 
 const MemberContent = lazy(() =>
   import('member/MemberContent').catch(() => ({
-    default: () => <div>Member service is not available</div>,
+    default: () => <ErrorPage message="Member service is not available" />,
   })),
 );
 
@@ -25,7 +26,7 @@ export const router = createBrowserRouter([
   {
     path: '/auth/*',
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loading message="Loading authentication..." />}>
         <AuthContent />
       </Suspense>
     ),
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin/*',
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loading message="Loading admin panel..." />}>
         <AuthContent />
       </Suspense>
     ),
@@ -41,7 +42,7 @@ export const router = createBrowserRouter([
   {
     path: '/manager/*',
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loading message="Loading manager panel..." />}>
         <AuthContent />
       </Suspense>
     ),
@@ -49,7 +50,7 @@ export const router = createBrowserRouter([
   {
     path: '/member/*',
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loading message="Loading member area..." />}>
         <RoleGuard roles={[ROLE.MEMBER]}>
           <MemberContent />
         </RoleGuard>
@@ -59,7 +60,7 @@ export const router = createBrowserRouter([
   {
     path: '/chat/*',
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loading message="Loading chat..." />}>
         <AuthContent />
       </Suspense>
     ),

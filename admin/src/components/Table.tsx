@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import avatar from "../../assets/avatar.png";
 import { formatDisplayValue, formatUtcDateToDDMMYYYY } from "../utils/index";
+import AccountDetails from "../components/AccountDetails";
+import { createPortal } from "react-dom";
+
 // import AccountForm from "../Form/AccountForm/AccountForm";
 // import ChapterForm from "../Form/ChapterForm/ChapterForm";
 // import EventForm from "../Form/EventForm/EventForm";
@@ -89,7 +92,10 @@ const Table: React.FC<TableProps> = ({ name, data, startIndex }) => {
         {data?.map((item, index) => (
           <div
             key={index}
-            className="flex px-4 py-2 border-b border-gray-100 items-center gap-3 cursor-pointer hover:bg-blue-100 rounded-lg text-center h-12"
+            // className="flex px-4 py-2 border-b border-gray-100 items-center gap-3 cursor-pointer hover:bg-blue-100 rounded-lg text-center h-12"
+            className="flex px-4 py-2 border border-red-500 relative z-50 
+             border-b border-gray-100 items-center gap-3 cursor-pointer 
+             hover:bg-blue-100 rounded-lg text-center h-12"
             onClick={() => { setId(item._id); setOpenDetails(true); }}
           >
             {fields.map((col, i) => (
@@ -115,18 +121,16 @@ const Table: React.FC<TableProps> = ({ name, data, startIndex }) => {
       {/* {openDetails && (
         <>
           {(name === "account" || name === "member") && (
-            <AccountForm id={id} setOpen={setOpenDetails} />
-          )}
-
-          {name === "chapter" && (
-            <ChapterForm id={id} setOpen={setOpenDetails} />
-          )}
-
-          {name === "event" && (
-            <EventForm id={id} setOpen={setOpenDetails} />
+            <AccountDetails id={id} setOpen={setOpenDetails} />
           )}
         </>
-      )} */}
+      )}  */}
+      {openDetails &&
+  createPortal(
+    <AccountDetails id={id} setOpen={setOpenDetails} />,
+    document.body
+  )
+}
     </>
   );
 };

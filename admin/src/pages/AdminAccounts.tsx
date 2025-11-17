@@ -222,6 +222,7 @@ import React, { useEffect, useState } from "react";
 import avatar from "../assests/avatar.png";
 import Pagination from "../components/Pagination";
 import ClipLoader from "react-spinners/ClipLoader";
+import AccountDetails from "../components/AccountDetails";
 
 export default function AdminAccounts() {
   const fields = [
@@ -251,6 +252,10 @@ export default function AdminAccounts() {
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+
+const [selectedId, setSelectedId] = useState<string | null>(null);
+const [openDetails, setOpenDetails] = useState(false);
+
 
   useEffect(() => {
     if (!API_URL) {
@@ -372,10 +377,14 @@ export default function AdminAccounts() {
             </div>
           ) : (
             data.map((item, index) => (
-              <div
-                key={item._id}
-                className="flex p-4 border-b hover:bg-blue-100 cursor-pointer items-center"
-              >
+<div
+  key={item._id}
+  className="flex p-4 border-b hover:bg-blue-100 cursor-pointer items-center"
+  onClick={() => {
+    setSelectedId(item._id);
+    setOpenDetails(true);
+  }}
+>
                 <div style={{ flex: fields[0].flex }} className="text-center pr-10">
                   {index + 1 + (currentPage - 1) * 6}
                 </div>
@@ -429,6 +438,13 @@ export default function AdminAccounts() {
         setCurrentPage={setCurrentPage}
         totalPages={totalPages}
       />
+
+{openDetails && selectedId && (
+  <AccountDetails
+    id={selectedId}
+    setOpen={setOpenDetails}   // ⬅️ truyền đúng props modal cần
+  />
+)}
     </div>
   );
 }

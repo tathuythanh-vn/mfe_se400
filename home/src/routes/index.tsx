@@ -17,6 +17,13 @@ const MemberContent = lazy(() =>
   })),
 );
 
+const AdminContent = lazy(() =>
+  import('admin/AdminContent').catch(() => ({
+    default: () => <div>Admin service is not available</div>,
+  }))
+);
+
+
 export const router = createBrowserRouter([
   {
     path: '',
@@ -30,14 +37,14 @@ export const router = createBrowserRouter([
       </Suspense>
     ),
   },
-  {
-    path: '/admin/*',
-    element: (
-      <Suspense fallback={<div>Loading...</div>}>
-        <AuthContent />
-      </Suspense>
-    ),
-  },
+{
+  path: '/admin/*',
+  element: (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AdminContent />
+    </Suspense>
+  ),
+},
   {
     path: '/manager/*',
     element: (

@@ -132,7 +132,7 @@ function AdminLayout() {
 const standaloneRouter = createBrowserRouter(
   [
     {
-      path: "/admin",  // ✅ đường dẫn gốc khi standalone
+      path: "/admin",  // đường dẫn gốc khi standalone
       element: <AdminLayout />,
       children: [
         { path: "accounts", element: <AdminAccounts /> },
@@ -140,7 +140,7 @@ const standaloneRouter = createBrowserRouter(
     },
   ],
   {
-    basename: "/admin", 
+    basename: "/", 
   }
 );
 

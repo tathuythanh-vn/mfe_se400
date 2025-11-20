@@ -30,33 +30,7 @@ const [chapters, setChapters] = useState<ChapterOption[]>([]);
 
   // ===========================
   // UPDATE ACCOUNT
-  // ===========================
-  // const handleUpdate = async () => {
-  //   setUpdating(true);
-  //   try {
-  //     const formData = new FormData();
-  //     for (const key in update) {
-  //       formData.append(key, update[key]);
-  //     }
-
-  //     const res = await fetch(`${import.meta.env.VITE_APP_SERVER_URL}/accounts/${id}`, {
-  //       method: "PUT",
-  //       body: formData,
-  //     });
-
-  //     const result = await res.json();
-  //     console.log("FETCH ACCOUNT DETAILS RESULT:", result);
-
-
-  //     result.success
-  //       ? toast.success("Cập nhật thành công.")
-  //       : toast.error(result.message || "Cập nhật thất bại.");
-  //   } catch {
-  //     toast.error("Cập nhật thất bại.");
-  //   } finally {
-  //     setUpdating(false);
-  //   }
-  // };
+  // ==========================
 
   const handleUpdate = async () => {
   setUpdating(true);
@@ -104,21 +78,6 @@ const [chapters, setChapters] = useState<ChapterOption[]>([]);
       try {
         const res = await fetch(`${API_URL}/accounts/${id}`);
         const result = await res.json();
-// setData({
-//   ...result.data,
-//   infoMember: {
-//     memberOf: result.data.memberOf ?? "",
-//     cardCode: result.data.cardCode ?? "",
-//     joinedAt: result.data.joinedAt ?? "",
-//     position: result.data.position ?? "",
-//     address: result.data.address ?? "",
-//     hometown: result.data.hometown ?? "",
-//     ethnicity: result.data.ethnicity ?? "",
-//     religion: result.data.religion ?? "",
-//     eduLevel: result.data.eduLevel ?? "",
-//   }
-// });
-
  const info = {
         memberOf: result.data.memberOf ?? "",
         cardCode: result.data.cardCode ?? "",

@@ -3,7 +3,7 @@ import { IoAddCircle } from "react-icons/io5";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import Pagination from "../components/Pagination";
-// import ChapterDetails from "../../../../components/ChapterDetails/ChapterDetails";
+import ChapterDetails from "../components/ChapterDetails";
 import AddChapter from "../components/AddChapter";
 
 import avatar from "../assests/avatar.png";
@@ -149,7 +149,7 @@ if (isMounted && result.data) {
           <IoAddCircle
             onClick={() => setOpenAdd(true)}
             size={55}
-            className="absolute right-[-70px] top-1 cursor-pointer text-blue-800 active:scale-95"
+            className="absolute right-[-70px] top-6 cursor-pointer text-blue-800 active:scale-95"
           />
         </div>
       </div>
@@ -247,9 +247,9 @@ if (isMounted && result.data) {
       />
 
       {/* ==================== MODALS ==================== */}
-      {/* {openDetails && (
+      {openDetails && (
         <ChapterDetails id={chapterId} open={setOpenDetails} />
-      )} */}
+      )}
 
       {openAdd && <AddChapter open={setOpenAdd} />} 
     </div>

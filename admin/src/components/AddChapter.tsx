@@ -8,6 +8,9 @@ interface AddChapterProps {
   open: (value: boolean) => void;   // 👈 FIX lỗi any
 }
 
+  const API_URL = import.meta.env.VITE_BACKEND_URL;
+
+
 export default function AddChapter({ open }: AddChapterProps) {
   const [data, setData] = useState({
     name: "",
@@ -23,44 +26,49 @@ export default function AddChapter({ open }: AddChapterProps) {
     setData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleAdd = async () => {
-     const error = validateChapterForm(data);
-    if (error) {
-      toast.error(error);
-      return;
+const handleAdd = async () => {
+  console.log("API_URL:", API_URL);
+  console.log("DATA:", data);
+  console.log("POST URL:", `${API_URL}/chapters`);
+
+
+  const error = validateChapterForm(data);
+  if (error) {
+    toast.error(error);
+    return;
+  }
+
+  setAdding(true);
+
+  try {
+    const res = await fetch(`${API_URL}/chapters`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+    console.log("API result:", result);
+
+    if (result.success) {
+      toast.success("Thêm chi đoàn thành công.");
+      setData({
+        name: "",
+        address: "",
+        affiliated: "",
+        establishedAt: "",
+      });
+      open(false);
+    } else {
+      toast.error(result.message || "Thêm chi đoàn thất bại.");
     }
-
-    setAdding(true);
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/chapters`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
-
-      const result = await res.json();
-
-      if (result.success) {
-        toast.success("Thêm chi đoàn thành công.");
-        setData({
-          name: "",
-          address: "",
-          affiliated: "",
-          establishedAt: "",
-        });
-      } else {
-        toast.error(result.message || "Thêm chi đoàn thất bại.");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Lỗi khi thêm chi đoàn.");
-    } finally {
-      setAdding(false);
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Lỗi khi thêm chi đoàn.");
+  } finally {
+    setAdding(false);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">

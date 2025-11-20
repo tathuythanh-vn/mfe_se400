@@ -4,7 +4,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 
 import Pagination from "../components/Pagination";
 // import ChapterDetails from "../../../../components/ChapterDetails/ChapterDetails";
-// import AddChapter from "../../../../components/AddChapter/AddChapter";
+import AddChapter from "../components/AddChapter";
 
 import avatar from "../assests/avatar.png";
 
@@ -176,60 +176,6 @@ if (isMounted && result.data) {
           ) : data.length === 0 ? (
             <p className="text-center py-10 text-gray-600">Không có dữ liệu</p>
           ) : (
-            // data.map((item: any, index: number) => (
-            //   <div
-            //     key={item._id}
-            //     onClick={() => {
-            //       setChapterId(item._id);
-            //       setOpenDetails(true);
-            //     }}
-            //     className="flex px-4 py-4 border-b hover:bg-blue-50 cursor-pointer items-center"
-            //   >
-            //     {/* STT */}
-            //     <div className="flex justify-center" style={{ flex: fields[0].flex }}>
-            //       {index + 1 + (currentPage - 1) * 6}
-            //     </div>
-
-            //     {/* Tên chi đoàn */}
-            //     <div style={{ flex: fields[1].flex }}>{item.name}</div>
-
-            //     {/* Đoàn trực thuộc */}
-            //     <div style={{ flex: fields[2].flex }}>{item.affiliated}</div>
-
-            //     {/* Người quản lý */}
-            //     <div style={{ flex: fields[3].flex }}>
-            //       {item.fullname ? (
-            //         <div className="flex items-center gap-3">
-            //           <img
-            //             src={item.avatar || avatar}
-
-            //             className="w-10 h-10 rounded-full object-cover"
-            //           />
-            //           <p>{item.fullname}</p>
-            //         </div>
-            //       ) : (
-            //         <p>Không</p>
-            //       )}
-            //     </div>
-
-            //     {/* Trạng thái */}
-            //     <div
-            //       style={{ flex: fields[4].flex }}
-            //       className="flex items-center font-medium"
-            //     >
-            //       <span
-            //         className={`w-3 h-3 rounded-full mr-2 ${
-            //           item.status === "active"
-            //             ? "bg-green-500"
-            //             : item.status === "locked"
-            //             ? "bg-red-500"
-            //             : "bg-yellow-500"
-            //         }`}
-            //       ></span>
-            //       {mapStatus[item.status]}
-            //     </div>
-            //   </div>
-            // ))
             data.map((item: any, index: number) => {
   const avatarSrc = item.avatar ? item.avatar : avatar;
 
@@ -303,9 +249,9 @@ if (isMounted && result.data) {
       {/* ==================== MODALS ==================== */}
       {/* {openDetails && (
         <ChapterDetails id={chapterId} open={setOpenDetails} />
-      )}
+      )} */}
 
-      {openAdd && <AddChapter open={setOpenAdd} />} */}
+      {openAdd && <AddChapter open={setOpenAdd} />} 
     </div>
   );
 }

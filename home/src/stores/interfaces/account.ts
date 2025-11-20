@@ -88,3 +88,37 @@ export interface GetAccountsResponse {
     totalPages: number;
   } | null;
 }
+
+export interface UpdateAccountRequest {
+  email?: string;
+  phone?: string;
+  fullname?: string;
+  birthday?: string;
+  gender?: Gender;
+  role?: Role;
+  status?: AccountStatus;
+
+  avatar?: {
+    path: string;
+  } | null;
+
+  infoMember?: {
+    memberOf?: string | null;
+    cardCode?: string | null;
+    joinedAt?: string | null;
+    position?: "secretary" | "deputy_secretary" | "committee_member" | "member" | null;
+    address?: string | null;
+    hometown?: string | null;
+    ethnicity?: string | null;
+    religion?: string | null;
+    eduLevel?: string | null;
+  } | null;
+
+  managerOf?: string | null;
+}
+
+export interface UpdateAccountResponse {
+  success: boolean;
+  message: string; // "Cập nhật tài khoản thành công"
+  data?: undefined;
+}

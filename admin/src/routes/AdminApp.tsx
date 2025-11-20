@@ -108,6 +108,8 @@
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import AdminSidebar from "../components/Adminsidebar";
 import AdminAccounts from "../pages/AdminAccounts";
+import AdminChapters from "../pages/AdminChapters";
+import RequestAccount from "../pages/RequestAccount";
 
 type AdminAppProps = {
   standalone?: boolean;
@@ -132,15 +134,17 @@ function AdminLayout() {
 const standaloneRouter = createBrowserRouter(
   [
     {
-      path: "/admin",  // ✅ đường dẫn gốc khi standalone
+      path: "/admin",  // đường dẫn gốc khi standalone
       element: <AdminLayout />,
       children: [
         { path: "accounts", element: <AdminAccounts /> },
+        { path: "chapters", element: <AdminChapters /> },
+        { path: "request-accounts", element: <RequestAccount /> },
       ],
     },
   ],
   {
-    basename: "/admin", 
+    basename: "/", 
   }
 );
 

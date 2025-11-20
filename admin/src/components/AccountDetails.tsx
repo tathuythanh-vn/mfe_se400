@@ -6,6 +6,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 
 
 import type { Account } from "../../../home/src/stores/interfaces/account";
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 type AccountDetailsProps = {
   id: string;
@@ -29,31 +30,43 @@ const [chapters, setChapters] = useState<ChapterOption[]>([]);
 
   // ===========================
   // UPDATE ACCOUNT
-  // ===========================
+  // ==========================
+
   const handleUpdate = async () => {
-    setUpdating(true);
-    try {
-      const formData = new FormData();
-      for (const key in update) {
-        formData.append(key, update[key]);
+  setUpdating(true);
+  try {
+    const formData = new FormData();
+
+    for (const key in update) {
+      const value = update[key];
+
+      if (key === "infoMember") {
+        formData.append("infoMember", JSON.stringify(value)); // ⭐ FIX QUAN TRỌNG
+      } else {
+        formData.append(key, value);
       }
-
-      const res = await fetch(`${import.meta.env.VITE_APP_SERVER_URL}/api/accounts/${id}`, {
-        method: "PUT",
-        body: formData,
-      });
-
-      const result = await res.json();
-
-      result.success
-        ? toast.success("Cập nhật thành công.")
-        : toast.error(result.message || "Cập nhật thất bại.");
-    } catch {
-      toast.error("Cập nhật thất bại.");
-    } finally {
-      setUpdating(false);
     }
-  };
+
+    const res = await fetch(`${API_URL}/accounts/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      body: formData,
+    });
+
+    const result = await res.json();
+    console.log("FETCH ACCOUNT DETAILS RESULT:", result);
+
+    result.success
+      ? toast.success("Cập nhật thành công.")
+      : toast.error(result.message || "Cập nhật thất bại.");
+  } catch (err) {
+    console.log(err);
+    toast.error("Cập nhật thất bại.");
+  } finally {
+    setUpdating(false);
+  }
+};
+
 
   // ===========================
   // FETCH ACCOUNT DETAILS
@@ -63,9 +76,33 @@ const [chapters, setChapters] = useState<ChapterOption[]>([]);
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${import.meta.env.VITE_APP_SERVER_URL}/api/accounts/${id}`);
+        const res = await fetch(`${API_URL}/accounts/${id}`);
         const result = await res.json();
-        setData(result.data);
+ const info = {
+        memberOf: result.data.memberOf ?? "",
+        cardCode: result.data.cardCode ?? "",
+        joinedAt: result.data.joinedAt ?? "",
+        position: result.data.position ?? "",
+        address: result.data.address ?? "",
+        hometown: result.data.hometown ?? "",
+        ethnicity: result.data.ethnicity ?? "",
+        religion: result.data.religion ?? "",
+        eduLevel: result.data.eduLevel ?? "",
+      };
+
+      setData({
+        ...result.data,
+        infoMember: info,
+      });
+
+      setUpdate({
+        ...result.data,
+        infoMember: info,
+      });
+
+console.log("ACCOUNT DETAIL RAW:", result.data);
+
+
       } catch {
         toast.error("Không thể tải dữ liệu người dùng.");
       } finally {
@@ -82,7 +119,9 @@ const [chapters, setChapters] = useState<ChapterOption[]>([]);
     const fetchChapters = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_APP_SERVER_URL}/api/chapters?page=1&limit=10000`
+          // `${import.meta.env.VITE_APP_SERVER_URL}/api/chapters?page=1&limit=10000`
+`${API_URL}/chapters?page=1&limit=10000`
+
         );
         const result = await res.json();
         setChapters(

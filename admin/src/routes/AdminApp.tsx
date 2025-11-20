@@ -108,6 +108,7 @@
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import AdminSidebar from "../components/Adminsidebar";
 import AdminAccounts from "../pages/AdminAccounts";
+import AdminChapters from "../pages/AdminChapters";
 
 type AdminAppProps = {
   standalone?: boolean;
@@ -136,6 +137,7 @@ const standaloneRouter = createBrowserRouter(
       element: <AdminLayout />,
       children: [
         { path: "accounts", element: <AdminAccounts /> },
+        { path: "chapters", element: <AdminChapters /> },
       ],
     },
   ],

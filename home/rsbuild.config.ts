@@ -25,9 +25,11 @@ export default defineConfig({
     pluginModuleFederation({
       name: 'home',
       filename: 'remoteEntry.js',
+      dts: false,
       remotes: {
         auth: 'auth@http://localhost:3001/remoteEntry.js',
         member: 'member@http://localhost:3004/remoteEntry.js',
+        admin: 'admin@http://localhost:3002/remoteEntry.js',
       },
       exposes: {
         './MainLayout': './src/components/MainLayout.tsx',

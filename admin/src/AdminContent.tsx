@@ -1,11 +1,11 @@
-import AdminSidebar from "./components/Adminsidebar";
+import Sidebar from "../../home/src/components/sidebar/Sidebar";
 import { Outlet } from "react-router-dom";
 
 export default function AdminContent() {
   return (
     <div className="flex">
       {/* Sidebar */}
-      <AdminSidebar />
+      <Sidebar />
 
       {/* Nội dung chính */}
       {/* <div className="flex-1 bg-gray-50 min-h-screen"> */}

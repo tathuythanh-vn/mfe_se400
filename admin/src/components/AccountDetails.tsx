@@ -451,3 +451,411 @@ function Select({ label, id, value, onChange, options, disabled = false }: any) 
     </div>
   );
 }
+
+// import React, { useEffect, useMemo, useState } from "react";
+// import { IoCloseCircle } from "react-icons/io5";
+// import avatarDefault from "../assests/avatar.png";
+// import ClipLoader from "react-spinners/ClipLoader";
+// import { toast } from "react-toastify";
+
+// // RTK Query Hooks
+// import {
+//   useGetAccountByIdQuery,
+//   useUpdateAccountMutation,
+// } from "../../../home/src/stores/services/account";
+
+// import { useGetChaptersInPageQuery } from "../../../home/src/stores/services/chapter";
+
+// export default function AccountDetails({
+//   id,
+//   setOpen,
+//   profile = false,
+// }: {
+//   id: string;
+//   setOpen: (v: boolean) => void;
+//   profile?: boolean;
+// }) {
+//   // ============================
+//   // FETCH ACCOUNT DETAILS
+//   // ============================
+//   const { data: accountData, isLoading } = useGetAccountByIdQuery(id);
+
+//   // ============================
+//   // FETCH CHAPTERS
+//   // ============================
+// const { data: chapterData } = useGetChaptersInPageQuery();
+
+//   // ============================
+//   // UPDATE ACCOUNT
+//   // ============================
+//   const [updateAccount, { isLoading: updating }] = useUpdateAccountMutation();
+
+// const [form, setForm] = useState<{
+//   avatar?: any;
+//   infoMember?: any;
+//   [key: string]: any;
+// }>({});
+//   const [avatar, setAvatar] = useState<File | null>(null);
+
+//   // ============================
+//   // INIT DATA
+//   // ============================
+//   useEffect(() => {
+//   if (!accountData) return;
+
+//   const d = accountData.data || accountData;
+
+//   const info = {
+//     memberOf: d.memberOf ?? "",
+//     cardCode: d.cardCode ?? "",
+//     joinedAt: d.joinedAt ?? "",
+//     position: d.position ?? "",
+//     address: d.address ?? "",
+//     hometown: d.hometown ?? "",
+//     ethnicity: d.ethnicity ?? "",
+//     religion: d.religion ?? "",
+//     eduLevel: d.eduLevel ?? "",
+//   };
+
+//   setForm({ ...d, infoMember: info });
+// }, [accountData]);
+
+
+//   // ============================
+//   // HANDLE INPUT CHANGE
+//   // ============================
+//   const infoMemberFields = [
+//     "memberOf",
+//     "cardCode",
+//     "joinedAt",
+//     "position",
+//     "address",
+//     "hometown",
+//     "ethnicity",
+//     "religion",
+//     "eduLevel",
+//   ];
+
+// const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+//     const { id, value } = e.target;
+
+//     const isInfo = infoMemberFields.includes(id);
+
+//     setForm((prev) => ({
+//       ...prev,
+//       ...(isInfo
+//         ? {
+//             infoMember: {
+//               ...(prev.infoMember ?? {}),
+//               [id]: value,
+//             },
+//           }
+//         : { [id]: value }),
+//     }));
+//   };
+
+//   // ============================
+//   // HANDLE AVATAR UPLOAD
+//   // ============================
+// const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//   const file = e.target.files?.[0];
+//   if (!file) return;
+
+//   if (file.size > 5 * 1024 * 1024) {
+//     toast.error("Ảnh vượt quá 5MB!");
+//     return;
+//   }
+//   setAvatar(file);
+// };
+
+//   // ============================
+//   // AVATAR PREVIEW
+//   // ============================
+//   const avatarPreview = useMemo(() => {
+//     if (avatar) return URL.createObjectURL(avatar);
+//     return form?.avatar?.path || avatarDefault;
+//   }, [avatar, form]);
+
+//   // ============================
+//   // SUBMIT UPDATE
+//   // ============================
+//   const handleUpdate = async () => {
+//     try {
+//       const formData = new FormData();
+
+//       for (const key in form) {
+//         const value = form[key];
+
+//         if (key === "infoMember") {
+//           formData.append("infoMember", JSON.stringify(value));
+//         } else {
+//           formData.append(key, value);
+//         }
+//       }
+
+//       if (avatar) {
+//         formData.append("avatar", avatar);
+//       }
+
+//       const res = await updateAccount({ id, formData }).unwrap();
+
+//       if (res.success) {
+//         toast.success("Cập nhật thành công!");
+//       } else {
+//         toast.error(res.message || "Cập nhật thất bại");
+//       }
+//     } catch (err) {
+//       toast.error("Lỗi khi cập nhật");
+//     }
+//   };
+
+//   // ============================
+//   // LOADING UI
+//   // ============================
+//   if (isLoading || !form._id) {
+//     return (
+//       <div className="flex flex-col items-center justify-center py-10 gap-4 text-gray-600">
+//         <ClipLoader size={50} />
+//         <p>Đang tải dữ liệu người dùng...</p>
+//       </div>
+//     );
+//   }
+
+//   const chapters =
+//     chapterData?.data?.result?.map((c) => ({
+//       value: c._id,
+//       label: c.name,
+//     })) ?? [];
+
+//   return (
+//     <div className="fixed inset-0 bg-[rgba(0,0,0,0.45)] flex justify-center items-center z-50">
+//       <div className="relative w-4/5 bg-white rounded-2xl p-10 max-h-[90vh] overflow-hidden shadow-xl">
+//         <button
+//           className="absolute top-3 right-3 text-red-500 hover:text-red-600"
+//           onClick={() => setOpen(false)}
+//         >
+//           <IoCloseCircle size={40} />
+//         </button>
+
+//         {/* MAIN CONTENT */}
+//         <div className="overflow-auto max-h-[80vh] pr-3">
+
+//           {/* TOP SECTION */}
+//           <div className="flex gap-6">
+
+//             {/* AVATAR */}
+//             <div className="w-[180px] px-5 flex flex-col items-center gap-5">
+//               <img
+//                 src={avatarPreview}
+//                 title="avater"
+//                 className="w-full aspect-square rounded-full object-cover border shadow-md"
+//               />
+
+//               <label
+//                 htmlFor="avatar"
+//                 className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer"
+//               >
+//                 Thay ảnh đại diện
+//               </label>
+
+//               <input type="file" id="avatar" className="hidden" onChange={handleFileChange} />
+//             </div>
+
+//             {/* INFO */}
+//             <div className="flex-1 flex flex-col gap-5">
+//               <div className="grid grid-cols-2 gap-5">
+//                 <Input label="Họ và tên" id="fullname" value={form.fullname} onChange={handleChange} />
+
+//                 {!profile && (
+//                   <Select
+//                     label="Trạng thái"
+//                     id="status"
+//                     value={form.status}
+//                     onChange={handleChange}
+//                     options={[
+//                       { value: "active", label: "Hoạt động" },
+//                       { value: "locked", label: "Khóa" },
+//                       { value: "pending", label: "Chờ duyệt" },
+//                     ]}
+//                   />
+//                 )}
+//               </div>
+
+//               <div className="grid grid-cols-2 gap-5">
+//                 <Input label="Email" id="email" value={form.email} onChange={handleChange} />
+//                 <Input label="Số điện thoại" id="phone" value={form.phone} onChange={handleChange} />
+//               </div>
+
+//               <div className="grid grid-cols-2 gap-5">
+//                 <Input
+//                   label="Ngày sinh"
+//                   id="birthday"
+//                   type="date"
+//                   value={form.birthday?.substring(0, 10)}
+//                   onChange={handleChange}
+//                 />
+
+//                 <Select
+//                   label="Vai trò"
+//                   id="role"
+//                   disabled={profile}
+//                   value={form.role}
+//                   onChange={handleChange}
+//                   options={[
+//                     { value: "admin", label: "Quản trị viên" },
+//                     { value: "manager", label: "Quản lý chi đoàn" },
+//                     { value: "member", label: "Đoàn viên" },
+//                   ]}
+//                 />
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* MANAGER */}
+//           {form.role === "manager" && (
+//             <div className="mt-4">
+//               <Select
+//                 label="Chi đoàn quản lý"
+//                 id="managerOf"
+//                 value={form.managerOf}
+//                 onChange={handleChange}
+//                 options={chapters}
+//               />
+//             </div>
+//           )}
+
+//           {/* MEMBER */}
+//           {form.role === "member" && (
+//             <div className="grid gap-6 mt-6">
+
+//               <Select
+//                 label="Chi đoàn sinh hoạt"
+//                 id="memberOf"
+//                 value={form.infoMember?.memberOf}
+//                 onChange={handleChange}
+//                 options={chapters}
+//               />
+
+//               <div className="grid grid-cols-3 gap-4">
+//                 <Input
+//                   label="Số thẻ đoàn"
+//                   id="cardCode"
+//                   value={form.infoMember?.cardCode}
+//                   onChange={handleChange}
+//                 />
+//                 <Input
+//                   label="Ngày vào đoàn"
+//                   id="joinedAt"
+//                   type="date"
+//                   value={form.infoMember?.joinedAt?.substring(0, 10)}
+//                   onChange={handleChange}
+//                 />
+//                 <Select
+//                   label="Chức vụ"
+//                   id="position"
+//                   value={form.infoMember?.position}
+//                   onChange={handleChange}
+//                   options={[
+//                     { value: "secretary", label: "Bí thư" },
+//                     { value: "deputy_secretary", label: "Phó Bí thư" },
+//                     { value: "committee_member", label: "Ủy viên BCH" },
+//                     { value: "member", label: "Đoàn viên" },
+//                   ]}
+//                 />
+//               </div>
+
+//               <Input label="Địa chỉ" id="address" value={form.infoMember?.address} onChange={handleChange} />
+//               <Input label="Quê quán" id="hometown" value={form.infoMember?.hometown} onChange={handleChange} />
+
+//               <div className="grid grid-cols-2 gap-4">
+//                 <Input label="Dân tộc" id="ethnicity" value={form.infoMember?.ethnicity} onChange={handleChange} />
+//                 <Input label="Tôn giáo" id="religion" value={form.infoMember?.religion} onChange={handleChange} />
+//               </div>
+
+//               <Input label="Trình độ học vấn" id="eduLevel" value={form.infoMember?.eduLevel} onChange={handleChange} />
+
+//               <div className="flex justify-end">
+//                 <button
+//                   onClick={handleUpdate}
+//                   disabled={updating}
+//                   className="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 disabled:opacity-50"
+//                 >
+//                   {updating ? <ClipLoader size={20} color="#fff" /> : "Lưu"}
+//                 </button>
+//               </div>
+//             </div>
+//           )}
+
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// type InputProps = {
+//   label: string;
+//   id: string;
+//   value: string | number | null | undefined;
+//   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+//   type?: string;
+// };
+
+// function Input({ label, id, value, onChange, type = "text" }: InputProps) {
+//   return (
+//     <div className="flex flex-col gap-1 w-full">
+//       <label className="text-blue-600 font-bold">{label}</label>
+//       <input
+//         id={id}
+//         title="input"
+//         type={type}
+//         value={value || ""}
+//         onChange={onChange}
+//         className="input"
+//       />
+//     </div>
+//   );
+// }
+
+// type SelectOption = {
+//   value: string;
+//   label: string;
+// };
+
+// type SelectProps = {
+//   label: string;
+//   id: string;
+//   value: string | number | null | undefined;
+//   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+//   options: SelectOption[];
+//   disabled?: boolean;
+// };
+
+
+// function Select({
+//   label,
+//   id,
+//   value,
+//   onChange,
+//   options,
+//   disabled = false,
+// }: SelectProps) {
+//   return (
+//     <div className="flex flex-col gap-1 w-full">
+//       <label className="text-blue-600 font-bold">{label}</label>
+//       <select
+//         id={id}
+//         title="select"
+//         value={value || ""}
+//         onChange={onChange}
+//         disabled={disabled}
+//         className="input"
+//       >
+//         {options.map((opt) => (
+//           <option key={opt.value} value={opt.value}>
+//             {opt.label}
+//           </option>
+//         ))}
+//       </select>
+//     </div>
+//   );
+// }

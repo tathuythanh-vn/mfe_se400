@@ -1,43 +1,79 @@
-// src/stores/services/account.ts
+// // src/stores/services/account.ts
+
+// import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+// import type { GetAccountsResponse } from '../interfaces/account';
+
+// // RTK Query service cho Admin Accounts
+// export const accountApi = createApi({
+//   reducerPath: 'accountApi',
+//   tagTypes: ['Account'],
+
+//   baseQuery: fetchBaseQuery({
+//     baseUrl: import.meta.env.VITE_BACKEND_URL + '/accounts',
+//     prepareHeaders: (headers) => {
+//       const token = localStorage.getItem('token');
+//       if (token) {
+//         headers.set('authorization', `Bearer ${token}`);
+//       }
+//       return headers;
+//     },
+//   }),
+
+//   endpoints: (builder) => ({
+//     // ✅ GET: /accounts?page=1&limit=6&search=&role=&status=
+//     getAccounts: builder.query<
+//       GetAccountsResponse,
+//       {
+//         page?: number;
+//         limit?: number;
+//         search?: string;
+//         role?: string;
+//         status?: string;
+//       }
+//     >({
+//       query: ({ page = 1, limit = 6, search = '', role = '', status = '' }) => ({
+//         url: `?page=${page}&limit=${limit}&search=${search}&role=${role}&status=${status}`,
+//       }),
+//       providesTags: ['Account'],
+//     }),
+
+//     // ✅ GET: /accounts/:id
+//     getAccountById: builder.query<GetAccountsResponse, string>({
+//       query: (id) => `/${id}`,
+//       providesTags: ['Account'],
+//     }),
+
+//     // ✅ PUT: /accounts/:id
+//     updateAccountStatus: builder.mutation<
+//       any,
+//       { id: string; status: string }
+//     >({
+//       query: ({ id, status }) => ({
+//         url: `/${id}/status`,
+//         method: 'PUT',
+//         body: { status },
+//       }),
+//       invalidatesTags: ['Account'],
+//     }),
+//   }),
+// });
+
+// // ✅ Tự động tạo hooks
+// export const {
+//   useGetAccountsQuery,
+//   useGetAccountByIdQuery,
+//   useUpdateAccountStatusMutation,
+// } = accountApi;
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type {
-  GetAccountsResponse,
-  UpdateAccountResponse,
-} from '../interfaces/account';
+import type { GetAccountsResponse } from '../interfaces/account';
 
-// Account statistics response
-export interface AccountStatisticResponse {
-  success: boolean;
-  data: {
-    status: {
-      active: number;
-      locked: number;
-      pending: number;
-    };
-    role: {
-      admin: number;
-      manager: number;
-      member: number;
-    };
-    total: number;
-  };
-}
-
-// Single account response
-export interface GetAccountByIdResponse {
-  success: boolean;
-  message: string;
-  data: any; // Combined account + member data
-}
-
-// RTK Query service for Accounts
 export const accountApi = createApi({
   reducerPath: 'accountApi',
-  tagTypes: ['Account', 'AccountStatistic'],
+  tagTypes: ['Account'],
 
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.BACKEND_URL + '/accounts',
+    baseUrl: import.meta.env.VITE_BACKEND_URL + '/accounts',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -48,55 +84,43 @@ export const accountApi = createApi({
   }),
 
   endpoints: (builder) => ({
-    // GET /accounts - Get accounts in page with filters
-    getAccountsInPage: builder.query<
+    // =============================
+    // LIST
+    // =============================
+    getAccounts: builder.query<
       GetAccountsResponse,
-      {
-        page?: number;
-        limit?: number;
-        search?: string;
-        role?: string;
-        status?: string;
-      } | void
+      { page?: number; limit?: number; search?: string; role?: string; status?: string }
     >({
-      query: (params) => {
-        const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.search) queryParams.append('search', params.search);
-        if (params?.role) queryParams.append('role', params.role);
-        if (params?.status) queryParams.append('status', params.status);
-
-        const queryString = queryParams.toString();
-        return queryString ? `/?${queryString}` : '/';
-      },
-      providesTags: (result) =>
-        result?.data
-          ? [
-              ...result.data.accounts.map(({ _id }) => ({
-                type: 'Account' as const,
-                id: _id,
-              })),
-              { type: 'Account', id: 'LIST' },
-            ]
-          : [{ type: 'Account', id: 'LIST' }],
+      query: ({ page = 1, limit = 6, search = '', role = '', status = '' }) =>
+        `?page=${page}&limit=${limit}&search=${search}&role=${role}&status=${status}`,
+      providesTags: ['Account'],
     }),
 
-    // GET /accounts/statistic - Get account statistics
-    getAccountStatistic: builder.query<AccountStatisticResponse, void>({
-      query: () => '/statistic',
-      providesTags: [{ type: 'AccountStatistic' }],
-    }),
-
-    // GET /accounts/:id - Get account by ID (returns merged account + member data)
-    getAccountById: builder.query<GetAccountByIdResponse, string>({
+    // =============================
+    // GET DETAIL
+    // =============================
+    getAccountById: builder.query<any, string>({
       query: (id) => `/${id}`,
-      providesTags: (_result, _error, id) => [{ type: 'Account', id }],
+      providesTags: (res, err, id) => [{ type: 'Account', id }],
     }),
 
-    // PUT /accounts/:id - Update account by ID (with avatar upload)
-    updateAccountById: builder.mutation<
-      UpdateAccountResponse,
+    // =============================
+    // UPDATE STATUS ONLY
+    // =============================
+    updateAccountStatus: builder.mutation<any, { id: string; status: string }>({
+      query: ({ id, status }) => ({
+        url: `/${id}/status`,
+        method: 'PUT',
+        body: { status },
+      }),
+      invalidatesTags: ['Account'],
+    }),
+
+    // =============================
+    // UPDATE FULL
+    // =============================
+    updateAccount: builder.mutation<
+      { success: boolean; message: string },
       { id: string; formData: FormData }
     >({
       query: ({ id, formData }) => ({
@@ -104,19 +128,30 @@ export const accountApi = createApi({
         method: 'PUT',
         body: formData,
       }),
-      invalidatesTags: (_result, _error, { id }) => [
-        { type: 'Account', id },
-        { type: 'Account', id: 'LIST' },
-        { type: 'AccountStatistic' },
-      ],
+      invalidatesTags: (res, err, { id }) => [{ type: 'Account', id }],
+    }),
+
+    // =============================
+    // ⭐ CREATE ACCOUNT
+    // =============================
+    createAccount: builder.mutation<
+      { success: boolean; message: string; data?: any },
+      FormData
+    >({
+      query: (formData) => ({
+        url: `/`,
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['Account'],
     }),
   }),
 });
 
-// Export hooks
 export const {
-  useGetAccountsInPageQuery,
-  useGetAccountStatisticQuery,
+  useGetAccountsQuery,
   useGetAccountByIdQuery,
-  useUpdateAccountByIdMutation,
+  useUpdateAccountStatusMutation,
+  useUpdateAccountMutation,
+  useCreateAccountMutation,      //  hook tạo tài khoản
 } = accountApi;

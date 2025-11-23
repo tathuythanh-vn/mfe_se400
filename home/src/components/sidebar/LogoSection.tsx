@@ -7,7 +7,7 @@ const LogoSection = () => {
       <p className="text-white text-base font-bold text-center">
         HỆ THỐNG QUẢN LÝ ĐOÀN VIÊN
       </p>
-      <hr className="block border border-white w-3/4" />
+      <hr className="block border border-white w-full mx-auto" />
     </div>
   );
 };

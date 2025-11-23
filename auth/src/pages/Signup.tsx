@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useRegisterMutation, useGetChaptersQuery } from 'home/store';
+import { useRegisterMutation, useGetChaptersInPageQuery } from 'home/store';
 
 // TODO: Add logo when available
 // import logo from "../assets/logo.webp";
@@ -25,7 +25,7 @@ export default function Signup() {
   const [register, { isLoading }] = useRegisterMutation();
 
   // Fetch chapters using RTK Query
-  const { data: chaptersData } = useGetChaptersQuery({
+  const { data: chaptersData } = useGetChaptersInPageQuery({
     page: 1,
     limit: 10000,
   });

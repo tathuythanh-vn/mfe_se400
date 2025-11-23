@@ -1,32 +1,38 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { authApi } from './services/auth';
+import { accountApi } from './services/account';
 import { chapterApi } from './services/chapter';
 import { eventApi } from './services/event';
 import { commentApi } from './services/comment';
 import { favoriteApi } from './services/favorite';
 import { eventRegistrationApi } from './services/eventRegistration';
 import { documentApi } from './services/document';
+import { notificationApi } from './services/notification';
 
 export const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
+    [accountApi.reducerPath]: accountApi.reducer,
     [chapterApi.reducerPath]: chapterApi.reducer,
     [eventApi.reducerPath]: eventApi.reducer,
     [commentApi.reducerPath]: commentApi.reducer,
     [favoriteApi.reducerPath]: favoriteApi.reducer,
     [eventRegistrationApi.reducerPath]: eventRegistrationApi.reducer,
     [documentApi.reducerPath]: documentApi.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
+      accountApi.middleware,
       chapterApi.middleware,
       eventApi.middleware,
       commentApi.middleware,
       favoriteApi.middleware,
       eventRegistrationApi.middleware,
       documentApi.middleware,
+      notificationApi.middleware,
     ),
 });
 
@@ -45,6 +51,14 @@ export {
   useLoginMutation,
   useRegisterMutation,
 } from './services/auth';
+
+// Re-export the account API hooks for use in other microfrontends
+export {
+  useGetAccountsInPageQuery,
+  useGetAccountStatisticQuery,
+  useGetAccountByIdQuery,
+  useUpdateAccountByIdMutation,
+} from './services/account';
 
 // Re-export the chapter API hooks for use in other microfrontends
 export {
@@ -95,8 +109,21 @@ export {
   useGetDocumentStatisticQuery,
 } from './services/document';
 
+// Re-export the notification API hooks for use in other microfrontends
+export {
+  useGetNotificationsQuery,
+  useUpdateNotificationsStatusMutation,
+} from './services/notification';
+
 // Re-export TypeScript interfaces for use in other microfrontends
 export type { Event, EventImage } from './interfaces/event';
+export type {
+  Account,
+  InfoMember,
+  Gender,
+  AccountStatus,
+  Role,
+} from './interfaces/account';
 export type { Chapter } from './interfaces/chapter';
 export type { Comment } from './interfaces/comment';
 export type { Favorite } from './interfaces/favorite';
@@ -105,5 +132,6 @@ export type {
   MyEvent,
 } from './interfaces/eventRegistration';
 export type { Document } from './interfaces/document';
+export type { Notification } from './interfaces/notification';
 
 export default store;

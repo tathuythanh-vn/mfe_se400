@@ -3,16 +3,18 @@ import {
   Route,
   RouterProvider,
   Routes,
+  Navigate,
 } from 'react-router-dom';
 import MainLayout from 'home/MainLayout';
 import News from '../pages/News';
 import MemberDocument from '../pages/MemberDocument';
+import MyEvents from '../pages/MyEvents';
 import '../App.css';
 
 const memberRoutes = [
   {
     path: '/',
-    element: <News />,
+    element: <Navigate to="news" replace />,
   },
   {
     path: 'news',
@@ -21,6 +23,10 @@ const memberRoutes = [
   {
     path: 'documents',
     element: <MemberDocument />,
+  },
+  {
+    path: 'my-events',
+    element: <MyEvents />,
   },
 ];
 

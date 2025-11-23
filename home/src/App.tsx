@@ -2,9 +2,8 @@ import './App.css';
 
 const App = () => {
   return (
-    <div className="content">
-      <h1>Rsbuild with React</h1>
-      <p>Start building amazing things with Rsbuild.</p>
+    <div>
+      <h1 className="text-3xl font-bold text-center">This is home page</h1>
     </div>
   );
 };

@@ -115,13 +115,13 @@ type AdminAppProps = {
   standalone?: boolean;
 };
 
-// ✅ Layout chung cho Admin
+// Layout chung cho Admin
 function AdminLayout() {
   return (
     <div className="flex">
       <AdminSidebar />
 
-      {/* ✅ THÊM ml-[360px] để tránh bị che */}
+      {/* THÊM ml-[360px] để tránh bị che */}
       <div className="flex-1 min-h-screen bg-gray-100 p-4 ml-[280px]">
         <Outlet />
       </div>
@@ -130,7 +130,7 @@ function AdminLayout() {
 }
 
 
-// ✅ Router khi chạy standalone (pnpm run dev tại /admin)
+// Router khi chạy standalone (pnpm run dev tại /admin)
 const standaloneRouter = createBrowserRouter(
   [
     {

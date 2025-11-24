@@ -36,6 +36,7 @@ export default defineConfig({
         './SafeComponent': './src/components/SafeComponent.tsx',
         './store': './src/stores/index.ts',
         './styles': './src/App.css',
+        './Sidebar': './src/components/sidebar/Sidebar.tsx',
       },
       shared: [
         'react',

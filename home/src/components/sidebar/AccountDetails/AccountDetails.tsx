@@ -3,7 +3,7 @@ import { X, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import {
   useGetAccountByIdQuery,
-  useUpdateAccountByIdMutation,
+  useUpdateAccountMutation,
   useGetChaptersInPageQuery,
   type Chapter,
 } from '../../../stores';
@@ -50,7 +50,7 @@ export default function AccountDetails({
 
   // Update account mutation
   const [updateAccount, { isLoading: isUpdating }] =
-    useUpdateAccountByIdMutation();
+    useUpdateAccountMutation();
 
   // Access data directly from RTK Query - no useEffect needed!
   const data = accountResponse?.data?.accounts?.[0] || accountResponse?.data;

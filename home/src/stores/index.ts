@@ -53,21 +53,12 @@ export {
 } from './services/auth';
 
 // Re-export the account API hooks for use in other microfrontends
-// export {
-//   useGetAccountsInPageQuery,
-//   useGetAccountStatisticQuery,
-//   useGetAccountByIdQuery,
-//   useUpdateAccountByIdMutation,
-// } from './services/account';
-
 export {
+  useGetAccountsInPageQuery,
+  useGetAccountStatisticQuery,
   useGetAccountByIdQuery,
-  useGetAccountsQuery,
-  useCreateAccountMutation,
-  useUpdateAccountMutation,
-  useUpdateAccountStatusMutation
+  useUpdateAccountByIdMutation,
 } from './services/account';
-
 
 // Re-export the chapter API hooks for use in other microfrontends
 export {
@@ -133,6 +124,7 @@ export type {
   AccountStatus,
   Role,
 } from './interfaces/account';
+
 export type { Chapter } from './interfaces/chapter';
 export type { Comment } from './interfaces/comment';
 export type { Favorite } from './interfaces/favorite';

@@ -36,7 +36,6 @@
 // const [selectedId, setSelectedId] = useState<string | null>(null);
 // const [openDetails, setOpenDetails] = useState(false);
 
-
 //   useEffect(() => {
 //     if (!API_URL) {
 //       console.error("Lỗi: VITE_BACKEND_URL không tồn tại!");
@@ -229,47 +228,43 @@
 //   );
 // }
 
-import React, { useState } from "react";
-import avatar from "../assests/avatar.png";
-import Pagination from "../components/Pagination";
-import ClipLoader from "react-spinners/ClipLoader";
-import AccountDetails from "../components/AccountDetails";
+import React, { useState } from 'react';
+import avatar from '../assests/avatar.png';
+import Pagination from '../components/Pagination';
+import ClipLoader from 'react-spinners/ClipLoader';
+import AccountDetails from '../components/AccountDetails';
 
-import { useGetAccountsQuery } from "home/store";
+import { useGetAccountsInPageQuery } from 'home/store';
 
 export default function AdminAccounts() {
   const fields = [
-    { flex: 1, field: "STT" },
-    { flex: 4, field: "Họ và tên" },
-    { flex: 4, field: "Email" },
-    { flex: 2, field: "Vai trò" },
-    { flex: 2, field: "Trạng thái" },
+    { flex: 1, field: 'STT' },
+    { flex: 4, field: 'Họ và tên' },
+    { flex: 4, field: 'Email' },
+    { flex: 2, field: 'Vai trò' },
+    { flex: 2, field: 'Trạng thái' },
   ];
 
   const mapFields: Record<string, string> = {
-    admin: "Quản trị viên",
-    manager: "Quản lý chi đoàn",
-    member: "Đoàn viên",
-    active: "Hoạt động",
-    locked: "Khóa",
-    pending: "Chờ duyệt",
+    admin: 'Quản trị viên',
+    manager: 'Quản lý chi đoàn',
+    member: 'Đoàn viên',
+    active: 'Hoạt động',
+    locked: 'Khóa',
+    pending: 'Chờ duyệt',
   };
 
   // UI state
   const [currentPage, setCurrentPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [role, setRole] = useState("");
-  const [status, setStatus] = useState("");
+  const [search, setSearch] = useState('');
+  const [role, setRole] = useState('');
+  const [status, setStatus] = useState('');
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [openDetails, setOpenDetails] = useState(false);
 
   // ⬅️ Gọi API bằng RTK Query
-  const {
-    data,
-    isLoading,
-    isFetching
-  } = useGetAccountsQuery({
+  const { data, isLoading, isFetching } = useGetAccountsInPageQuery({
     page: currentPage,
     limit: 6,
     search,
@@ -313,7 +308,7 @@ export default function AdminAccounts() {
         <div className="flex flex-col w-full gap-1">
           <label className="text-blue-800 font-semibold">Trạng thái</label>
           <select
-          title="status"
+            title="status"
             className="h-12 border-2 border-blue-700 rounded-lg px-3 text-blue-700"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
@@ -347,7 +342,7 @@ export default function AdminAccounts() {
               Không có dữ liệu
             </div>
           ) : (
-accounts.map((item: any, index: number) => (
+            accounts.map((item: any, index: number) => (
               <div
                 key={item._id}
                 className="flex p-4 border-b hover:bg-blue-100 cursor-pointer items-center"
@@ -356,11 +351,17 @@ accounts.map((item: any, index: number) => (
                   setOpenDetails(true);
                 }}
               >
-                <div style={{ flex: fields[0].flex }} className="text-center pr-10">
+                <div
+                  style={{ flex: fields[0].flex }}
+                  className="text-center pr-10"
+                >
                   {index + 1 + (currentPage - 1) * 6}
                 </div>
 
-                <div style={{ flex: fields[1].flex }} className="flex items-center gap-3 px-4">
+                <div
+                  style={{ flex: fields[1].flex }}
+                  className="flex items-center gap-3 px-4"
+                >
                   <img
                     src={item.avatar?.path || avatar}
                     alt="Avatar"
@@ -370,29 +371,31 @@ accounts.map((item: any, index: number) => (
                 </div>
 
                 <div style={{ flex: fields[2].flex }}>{item.email}</div>
-                <div style={{ flex: fields[3].flex }}>{mapFields[item.role]}</div>
+                <div style={{ flex: fields[3].flex }}>
+                  {mapFields[item.role]}
+                </div>
 
                 <div style={{ flex: fields[4].flex }}>
                   <p
                     className="flex items-center gap-2"
                     style={{
                       color:
-                        item.status === "active"
-                          ? "green"
-                          : item.status === "locked"
-                          ? "red"
-                          : "#ff8f00",
+                        item.status === 'active'
+                          ? 'green'
+                          : item.status === 'locked'
+                            ? 'red'
+                            : '#ff8f00',
                     }}
                   >
                     <span
                       className="inline-block w-3 h-3 rounded-full"
                       style={{
                         backgroundColor:
-                          item.status === "active"
-                            ? "green"
-                            : item.status === "locked"
-                            ? "red"
-                            : "#ff8f00",
+                          item.status === 'active'
+                            ? 'green'
+                            : item.status === 'locked'
+                              ? 'red'
+                              : '#ff8f00',
                       }}
                     ></span>
                     {mapFields[item.status]}

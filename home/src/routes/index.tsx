@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, useNavigate } from 'react-router-dom';
 import App from '../App';
 import { Suspense, lazy } from 'react';
 import RoleGuard from '../components/auth/RoleGuard';
@@ -49,7 +49,9 @@ export const router = createBrowserRouter([
     path: '/manager/*',
     element: (
       <Suspense fallback={<Loading message="Loading manager panel..." />}>
-        <AuthContent />
+        <RoleGuard roles={[ROLE.MANAGER]}>
+          <AuthContent />
+        </RoleGuard>
       </Suspense>
     ),
   },
@@ -69,6 +71,15 @@ export const router = createBrowserRouter([
       <Suspense fallback={<Loading message="Loading chat..." />}>
         <AuthContent />
       </Suspense>
+    ),
+  },
+  {
+    path: '*',
+    element: (
+      <ErrorPage
+        message="Page not found"
+        onGoHome={() => window.location.replace('/')}
+      />
     ),
   },
 ]);

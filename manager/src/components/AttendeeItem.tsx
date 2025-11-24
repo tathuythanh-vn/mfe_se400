@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import avatar from '../../assets/avatar.png';
+import avatar from "../assets/avatar.png";
+// @ts-ignore - Module Federation remote
+import { useCheckinMutation } from "home/store";
 
 interface AttendeeItemProps {
   item: {
@@ -23,17 +25,17 @@ const mapFields: Record<AttendeeItemProps["item"]["position"], string> = {
 const AttendeeItem: React.FC<AttendeeItemProps> = ({ item }) => {
   const [checkin, setCheckin] = useState(item.status === "attended");
 
+  // Mutation từ RTK Query
+  const [checkinUser, { isLoading }] = useCheckinMutation();
+
   const handleCheckin = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_APP_SERVER_URL}/api/event-registrations/${item._id}`, {
-        method: "PATCH",
-      });
-      const data = await res.json();
-      if (data.success) {
+      const res = await checkinUser(item._id).unwrap();
+      if (res.success) {
         setCheckin(true);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Checkin error:", error);
     }
   };
 
@@ -62,13 +64,14 @@ const AttendeeItem: React.FC<AttendeeItemProps> = ({ item }) => {
 
       <div className="min-w-[120px] text-right">
         {checkin ? (
-          <p className="text-green-600 font-bold">✅ Đã có mặt</p>
+          <p className="text-green-600 font-bold">Đã có mặt</p>
         ) : (
           <button
             onClick={handleCheckin}
-            className="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-md"
+            disabled={isLoading}
+            className="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-md disabled:opacity-50"
           >
-            Điểm danh
+            {isLoading ? "Đang lưu..." : "Điểm danh"}
           </button>
         )}
       </div>

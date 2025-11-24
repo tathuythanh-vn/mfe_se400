@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { ChangeEvent } from "react";
 import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
 import { validateEventForm } from "../utils/validate";
+// @ts-ignore - Module Federation remote
+import { useCreateEventMutation } from "home/store";
 
 interface AddEventProps {
   open: (status: boolean) => void;
@@ -29,9 +31,12 @@ export default function AddEvent({ open }: AddEventProps) {
     scope: "public",
     images: [],
   });
+
   const [newTag, setNewTag] = useState<string>("");
   const [images, setImages] = useState<string[]>([]);
-  const [adding, setAdding] = useState<boolean>(false);
+
+  // 🔥 RTK Query mutation
+  const [createEvent, { isLoading }] = useCreateEventMutation();
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -43,25 +48,33 @@ export default function AddEvent({ open }: AddEventProps) {
   const handleAddTag = () => {
     const tag = newTag.trim();
     if (!tag) return;
-    if (!data.tags.includes(tag)) setData((prev) => ({ ...prev, tags: [...prev.tags, tag] }));
+    if (!data.tags.includes(tag)) {
+      setData((prev) => ({ ...prev, tags: [...prev.tags, tag] }));
+    }
     setNewTag("");
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setData((prev) => ({ ...prev, tags: prev.tags.filter((tag) => tag !== tagToRemove) }));
+    setData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }));
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
     const previews = files.map((file) => URL.createObjectURL(file));
-    setData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
     setImages((prev) => [...prev, ...previews]);
+    setData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
   };
 
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
-    setData((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
+    setData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
   };
 
   const handleAdd = async () => {
@@ -76,38 +89,32 @@ export default function AddEvent({ open }: AddEventProps) {
       return;
     }
 
-    setAdding(true);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("startedAt", data.startedAt);
+    formData.append("location", data.location);
+    formData.append("description", data.description);
+    formData.append("scope", data.scope);
+    data.tags.forEach((tag) => formData.append("tags", tag));
+    data.images.forEach((file) => formData.append("images", file));
+
     try {
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("startedAt", data.startedAt);
-      formData.append("location", data.location);
-      formData.append("description", data.description);
-      formData.append("scope", data.scope);
-      data.tags.forEach((tag) => formData.append("tags", tag));
-      data.images.forEach((img) => formData.append("images", img));
+      const result = await createEvent(formData).unwrap();
+      toast.success("Thêm sự kiện thành công.");
 
-      const res = await fetch(`${import.meta.env.VITE_APP_SERVER_URL}/api/events`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      // Reset form
+      setData({
+        name: "",
+        startedAt: "",
+        location: "",
+        description: "",
+        tags: [],
+        scope: "public",
+        images: [],
       });
-
-      const result = await res.json();
-      if (result.success) {
-        toast.success("Thêm sự kiện thành công.");
-        setData({ name: "", startedAt: "", location: "", description: "", tags: [], scope: "public", images: [] });
-        setImages([]);
-      } else {
-        toast.error(result.message || "Thêm sự kiện thất bại.");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Lỗi khi thêm sự kiện.");
-    } finally {
-      setAdding(false);
+      setImages([]);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Thêm sự kiện thất bại.");
     }
   };
 
@@ -166,6 +173,7 @@ export default function AddEvent({ open }: AddEventProps) {
                 <option value="chapter">Nội bộ</option>
               </select>
             </div>
+
             <div className="flex flex-col gap-1 flex-1">
               <label htmlFor="startedAt" className="font-bold text-blue-700">
                 Thời gian bắt đầu
@@ -214,11 +222,19 @@ export default function AddEvent({ open }: AddEventProps) {
                 Thêm
               </button>
             </div>
+
+            {/* Tags list */}
             <div className="flex flex-wrap gap-2 mt-2">
               {data.tags.map((tag, index) => (
-                <span key={index} className="bg-blue-200 px-3 py-1 rounded-full flex items-center gap-1 text-sm">
+                <span
+                  key={index}
+                  className="bg-blue-200 px-3 py-1 rounded-full flex items-center gap-1 text-sm"
+                >
                   {tag}
-                  <button onClick={() => handleRemoveTag(tag)} className="text-red-600 font-bold">
+                  <button
+                    onClick={() => handleRemoveTag(tag)}
+                    className="text-red-600 font-bold"
+                  >
                     &times;
                   </button>
                 </span>
@@ -229,17 +245,30 @@ export default function AddEvent({ open }: AddEventProps) {
           {/* Hình ảnh */}
           <div className="flex flex-col gap-1">
             <label className="font-bold text-blue-700">Hình ảnh</label>
+
             <label
               htmlFor="imagesUpload"
               className="bg-blue-700 text-white px-3 py-1 rounded-lg cursor-pointer hover:bg-blue-800 transition-colors w-max"
             >
               + Thêm ảnh
             </label>
-            <input id="imagesUpload" type="file" multiple onChange={handleImageChange} className="hidden" />
-            <div className={`flex gap-3 mt-2 overflow-auto ${images.length ? "flex" : "hidden"}`}>
+
+            <input
+              id="imagesUpload"
+              type="file"
+              multiple
+              onChange={handleImageChange}
+              className="hidden"
+            />
+
+            <div className={`gap-3 mt-2 overflow-auto ${images.length ? "flex" : "hidden"}`}>
               {images.map((img, index) => (
                 <div key={index} className="relative">
-                  <img src={img} alt={`upload-${index}`} className="h-44 w-44 object-cover rounded-lg shadow" />
+                  <img
+                    src={img}
+                    alt={`upload-${index}`}
+                    className="h-44 w-44 object-cover rounded-lg shadow"
+                  />
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(index)}
@@ -256,10 +285,10 @@ export default function AddEvent({ open }: AddEventProps) {
           <div className="flex justify-center mt-4">
             <button
               onClick={handleAdd}
-              disabled={adding}
+              disabled={isLoading}
               className="bg-blue-700 text-white px-6 py-2 rounded-lg font-bold w-60 flex justify-center items-center gap-2 hover:bg-blue-800 transition-colors disabled:opacity-50"
             >
-              {adding ? <ClipLoader size={20} color="#fff" /> : "Thêm sự kiện"}
+              {isLoading ? <ClipLoader size={20} color="#fff" /> : "Thêm sự kiện"}
             </button>
           </div>
         </div>

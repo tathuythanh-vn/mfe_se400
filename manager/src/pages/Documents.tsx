@@ -4,7 +4,7 @@ import { useGetDocumentsQuery } from "home/store";
 import { IoAddCircle } from "react-icons/io5";
 import ClipLoader from "react-spinners/ClipLoader";
 import AddDocument from "../components/Documents/AddDocument";
-import DocumentDetails from "../components/Documents/DocumentDetails";
+import DocumentDetails from "../components/DocumentDetails";
 
 const mapFields: Record<string, string> = {
   VBHC: "Văn bản hành chính",

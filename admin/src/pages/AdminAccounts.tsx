@@ -263,7 +263,7 @@ export default function AdminAccounts() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [openDetails, setOpenDetails] = useState(false);
 
-  // ⬅️ Gọi API bằng RTK Query
+  //  Gọi API bằng RTK Query
   const { data, isLoading, isFetching } = useGetAccountsInPageQuery({
     page: currentPage,
     limit: 6,

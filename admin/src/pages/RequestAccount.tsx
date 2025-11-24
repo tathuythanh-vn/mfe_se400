@@ -5,6 +5,7 @@ import {
 } from "react-icons/tb";
 
 import avatar from "../assests/avatar.png";
+import RequestAccountDetails from "../components/RequestAccountDetails";
 
 
 export default function RequestAccounts() {
@@ -18,8 +19,10 @@ export default function RequestAccounts() {
   ];
   const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-  const [data, setData] = useState([]);
   const [id, setId] = useState("");
+const [open, setOpen] = useState(false);
+  const [data, setData] = useState([]);
+  // const [id, setId] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -109,11 +112,14 @@ useEffect(() => {
               const avatarSrc = item.avatar || avatar;
 
               return (
-                <div
-                  key={item._id}
-                  className="flex px-4 py-4 border-b hover:bg-blue-50 cursor-pointer items-center"
-                  onClick={() => setId(item._id)}
-                >
+<div
+  key={item._id}
+  className="flex px-4 py-4 border-b hover:bg-blue-50 cursor-pointer items-center"
+  onClick={() => {
+    setId(item._id);
+    setOpen(true);
+  }}
+>
                   {/* STT */}
                   <div className="flex justify-center" style={{ flex: fields[0].flex }}>
                     {index + 1 + (currentPage - 1) * 7}
@@ -200,6 +206,13 @@ useEffect(() => {
           } text-blue-800`}
           onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
         />
+        {open && (
+  <RequestAccountDetails 
+    id={id} 
+    setOpen={setOpen}
+  />
+)}
+
       </div>
     </div>
   );

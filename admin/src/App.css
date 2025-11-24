@@ -105,3 +105,8 @@ body {
   }
 }
 
+@layer utilities {
+  .admin-override .bg-sidebar {
+    @apply backdrop-filter-none bg-[#1c4588] opacity-100;
+  }
+}

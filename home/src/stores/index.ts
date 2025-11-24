@@ -124,6 +124,7 @@ export type {
   AccountStatus,
   Role,
 } from './interfaces/account';
+
 export type { Chapter } from './interfaces/chapter';
 export type { Comment } from './interfaces/comment';
 export type { Favorite } from './interfaces/favorite';

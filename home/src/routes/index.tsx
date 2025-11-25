@@ -18,6 +18,12 @@ const MemberContent = lazy(() =>
   })),
 );
 
+const ManagerContent = lazy(() =>
+  import('manager/ManagerContent').catch(() => ({
+    default: () => <ErrorPage message="Manager service is not available" />,
+  })),
+);
+
 const AdminContent = lazy(() =>
   import('admin/AdminContent').catch(() => ({
     default: () => <div>Admin service is not available</div>,
@@ -41,7 +47,9 @@ export const router = createBrowserRouter([
     path: '/admin/*',
     element: (
       <Suspense fallback={<Loading message="Loading admin panel..." />}>
-        <AdminContent />
+        <RoleGuard roles={[ROLE.ADMIN]}>
+          <AdminContent />
+        </RoleGuard>
       </Suspense>
     ),
   },
@@ -50,7 +58,7 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<Loading message="Loading manager panel..." />}>
         <RoleGuard roles={[ROLE.MANAGER]}>
-          <AuthContent />
+          <ManagerContent />
         </RoleGuard>
       </Suspense>
     ),

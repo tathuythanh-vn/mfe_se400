@@ -248,13 +248,11 @@ const standaloneRouter = createBrowserRouter(
       element: (
         <Provider store={store}>
           <div className="admin-override">
-            <MainLayout>
               <Routes>
                 {adminRoutes.map((r) => (
                   <Route key={r.path} path={r.path} element={r.element} />
                 ))}
               </Routes>
-            </MainLayout>
           </div>
         </Provider>
       ),
@@ -271,6 +269,7 @@ export default function AdminApp({ standalone = false }: AdminAppProps) {
 
   // Nhúng trong Home -> KHÔNG wrap Provider (Home đã wrap rồi)
   return (
+    <div className="admin-scope">
     <MainLayout>
       <Routes>
         {adminRoutes.map((r) => (
@@ -278,6 +277,7 @@ export default function AdminApp({ standalone = false }: AdminAppProps) {
         ))}
       </Routes>
     </MainLayout>
+    </div>
   );
 }
 

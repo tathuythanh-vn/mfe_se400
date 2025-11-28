@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
-import { validateEventForm } from "../../utils/validate";
+import { validateEventForm } from "../utils/validate";
+// @ts-ignore - Module Federation remote
 import { useCreateEventMutation } from "home/store";
 
 interface Props {
@@ -81,7 +82,7 @@ export default function AddEvent({ open }: Props) {
     data.images.forEach((img) => formData.append("images", img));
 
     try {
-      const res = await createEvent(formData).unwrap();
+      await createEvent(formData).unwrap();
       toast.success("Thêm sự kiện thành công!");
 
       // Reset

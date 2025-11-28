@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-// @ts-ignore - Module Federation remote
 import {
   useGetMemberStatisticQuery,
   useGetEventStatisticQuery,
-  useGetDocumentStatisticQuery
+  useGetDocumentStatisticQuery // @ts-ignore - Module Federation remote
 } from "home/store";
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";

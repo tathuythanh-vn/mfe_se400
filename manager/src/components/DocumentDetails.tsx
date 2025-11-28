@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
-
+import 'pdfjs-dist/web/pdf_viewer.css';
 import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import {
-  useGetDocumentQuery,
-  useUpdateDocumentMutation,
+  useGetDocumentByIdQuery ,
+  useUpdateDocumentByIdMutation, // @ts-ignore - Module Federation remote
 } from "home/store";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -21,8 +19,8 @@ interface Props {
 }
 
 export default function DocumentDetails({ id, open, canEdit }: Props) {
-  const { data, isFetching, refetch } = useGetDocumentQuery(id);
-  const [updateDocument, { isLoading }] = useUpdateDocumentMutation();
+  const { data, refetch } = useGetDocumentByIdQuery (id);
+  const [updateDocument, { isLoading }] = useUpdateDocumentByIdMutation();
 
   const [numPages, setNumPages] = useState<number>(0);
   const [file, setFile] = useState<any>(null);

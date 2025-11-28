@@ -1,11 +1,11 @@
 import { useState } from 'react';
+import { IoAddCircle } from 'react-icons/io5';
+import ClipLoader from 'react-spinners/ClipLoader';
+import { toast } from 'react-toastify';
 import Pagination from '../components/Pagination';
 import AddEvent from '../components/AddEvent';
 import EventDetails from '../components/EventDetails';
-import ClipLoader from 'react-spinners/ClipLoader';
-import { IoAddCircle } from 'react-icons/io5';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// @ts-ignore - Module Federation remote
 import { useGetEventsInPageQuery } from 'home/store';
 
 interface Event {
@@ -13,45 +13,48 @@ interface Event {
   name: string;
   location: string;
   startedAt: string;
-  scope: 'public' | 'chapter';
-  status: 'completed' | 'doing' | 'pending' | 'canceled';
+  scope: string;
+  status: string;
 }
 
+const fields = [
+  { flex: 'w-1/12', label: 'STT' },
+  { flex: 'w-4/12', label: 'Tên sự kiện' },
+  { flex: 'w-4/12', label: 'Địa điểm' },
+  { flex: 'w-2/12', label: 'Ngày bắt đầu' },
+  { flex: 'w-2/12', label: 'Quy mô' },
+  { flex: 'w-2/12', label: 'Trạng thái' },
+];
+
+const scopeMap: Record<string, string> = {
+  public: 'Công khai',
+  chapter: 'Chi đoàn',
+};
+
+const statusMap: Record<string, string> = {
+  completed: 'Hoàn thành',
+  doing: 'Đang diễn ra',
+  pending: 'Sắp diễn ra',
+  canceled: 'Đã hủy',
+};
+
+const statusColor: Record<string, string> = {
+  completed: 'green',
+  canceled: 'red',
+  doing: '#ff8f00',
+  pending: '#ff8f00',
+};
+
 export default function Events() {
-  const fields = [
-    { flex: 1, field: 'STT' },
-    { flex: 4, field: 'Tên sự kiện' },
-    { flex: 4, field: 'Địa điểm' },
-    { flex: 2, field: 'Ngày bắt đầu' },
-    { flex: 2, field: 'Quy mô' },
-    { flex: 2, field: 'Trạng thái' },
-  ];
-
-  const mapFields: Record<string, string> = {
-    completed: 'Hoàn thành',
-    doing: 'Đang diễn ra',
-    pending: 'Sắp diễn ra',
-    canceled: 'Đã hủy',
-    public: 'Công khai',
-    chapter: 'Chi đoàn',
-  };
-
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [scope, setScope] = useState<'' | 'public' | 'chapter'>('');
-  const [status, setStatus] = useState<
-    '' | 'completed' | 'doing' | 'pending' | 'canceled'
-  >('');
+  const [scope, setScope] = useState('');
+  const [status, setStatus] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
-  const [id, setId] = useState('');
   const [openDetails, setOpenDetails] = useState(false);
+  const [selectedId, setSelectedId] = useState<string>('');
 
-  // 🔹 RTK Query hook
-  const {
-    data: response,
-    isLoading,
-    isError,
-  } = useGetEventsInPageQuery({
+  const { data, isLoading, error } = useGetEventsInPageQuery({
     page: currentPage,
     limit: 6,
     search,
@@ -59,51 +62,35 @@ export default function Events() {
     status,
   });
 
-  const data = response?.data || [];
-  const totalPages = response?.totalPages || 1;
-
-  const getStatusColor = (status: Event['status']) => {
-    switch (status) {
-      case 'completed':
-        return 'green';
-      case 'canceled':
-        return 'red';
-      default:
-        return 'yellow';
-    }
-  };
-
-  if (isError) toast.error('Không thể tải danh sách sự kiện');
+  if (error) toast.error('Không thể tải danh sách sự kiện');
 
   return (
-    <div className="w-full h-full flex flex-col items-center p-6 gap-10">
+    <div className="p-6 space-y-4">
       {/* Toolbar */}
-      <div className="flex w-[90%] gap-5">
-        {/* Search */}
-        <div className="flex flex-col flex-[2] gap-2">
-          <label htmlFor="search" className="text-blue-600 font-semibold">
+      <div className="flex items-end gap-4">
+        <div className="flex-2 flex flex-col">
+          <label htmlFor="search" className="mb-1 font-semibold">
             Tìm kiếm
           </label>
           <input
             id="search"
             type="search"
             placeholder="Tìm theo tên, địa điểm..."
+            className="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border-2 border-blue-600 text-blue-600 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-300"
           />
         </div>
 
-        {/* Scope */}
-        <div className="flex flex-col flex-1 gap-2">
-          <label htmlFor="scope" className="text-blue-600 font-semibold">
+        <div className="flex-1 flex flex-col">
+          <label htmlFor="scope" className="mb-1 font-semibold">
             Quy mô
           </label>
           <select
             id="scope"
             value={scope}
-            onChange={(e) => setScope(e.target.value as typeof scope)}
-            className="border-2 border-blue-600 text-blue-600 rounded-lg px-3 py-3 outline-none"
+            onChange={(e) => setScope(e.target.value)}
+            className="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Tất cả</option>
             <option value="public">Công khai</option>
@@ -111,16 +98,15 @@ export default function Events() {
           </select>
         </div>
 
-        {/* Status */}
-        <div className="flex flex-col flex-1 gap-2">
-          <label htmlFor="status" className="text-blue-600 font-semibold">
+        <div className="flex-1 flex flex-col">
+          <label htmlFor="status" className="mb-1 font-semibold">
             Trạng thái
           </label>
           <select
             id="status"
             value={status}
-            onChange={(e) => setStatus(e.target.value as typeof status)}
-            className="border-2 border-blue-600 text-blue-600 rounded-lg px-3 py-3 outline-none"
+            onChange={(e) => setStatus(e.target.value)}
+            className="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Tất cả</option>
             <option value="completed">Hoàn thành</option>
@@ -130,81 +116,71 @@ export default function Events() {
           </select>
         </div>
 
-        {/* Add button */}
-        <div
-          className="flex flex-1 justify-end items-end cursor-pointer hover:scale-105 active:scale-95 transition"
-          onClick={() => setOpenAdd(true)}
-        >
-          <IoAddCircle size={60} color="#3c78d8" />
+        <div className="flex-1 flex justify-end">
+          <IoAddCircle
+            size={60}
+            color="#3c78d8"
+            className="cursor-pointer"
+            onClick={() => setOpenAdd(true)}
+          />
         </div>
       </div>
 
       {/* Table */}
-      <div className="w-[90%] border border-gray-300 rounded-t-xl overflow-hidden">
-        <div className="flex bg-blue-600 text-white font-semibold py-4 px-4 rounded-t-xl">
-          {fields.map((item, idx) => (
+      <div className="border rounded shadow overflow-hidden">
+        {/* Header */}
+        <div className="flex bg-gray-100">
+          {fields.map((field, idx) => (
             <div
               key={idx}
-              style={{ flex: item.flex }}
-              className="text-center text-sm"
+              className={`${field.flex} p-2 text-center font-semibold`}
             >
-              {item.field}
+              {field.label}
             </div>
           ))}
         </div>
 
+        {/* Data */}
         <div>
           {isLoading ? (
-            <div className="flex flex-col items-center py-10 text-gray-600">
+            <div className="flex flex-col items-center justify-center p-6">
               <ClipLoader color="#36d7b7" size={50} />
-              <p className="mt-4">Đang tải dữ liệu...</p>
+              <p>Đang tải dữ liệu...</p>
             </div>
-          ) : data.length === 0 ? (
-            <div className="text-center py-10 text-gray-600">
+          ) : (data?.data?.events?.length ?? 0) === 0 ? (
+            <div className="p-6 text-center text-gray-500">
               Không có dữ liệu
             </div>
           ) : (
-            data.length > 0 &&
-            data.map((item, index) => (
+            (data?.data?.events ?? []).map((event: Event, idx: number) => (
               <div
-                key={item._id}
+                key={event._id}
+                className="flex border-t hover:bg-gray-50 cursor-pointer"
                 onClick={() => {
-                  setId(item._id);
+                  setSelectedId(event._id);
                   setOpenDetails(true);
                 }}
-                className="flex items-center py-4 px-4 border-b border-gray-200 hover:bg-blue-50 active:bg-blue-100 cursor-pointer transition"
               >
-                <div className="text-center flex-1">
-                  {index + 1 + (currentPage - 1) * 6}
+                <div className={`${fields[0].flex} p-2 text-center`}>
+                  {idx + 1 + (currentPage - 1) * 6}
                 </div>
-                <div className="flex-[4]">{item.name}</div>
-                <div className="flex-[4]">{item.location}</div>
-                <div className="flex-[2] text-center">
-                  {new Date(item.startedAt).toLocaleDateString('vi-VN')}
+                <div className={`${fields[1].flex} p-2`}>{event.name}</div>
+                <div className={`${fields[2].flex} p-2`}>{event.location}</div>
+                <div className={`${fields[3].flex} p-2 text-center`}>
+                  {new Date(event.startedAt).toLocaleDateString('vi-VN')}
                 </div>
-                <div className="flex-[2] text-center">
-                  {mapFields[item.scope]}
+                <div className={`${fields[4].flex} p-2 text-center`}>
+                  {scopeMap[event.scope]}
                 </div>
-                <div className="flex-[2] text-center">
+                <div
+                  className={`${fields[5].flex} p-2 text-center flex items-center justify-center gap-2`}
+                >
                   <span
-                    className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                      getStatusColor(item.status) === 'green'
-                        ? 'bg-green-600'
-                        : getStatusColor(item.status) === 'red'
-                          ? 'bg-red-600'
-                          : 'bg-yellow-500'
-                    }`}
+                    className="inline-block w-2 h-2 rounded-full"
+                    style={{ backgroundColor: statusColor[event.status] }}
                   ></span>
-                  <span
-                    className={
-                      getStatusColor(item.status) === 'green'
-                        ? 'text-green-600'
-                        : getStatusColor(item.status) === 'red'
-                          ? 'text-red-600'
-                          : 'text-yellow-600'
-                    }
-                  >
-                    {mapFields[item.status]}
+                  <span style={{ color: statusColor[event.status] }}>
+                    {statusMap[event.status]}
                   </span>
                 </div>
               </div>
@@ -214,16 +190,14 @@ export default function Events() {
       </div>
 
       {/* Pagination */}
-      <div className="mt-4">
-        <Pagination
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-        />
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        totalPages={data?.totalPages || 1}
+      />
 
       {/* Modals */}
-      {openDetails && <EventDetails id={id} open={setOpenDetails} />}
+      {openDetails && <EventDetails id={selectedId} open={setOpenDetails} />}
       {openAdd && <AddEvent open={setOpenAdd} />}
     </div>
   );

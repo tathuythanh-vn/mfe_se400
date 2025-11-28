@@ -5,8 +5,11 @@ import {
   Routes,
   Navigate,
 } from 'react-router-dom';
+// @ts-ignore - Module Federation remote
 import MainLayout from 'home/MainLayout';
 import Events from '../pages/Events';
+import Documents from '../pages/Documents';
+import Statistic from '../pages/Statistic';
 import '../App.css';
 
 const managerRoutes = [
@@ -18,6 +21,15 @@ const managerRoutes = [
     path: 'events',
     element: <Events />,
   },
+  {
+    path: 'documents',
+    element: <Documents />,
+  },
+  {
+    path: 'statistic',
+    element: <Statistic />,
+  },
+
 ];
 
 const router = createBrowserRouter(managerRoutes, {

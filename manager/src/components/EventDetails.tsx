@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   useGetEventByIdQuery,
   useUpdateEventMutation,
   useGetRegistrationsQuery,
   useGetCommentsQuery,
   useCreateCommentMutation,
-  useHideCommentMutation,
+  useHideCommentMutation
   // @ts-ignore - Module Federation remote
-} from 'home/store';
+} from "home/store";
 
-import { IoCloseCircle } from 'react-icons/io5';
-import { FaChevronCircleDown, FaChevronCircleUp } from 'react-icons/fa';
-import ClipLoader from 'react-spinners/ClipLoader';
-import { toast } from 'react-toastify';
-import avatar from '../assets/avatar.png';
+import { IoCloseCircle } from "react-icons/io5";
+import { FaChevronCircleDown, FaChevronCircleUp } from "react-icons/fa";
+import ClipLoader from "react-spinners/ClipLoader";
+import { toast } from "react-toastify";
+import avatar from "../assets/avatar.png";
 
 interface Props {
   id: string;
@@ -29,7 +29,7 @@ export default function EventDetails({ id, open }: Props) {
   const [createComment] = useCreateCommentMutation();
   const [hideComment] = useHideCommentMutation();
 
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [showAttendee, setShowAttendee] = useState(false);
   const [showComment, setShowComment] = useState(false);
 
@@ -45,21 +45,22 @@ export default function EventDetails({ id, open }: Props) {
       text: comment,
     });
 
-    setComment('');
+    setComment("");
   };
 
   const handleUpdate = async () => {
     const form = new FormData();
-    form.append('name', event.name);
+    form.append("name", event.name);
 
     await updateEvent({ id, body: form });
-    toast.success('Cập nhật thành công');
+    toast.success("Cập nhật thành công");
     open(false);
   };
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center p-4 z-50">
       <div className="bg-white w-full max-w-4xl rounded-xl p-6 shadow-lg overflow-y-auto max-h-[90vh] relative">
+
         {/* Close button */}
         <button
           onClick={() => open(false)}
@@ -74,7 +75,7 @@ export default function EventDetails({ id, open }: Props) {
             <label className="font-semibold text-blue-700">Tên sự kiện</label>
             <input
               className="border p-2 rounded w-full"
-              value={event?.name || ''}
+              value={event?.name || ""}
               onChange={() => {}}
             />
           </div>
@@ -119,9 +120,7 @@ export default function EventDetails({ id, open }: Props) {
             className="flex items-center cursor-pointer gap-3"
             onClick={() => setShowAttendee(!showAttendee)}
           >
-            <p className="text-xl font-bold text-blue-700">
-              Danh sách người tham gia
-            </p>
+            <p className="text-xl font-bold text-blue-700">Danh sách người tham gia</p>
             {showAttendee ? (
               <FaChevronCircleUp size={22} className="text-blue-700" />
             ) : (
@@ -175,25 +174,20 @@ export default function EventDetails({ id, open }: Props) {
               {/* Comment list */}
               <div className="space-y-3">
                 {comments.map((c: any) => (
-                  <div
-                    key={c._id}
-                    className="p-3 border rounded flex items-start gap-3"
-                  >
+                  <div key={c._id} className="p-3 border rounded flex items-start gap-3">
                     <img
                       src={c.accountId?.avatar?.path || avatar}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <div className="flex-1">
-                      <div className="font-semibold">
-                        {c.accountId?.fullname}
-                      </div>
+                      <div className="font-semibold">{c.accountId?.fullname}</div>
                       <div className="text-gray-700">{c.text}</div>
                     </div>
                     <button
                       onClick={() => hideComment(c._id)}
                       className="text-sm text-red-500"
                     >
-                      {c.status === 'active' ? 'Ẩn' : 'Đã ẩn'}
+                      {c.status === "active" ? "Ẩn" : "Đã ẩn"}
                     </button>
                   </div>
                 ))}
@@ -201,6 +195,7 @@ export default function EventDetails({ id, open }: Props) {
             </div>
           )}
         </div>
+
       </div>
     </div>
   );

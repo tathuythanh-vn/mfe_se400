@@ -19,7 +19,16 @@ export default defineConfig({
       remotes: {
         home: 'home@http://localhost:3000/remoteEntry.js',
       },
-      shared: ['react', 'react-dom', 'react-router-dom'],
+      exposes: {
+        './ManagerContent': './src/routes/index.tsx',
+      },
+      shared: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        'react-redux',
+        '@reduxjs/toolkit',
+      ],
     }),
   ],
 });

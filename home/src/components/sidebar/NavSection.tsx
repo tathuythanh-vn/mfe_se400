@@ -31,7 +31,7 @@ const NavSection = () => {
   }
 
   return (
-    <ul className="gap-2 grow-1">
+    <ul className="gap-2 grow">
       {navList.map((item) => (
         <li key={item.route}>
           <NavLink

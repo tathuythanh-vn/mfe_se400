@@ -2,9 +2,9 @@ import { useState } from "react";
 import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
+import { validateEventForm } from "../utils/validate";
 // @ts-ignore - Module Federation remote
 import { useCreateEventMutation } from "home/store";
-import { validateEventForm } from "../utils/validate";
 
 interface AddEventProps {
   open: (status: boolean) => void;
@@ -20,7 +20,7 @@ interface EventData {
   images: File[];
 }
 
-const AddEvent: React.FC<AddEventProps> = ({ open }) => {
+export default function AddEvent({ open }: AddEventProps) {
   const [data, setData] = useState<EventData>({
     name: "",
     startedAt: "",
@@ -108,95 +108,95 @@ const AddEvent: React.FC<AddEventProps> = ({ open }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-400/50 flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-8 w-11/12 max-w-4xl max-h-[90vh] overflow-auto relative flex flex-col gap-6">
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
+      <div className="bg-white w-full max-w-[800px] rounded-lg flex flex-col max-h-[90vh] overflow-hidden relative">
         {/* Close Button */}
         <button
           onClick={() => open(false)}
-          className="absolute top-4 right-4 cursor-pointer text-red-500 hover:scale-105 transition-transform"
+          className="absolute top-4 right-4 cursor-pointer z-10"
         >
-          <IoCloseCircle size={36} />
+          <IoCloseCircle size={36} className="text-red-500" />
         </button>
 
         {/* Form content */}
-        <div className="flex flex-col gap-4">
+        <div className="p-6 flex-1 overflow-y-auto flex flex-col gap-4">
           {/* Tên sự kiện */}
-          <div className="flex flex-col gap-2">
-            <label className="font-bold text-[#1C398E]">Tên sự kiện</label>
+          <div className="flex flex-col gap-1">
+            <label className="font-semibold text-[#1C398E]">Tên sự kiện</label>
             <input
               id="name"
               value={data.name}
               onChange={handleChange}
               placeholder="Nhập tên sự kiện"
-              className="border border-[#1C398E] rounded-2xl p-2 outline-none"
+              className="border border-[#1C398E] rounded-lg px-3 py-2 outline-none text-black placeholder-gray-400"
             />
           </div>
 
           {/* Địa điểm */}
-          <div className="flex flex-col gap-2">
-            <label className="font-bold text-[#1C398E]">Địa điểm</label>
+          <div className="flex flex-col gap-1">
+            <label className="font-semibold text-[#1C398E]">Địa điểm</label>
             <input
               id="location"
               value={data.location}
               onChange={handleChange}
               placeholder="Nhập địa điểm"
-              className="border border-[#1C398E] rounded-2xl p-2 outline-none"
+              className="border border-[#1C398E] rounded-lg px-3 py-2 outline-none text-black placeholder-gray-400"
             />
           </div>
 
           {/* Scope + Time */}
           <div className="flex gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="font-bold text-[#1C398E]">Phạm vi</label>
+            <div className="flex flex-col gap-1 w-full">
+              <label className="font-semibold text-[#1C398E]">Phạm vi</label>
               <select
                 id="scope"
                 value={data.scope}
                 onChange={handleChange}
-                className="border border-[#1C398E] rounded-2xl p-2 outline-none"
+                className="border border-[#1C398E] rounded-lg px-3 py-2 outline-none text-black"
               >
                 <option value="public">Công khai</option>
                 <option value="chapter">Nội bộ</option>
               </select>
             </div>
 
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="font-bold text-[#1C398E]">Thời gian bắt đầu</label>
+            <div className="flex flex-col gap-1 w-full">
+              <label className="font-semibold text-[#1C398E]">Thời gian bắt đầu</label>
               <input
                 id="startedAt"
                 type="datetime-local"
                 value={data.startedAt}
                 onChange={handleChange}
-                className="border border-[#1C398E] rounded-2xl p-2 outline-none"
+                className="border border-[#1C398E] rounded-lg px-3 py-2 outline-none text-black"
               />
             </div>
           </div>
 
           {/* Mô tả */}
-          <div className="flex flex-col gap-2">
-            <label className="font-bold text-[#1C398E]">Mô tả</label>
+          <div className="flex flex-col gap-1">
+            <label className="font-semibold text-[#1C398E]">Mô tả</label>
             <textarea
               id="description"
               value={data.description}
               onChange={handleChange}
               placeholder="Nhập mô tả sự kiện"
-              rows={4}
-              className="border border-[#1C398E] rounded-2xl p-2 outline-none resize-none"
+              rows={5}
+              className="border border-[#1C398E] rounded-lg px-3 py-2 outline-none text-black placeholder-gray-400 resize-none"
             />
           </div>
 
           {/* Tags */}
-          <div className="flex flex-col gap-2">
-            <label className="font-bold text-[#1C398E]">Hashtag sự kiện</label>
+          <div className="flex flex-col gap-1">
+            <label className="font-semibold text-[#1C398E]">Hashtag sự kiện</label>
             <div className="flex gap-2">
               <input
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 placeholder="Nhập hashtag, ví dụ: #muahe"
-                className="border border-[#1C398E] rounded-2xl p-2 flex-1 outline-none"
+                className="border border-[#1C398E] rounded-lg px-3 py-2 w-full outline-none text-black placeholder-gray-400"
               />
               <button
                 onClick={handleAddTag}
-                className="bg-[#1C398E] text-white px-4 py-2 rounded-2xl hover:bg-[#162f77]"
+                className="bg-[#1C398E] text-white px-4 py-2 rounded-lg cursor-pointer"
               >
                 Thêm
               </button>
@@ -206,7 +206,7 @@ const AddEvent: React.FC<AddEventProps> = ({ open }) => {
               {data.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="bg-[#1C398E]/20 text-[#1C398E] px-3 py-1 rounded-2xl flex items-center gap-2"
+                  className="bg-[#1C398E]/20 text-[#1C398E] px-3 py-1 rounded-lg flex items-center gap-2"
                 >
                   {tag}
                   <button
@@ -222,10 +222,10 @@ const AddEvent: React.FC<AddEventProps> = ({ open }) => {
 
           {/* Hình ảnh */}
           <div className="flex flex-col gap-2">
-            <label className="font-bold text-[#1C398E]">Hình ảnh</label>
+            <label className="font-semibold text-[#1C398E]">Hình ảnh</label>
             <label
               htmlFor="fileUpload"
-              className="bg-[#1C398E] text-white py-1 px-4 rounded-2xl w-fit cursor-pointer hover:bg-[#162f77]"
+              className="bg-[#1C398E] text-white px-4 py-2 rounded-lg w-fit cursor-pointer"
             >
               + Thêm ảnh
             </label>
@@ -238,10 +238,10 @@ const AddEvent: React.FC<AddEventProps> = ({ open }) => {
             />
 
             {preview.length > 0 && (
-              <div className="flex gap-3 overflow-x-auto max-h-[180px] mt-2">
+              <div className="flex gap-3 overflow-x-auto h-[180px]">
                 {preview.map((img, i) => (
                   <div key={i} className="relative">
-                    <img src={img} className="h-[160px] rounded-2xl shadow" />
+                    <img src={img} className="h-[160px] rounded-lg shadow" />
                     <button
                       onClick={() => handleRemoveImage(i)}
                       className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
@@ -255,21 +255,18 @@ const AddEvent: React.FC<AddEventProps> = ({ open }) => {
           </div>
 
           {/* Submit */}
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center mt-6">
             <button
               onClick={handleAddEvent}
               disabled={isLoading}
-              className={`bg-[#1C398E] text-white font-bold rounded-2xl py-2 px-6 w-28 text-center ${
-                isLoading ? "cursor-not-allowed opacity-70" : "cursor-pointer hover:bg-[#162f77]"
-              } flex justify-center items-center`}
+              className="bg-[#1C398E] text-white font-bold rounded-lg px-6 py-3 w-60 flex items-center justify-center cursor-pointer"
             >
-              {isLoading ? <ClipLoader size={16} color="#fff" /> : "Thêm sự kiện"}
+              {isLoading ? <ClipLoader size={20} color="#fff" /> : "Thêm sự kiện"}
             </button>
           </div>
         </div>
       </div>
     </div>
-  );
-};
 
-export default AddEvent;
+  );
+}

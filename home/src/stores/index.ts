@@ -9,6 +9,7 @@ import { favoriteApi } from './services/favorite';
 import { eventRegistrationApi } from './services/eventRegistration';
 import { documentApi } from './services/document';
 import { notificationApi } from './services/notification';
+import { memberApi } from './services/member';
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     [eventRegistrationApi.reducerPath]: eventRegistrationApi.reducer,
     [documentApi.reducerPath]: documentApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
+    [memberApi.reducerPath]: memberApi.reducer, 
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -33,26 +35,25 @@ export const store = configureStore({
       eventRegistrationApi.middleware,
       documentApi.middleware,
       notificationApi.middleware,
+      memberApi.middleware, 
     ),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
 
-// optional, but required for refetchOnFocus/refetchOnReconnect behaviors
-// see `setupListeners` docs - takes an optional callback as the 2nd arg for customization
+// Setup listeners for refetchOnFocus/refetchOnReconnect
 setupListeners(store.dispatch);
 
-// Re-export the auth API hooks for use in other microfrontends
+// Re-export the auth API hooks
 export {
   useGetProfileQuery,
   useLoginMutation,
   useRegisterMutation,
 } from './services/auth';
 
-// Re-export the account API hooks for use in other microfrontends
+// Re-export the account API hooks
 export {
   useGetAccountsInPageQuery,
   useGetAccountStatisticQuery,
@@ -60,7 +61,7 @@ export {
   useUpdateAccountByIdMutation,
 } from './services/account';
 
-// Re-export the chapter API hooks for use in other microfrontends
+// Re-export the chapter API hooks
 export {
   useGetChaptersInPageQuery,
   useGetStatisticQuery,
@@ -69,7 +70,7 @@ export {
   useUpdateChapterByIdMutation,
 } from './services/chapter';
 
-// Re-export the event API hooks for use in other microfrontends
+// Re-export the event API hooks
 export {
   useGetEventsInPageQuery,
   useGetEventStatisticQuery,
@@ -78,20 +79,20 @@ export {
   useUpdateEventByIdMutation,
 } from './services/event';
 
-// Re-export the comment API hooks for use in other microfrontends
+// Re-export the comment API hooks
 export {
   useGetCommentsQuery,
   useCreateCommentMutation,
   useHideCommentMutation,
 } from './services/comment';
 
-// Re-export the favorite API hooks for use in other microfrontends
+// Re-export the favorite API hooks
 export {
   useCheckFavoriteStatusQuery,
   useToggleFavoriteMutation,
 } from './services/favorite';
 
-// Re-export the event registration API hooks for use in other microfrontends
+// Re-export the event registration API hooks
 export {
   useListEventRegistrationsQuery,
   useRegisterForEventMutation,
@@ -100,7 +101,7 @@ export {
   useCancelEventRegistrationMutation,
 } from './services/eventRegistration';
 
-// Re-export the document API hooks for use in other microfrontends
+// Re-export the document API hooks
 export {
   useGetDocumentsInPageQuery,
   useGetDocumentByIdQuery,
@@ -109,13 +110,22 @@ export {
   useGetDocumentStatisticQuery,
 } from './services/document';
 
-// Re-export the notification API hooks for use in other microfrontends
+// Re-export the notification API hooks
 export {
   useGetNotificationsQuery,
   useUpdateNotificationsStatusMutation,
 } from './services/notification';
 
-// Re-export TypeScript interfaces for use in other microfrontends
+// Re-export the member API hooks
+export {
+  useGetMembersInPageQuery,
+  useGetMemberByIdQuery,
+  useCreateMemberMutation,
+  useUpdateMemberByIdMutation,
+  useGetMemberStatisticQuery,
+} from './services/member';
+
+// Re-export TypeScript interfaces
 export type { Event, EventImage } from './interfaces/event';
 export type {
   Account,
@@ -124,7 +134,6 @@ export type {
   AccountStatus,
   Role,
 } from './interfaces/account';
-
 export type { Chapter } from './interfaces/chapter';
 export type { Comment } from './interfaces/comment';
 export type { Favorite } from './interfaces/favorite';
@@ -134,5 +143,6 @@ export type {
 } from './interfaces/eventRegistration';
 export type { Document } from './interfaces/document';
 export type { Notification } from './interfaces/notification';
+export type { Member } from './interfaces/member';
 
 export default store;

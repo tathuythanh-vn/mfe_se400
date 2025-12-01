@@ -28,8 +28,9 @@ export default defineConfig({
       dts: false,
       remotes: {
         auth: 'auth@http://localhost:3001/remoteEntry.js',
-        member: 'member@http://localhost:3004/remoteEntry.js',
         admin: 'admin@http://localhost:3002/remoteEntry.js',
+        manager: 'manager@http://localhost:3003/remoteEntry.js',
+        member: 'member@http://localhost:3004/remoteEntry.js',
       },
       exposes: {
         './MainLayout': './src/components/MainLayout.tsx',

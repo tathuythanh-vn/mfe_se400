@@ -74,7 +74,7 @@ import {
   BrowserRouter,
 } from "react-router-dom";
 
-import MainLayout from "home/MainLayout";
+import MainLayout from 'home/MainLayout';
 
 import AdminAccounts from "../pages/AdminAccounts";
 import AdminChapters from "../pages/AdminChapters";
@@ -82,8 +82,10 @@ import RequestAccount from "../pages/RequestAccount";
 import AdminStatistic from "../pages/AdminStatistic";
 
 // Thêm Provider + store
-import { Provider } from "react-redux";
-import { store } from "../../../home/src/stores";
+import { Provider } from 'react-redux';
+import { store } from '../../../home/src/stores';
+
+import '../App.css';
 
 import '../App.css'
 

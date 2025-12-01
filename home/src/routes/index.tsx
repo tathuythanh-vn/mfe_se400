@@ -30,6 +30,12 @@ const AdminContent = lazy(() =>
   })),
 );
 
+const ChatContent = lazy(() =>
+  import('chat/ChatContent').catch(() => ({
+    default: () => <div>Chat service is not available</div>,
+  })),
+);
+
 export const router = createBrowserRouter([
   {
     path: '',
@@ -77,7 +83,7 @@ export const router = createBrowserRouter([
     path: '/chat/*',
     element: (
       <Suspense fallback={<Loading message="Loading chat..." />}>
-        <AuthContent />
+        <ChatContent />
       </Suspense>
     ),
   },

@@ -27,7 +27,7 @@ export const memberApi = createApi({
         if (params?.page) queryParams.append('page', params.page.toString());
         if (params?.limit) queryParams.append('limit', params.limit.toString());
         if (params?.search) queryParams.append('search', params.search);
-        if (params?.role) queryParams.append('role', params.role);
+        if (params?.position) queryParams.append('role', params.position);
         if (params?.chapterId) queryParams.append('chapterId', params.chapterId);
         const queryString = queryParams.toString();
         return queryString ? `/?${queryString}` : '/';

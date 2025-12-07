@@ -50,71 +50,58 @@ const MessageController = () => {
   const getContacts = async (req, res) => {
     try {
       const account = req.account;
-      const role = account.role;
-
-      switch (role) {
-        case "admin": {
-          // ADMIN: Lấy tất cả Manager
-          const managers = await Account.find({ role: "manager" }).populate(
-            "managerOf"
-          );
-          return sendResponse(res, 200, "Lấy liên hệ Admin thành công", {
-            managers,
-          });
-        }
-
-        case "manager": {
-          const groupId = account.managerOf;
-
-          // MANAGER: Chạy song song 3 query độc lập
-          const [admin, managers, members] = await Promise.all([
-            Account.findOne({ role: "admin" }),
-            Account.find({ role: "manager" }).populate("managerOf"),
-            getGroupMembers(groupId), // Tối ưu hóa N+1
-          ]);
-
-          return sendResponse(res, 200, "Lấy liên hệ Manager thành công", {
-            admin,
-            managers,
-            members,
-          });
-        }
-
-        case "member": {
-          // MEMBER: Query 1 cần chạy tuần tự để lấy groupId
-          const memberInfo = await Member.findById(account.infoMember).select(
-            "memberOf"
-          );
-
-          if (!memberInfo) {
-            return sendResponse(
-              res,
-              404,
-              "Không tìm thấy thông tin thành viên liên kết"
-            );
-          }
-
-          const groupId = memberInfo.memberOf;
-
-          // Chạy song song 2 query còn lại
-          const [manager, members] = await Promise.all([
-            Account.findOne({ role: "manager", managerOf: groupId }),
-            getGroupMembers(groupId), // Tối ưu hóa N+1
-          ]);
-
-          return sendResponse(res, 200, "Lấy liên hệ Member thành công", {
-            manager,
-            members,
-          });
-        }
-
-        default:
-          // Xử lý các role không xác định
-          return sendResponse(res, 403, "Không có quyền truy cập");
+      if (account.role == "admin") {
+        const result = await Account.find({ role: "manager" }).populate(
+          "managerOf"
+        );
+        return sendResponse(res, 200, "Lấy liên hệ admin", {
+          managers: result,
+        });
       }
+
+      if (account.role == "manager") {
+        const admin = await Account.findOne({ role: "admin" });
+        const managers = await Account.find({ role: "manager" }).populate(
+          "managerOf"
+        );
+        const infoMembers = await Member.find({ memberOf: account.managerOf });
+        const members = await Promise.all(
+          infoMembers.map(async (item) => {
+            const member = await Account.findOne({ infoMember: item._id });
+            return member;
+          })
+        );
+
+        return sendResponse(res, 200, "Lấy liên hệ admin", {
+          admin,
+          managers,
+          members,
+        });
+      }
+
+      if (account.role == "member") {
+        const member = await Member.findById(account.infoMember);
+        const manager = await Account.findOne({
+          role: "manager",
+          managerOf: member.memberOf,
+        });
+        const infoMembers = await Member.find({ memberOf: member.memberOf });
+        const members = await Promise.all(
+          infoMembers.map(async (item) => {
+            const member = await Account.findOne({ infoMember: item._id });
+            return member;
+          })
+        );
+
+        return sendResponse(res, 200, "Lấy liên hệ admin", {
+          manager,
+          members,
+        });
+      }
+      return sendResponse(res, 400, "có lỗi");
     } catch (error) {
-      console.error("Lỗi khi lấy liên hệ:", error); // Dùng console.error và log chi tiết hơn
-      return sendResponse(res, 500, "Lỗi Server");
+      console.log(error);
+      return sendResponse(res, 500, "Lỗi");
     }
   };
 

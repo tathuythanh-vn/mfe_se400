@@ -1,5 +1,6 @@
 import {
   createBrowserRouter,
+  Navigate,
   Route,
   RouterProvider,
   Routes,
@@ -11,7 +12,7 @@ import Signup from '../pages/Signup';
 const authRoutes = [
   {
     path: '/',
-    element: <App />,
+    element: <Navigate to="login" replace />,
   },
   {
     path: 'login',

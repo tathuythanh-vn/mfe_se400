@@ -542,23 +542,52 @@ export default function ChapterDetails({ id, open }: ChapterDetailsProps) {
     setUpdate((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleUpdate = async () => {
-    if (!chapter) return;
-    if (Object.keys(update).length === 0) {
-      toast.info("Chưa có thay đổi nào để cập nhật");
-      return;
-    }
+  // const handleUpdate = async () => {
+  //   if (!chapter) return;
+  //   if (Object.keys(update).length === 0) {
+  //     toast.info("Chưa có thay đổi nào để cập nhật");
+  //     return;
+  //   }
 
-    try {
-      const res = await updateChapter({ id: chapter._id, data: update }).unwrap();
-      toast.success(res.message || "Cập nhật thành công!");
-      setUpdate({});
-      refetch(); // Lấy dữ liệu mới ngay sau khi update
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err?.data?.message || "Cập nhật thất bại.");
-    }
-  };
+  //   try {
+  //     const res = await updateChapter({ id: chapter._id, data: update }).unwrap();
+  //     console.log("RES UPDATE:", res);
+  //     toast.success(res.message || "Cập nhật thành công!");
+  //     setUpdate({});
+  //     refetch(); // Lấy dữ liệu mới ngay sau khi update
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     toast.error(err?.data?.message || "Cập nhật thất bại.");
+  //   }
+  // };
+
+  const handleUpdate = async () => {
+    console.log("HANDLE UPDATE RUN");
+  if (!chapter) return;
+
+  if (Object.keys(update).length === 0) {
+    toast.info("Chưa có thay đổi nào để cập nhật");
+    return;
+  }
+
+  try {
+    const res = await updateChapter({
+      id: chapter._id,
+      data: update,
+    }).unwrap();
+
+    console.log("RES UPDATE:", res);
+
+    toast.success(res.message || "Cập nhật thành công!");
+
+    setUpdate({});
+    refetch();
+  } catch (err: any) {
+    console.error("UPDATE ERROR:", err);
+    toast.error(err?.data?.message || "Cập nhật thất bại.");
+  }
+};
+
 
   // ============================
   //  LOADING & ERROR STATE

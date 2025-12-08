@@ -10,7 +10,7 @@ import type {
   GetChapterStatisticResponse,
 } from '../interfaces/chapter';
 
-console.log("URL:", process.env.BACKEND_URL);
+console.log("URL:", process.env.BACKEND_URL + '/chapters');
 const BASE_URL = process.env.BACKEND_URL;
 console.log("URL:", BASE_URL);
 
@@ -64,7 +64,7 @@ export const chapterApi = createApi({
       CreateChapterRequest
     >({
       query: (body) => ({
-        url: '',
+        url: '/',
         method: 'POST',
         body,
       }),

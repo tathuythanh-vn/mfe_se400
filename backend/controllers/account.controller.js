@@ -84,84 +84,156 @@ const AccountController = () => {
       );
     }
   }
+  // const updateAccountById = async (req, res) => {
+  //   try {
+  //     const form = req.body
+  //     const avatar = req.file
+  //     const { id } = req.params
+
+  //     console.log(req.file, form)
+
+  //     const account = await Account.findById(id)
+  //     console.log(validateForm(form, account.role, true), 123)
+  //     const member = await Member.findById(account.infoMember)
+
+  //     if (form.email) {
+  //       const duplicate = await Account.findOne({ email: form.email })
+  //       if (duplicate) {
+  //         return sendResponse(res, 400, 'Email này đã được sử dụng')
+  //       }
+  //     }
+
+  //     if (form.managerOf) {
+  //       const duplicate = await Account.findOne({ managerOf: form.managerOf })
+  //       if (duplicate) {
+  //         return sendResponse(res, 400, 'Chi đoàn này đã có người quản lý')
+  //       }
+  //     }
+  //     if (form.cardCode) {
+  //       const duplicate = await Account.findOne({ cardCode: form.cardCode })
+  //       if (duplicate) {
+  //         return sendResponse(res, 400, 'Số thẻ đoàn này đã được sử dụng')
+  //       }
+  //     }
+
+  //     const updateAccount = new Account(form)
+
+  //     for (const field in updateAccount.toObject()) {
+  //       if (updateAccount[field] && field != '_id') {
+  //         account[field] =
+  //           updateAccount[field]
+  //       }
+  //     }
+  //     if (account.role == 'member') {
+  //       const updateMember = new Member(form)
+
+  //       for (const field in updateMember.toObject()) {
+  //         if (updateMember[field] && field != '_id') {
+  //           member[field] =
+  //             updateMember[field]
+  //         }
+  //       }
+  //       await member.save()
+  //     }
+
+
+  //     if (avatar) {
+  //       if (account.avatar) {
+  //         cloudinary.uploader.destroy(account.avatar.filename)
+  //       }
+
+  //       account.avatar = avatar
+  //     }
+  //     console.log(updateAccount, account)
+  //     await account.save()
+
+
+  //     return sendResponse(
+  //       res,
+  //       200,
+  //       "Cập nhật tài khoản thành công"
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //     return sendResponse(
+  //       res,
+  //       500,
+  //       "Lỗi khi lấy danh sách tài khoản, hãy thử lại"
+  //     );
+  //   }
+  // }
   const updateAccountById = async (req, res) => {
-    try {
-      const form = req.body
-      const avatar = req.file
-      const { id } = req.params
+  try {
+    const form = req.body;
+    const avatar = req.file;
+    const { id } = req.params;
 
-      console.log(req.file, form)
+    // Tìm account hiện tại
+    const account = await Account.findById(id);
+    if (!account) return sendResponse(res, 404, "Tài khoản không tồn tại");
 
-      const account = await Account.findById(id)
-      console.log(validateForm(form, account.role, true), 123)
-      const member = await Member.findById(account.infoMember)
-
-      if (form.email) {
-        const duplicate = await Account.findOne({ email: form.email })
-        if (duplicate) {
-          return sendResponse(res, 400, 'Email này đã được sử dụng')
-        }
-      }
-
-      if (form.managerOf) {
-        const duplicate = await Account.findOne({ managerOf: form.managerOf })
-        if (duplicate) {
-          return sendResponse(res, 400, 'Chi đoàn này đã có người quản lý')
-        }
-      }
-      if (form.cardCode) {
-        const duplicate = await Account.findOne({ cardCode: form.cardCode })
-        if (duplicate) {
-          return sendResponse(res, 400, 'Số thẻ đoàn này đã được sử dụng')
-        }
-      }
-
-      const updateAccount = new Account(form)
-
-      for (const field in updateAccount.toObject()) {
-        if (updateAccount[field] && field != '_id') {
-          account[field] =
-            updateAccount[field]
-        }
-      }
-      if (account.role == 'member') {
-        const updateMember = new Member(form)
-
-        for (const field in updateMember.toObject()) {
-          if (updateMember[field] && field != '_id') {
-            member[field] =
-              updateMember[field]
-          }
-        }
-        await member.save()
-      }
-
-
-      if (avatar) {
-        if (account.avatar) {
-          cloudinary.uploader.destroy(account.avatar.filename)
-        }
-
-        account.avatar = avatar
-      }
-      console.log(updateAccount, account)
-      await account.save()
-
-
-      return sendResponse(
-        res,
-        200,
-        "Cập nhật tài khoản thành công"
-      );
-    } catch (error) {
-      console.log(error);
-      return sendResponse(
-        res,
-        500,
-        "Lỗi khi lấy danh sách tài khoản, hãy thử lại"
-      );
+    // Parse infoMember nếu FE gửi dạng JSON string
+    if (form.infoMember && typeof form.infoMember === "string") {
+      form.infoMember = JSON.parse(form.infoMember);
     }
+
+    // ========== CHECK DUPLICATE ==========
+    if (form.email && form.email !== account.email) {
+      const duplicate = await Account.findOne({ email: form.email, _id: { $ne: id } });
+      if (duplicate) return sendResponse(res, 400, 'Email này đã được sử dụng');
+    }
+
+    if (form.managerOf) {
+      const duplicate = await Account.findOne({ managerOf: form.managerOf, _id: { $ne: id } });
+      if (duplicate) return sendResponse(res, 400, 'Chi đoàn này đã có người quản lý');
+    }
+
+    if (form.infoMember?.cardCode) {
+      const duplicate = await Account.findOne({ 'infoMember.cardCode': form.infoMember.cardCode, _id: { $ne: id } });
+      if (duplicate) return sendResponse(res, 400, 'Số thẻ đoàn này đã được sử dụng');
+    }
+
+    // ========== UPDATE ACCOUNT ==========
+    const accountFields = ['fullname','email','phone','birthday','role','status','managerOf'];
+    accountFields.forEach(field => {
+      if (form[field] !== undefined) account[field] = form[field];
+    });
+
+    // ========== UPDATE MEMBER ==========
+    if (account.role === 'member' && form.infoMember) {
+      let member;
+      if (account.infoMember) {
+        member = await Member.findById(account.infoMember);
+      } else {
+        member = new Member();
+        account.infoMember = member._id;
+      }
+
+      const memberFields = ['memberOf','cardCode','joinedAt','position','address','hometown','ethnicity','religion','eduLevel'];
+      memberFields.forEach(field => {
+        if (form.infoMember[field] !== undefined) member[field] = form.infoMember[field];
+      });
+
+      await member.save();
+    }
+
+    // ========== UPDATE AVATAR ==========
+    if (avatar) {
+      if (account.avatar?.filename) {
+        await cloudinary.uploader.destroy(account.avatar.filename);
+      }
+      account.avatar = avatar;
+    }
+
+    await account.save();
+
+    return sendResponse(res, 200, "Cập nhật tài khoản thành công", account);
+  } catch (error) {
+    console.error(error);
+    return sendResponse(res, 500, "Lỗi khi cập nhật tài khoản, hãy thử lại");
   }
+};
+
 
  const getStatistic = async (req, res) => {
   try {

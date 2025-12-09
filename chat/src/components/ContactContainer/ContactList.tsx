@@ -41,6 +41,7 @@ export const ContactItem = ({
   path,
   fullname,
   managerOf,
+  _id,
   setCurrentChatUser,
 }: ContactItemProps & {
   setCurrentChatUser?: (user: Account) => void;
@@ -50,7 +51,8 @@ export const ContactItem = ({
       className="flex gap-2 items-center hover:cursor-pointer hover:bg-blue-100 p-2 rounded-md"
       onClick={
         setCurrentChatUser &&
-        (() => setCurrentChatUser({ path, fullname, managerOf } as Account))
+        (() =>
+          setCurrentChatUser({ path, fullname, managerOf, _id } as Account))
       }
     >
       <Avatar path={path} />

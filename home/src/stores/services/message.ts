@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type {
-  GetHistoryMessageResponse,
-  CreateMessageResponse,
-  GetContactsResponse,
+import {
+  type GetHistoryMessageResponse,
+  type CreateMessageResponse,
+  type GetContactsResponse,
+  SocketEvents,
 } from '../interfaces/message';
-import { io } from 'socket.io-client';
+import { getSocket } from '../../utils/socket';
 
 // RTK Query service for Messages
 export const messageApi = createApi({
@@ -12,7 +13,7 @@ export const messageApi = createApi({
   tagTypes: ['Message', 'Contacts'],
 
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.BACKEND_URL + '/messages',
+    baseUrl: `${process.env.BACKEND_URL}/messages`,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -29,9 +30,29 @@ export const messageApi = createApi({
       { partnerId: string }
     >({
       query: ({ partnerId }) => `/${partnerId}`,
-      providesTags: (result, error, { partnerId }) => [
-        { type: 'Message', id: partnerId },
-      ],
+      async onCacheEntryAdded(
+        partnerId,
+        { cacheDataLoaded, cacheEntryRemoved, updateCachedData },
+      ) {
+        // You can implement WebSocket or SSE here for real-time updates
+        try {
+          // Wait for the initial query to resolve
+          await cacheDataLoaded;
+
+          const socket = getSocket();
+          socket.on(SocketEvents.CHAT, (newMessage) => {
+            // Update the cache with the new message
+            updateCachedData((draft) => {
+              draft.data.push(newMessage);
+            });
+          });
+
+          await cacheEntryRemoved;
+        } catch (e) {
+          // Handle error
+          console.error('Error in getHistoryMessage:', e);
+        }
+      },
     }),
 
     // POST /messages/:partnerId - Create a new message
@@ -44,9 +65,26 @@ export const messageApi = createApi({
         method: 'POST',
         body: { text },
       }),
-      invalidatesTags: (result, error, { partnerId }) => [
-        { type: 'Message', id: partnerId },
-      ],
+      async onCacheEntryAdded(
+        { text, partnerId: to },
+        { cacheDataLoaded, cacheEntryRemoved, updateCachedData },
+      ) {
+        try {
+          await cacheDataLoaded;
+
+          const socket = getSocket();
+
+          socket.emit(SocketEvents.CHAT, {
+            text,
+            to,
+          });
+
+          await cacheEntryRemoved;
+        } catch (e) {
+          // Handle error
+          console.error('Error in createMessage:', e);
+        }
+      },
     }),
 
     // GET /messages/contacts - Get contacts based on user role

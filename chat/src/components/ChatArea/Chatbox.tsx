@@ -1,12 +1,5 @@
 import { Avatar } from '../ContactContainer/ContactList';
-
-export interface ChatboxProps {
-  messages?: Array<{
-    senderId: string;
-    message: string;
-    status: 'read' | 'unread';
-  }>;
-}
+import { useGetHistoryMessageQuery } from 'home/store';
 
 interface MessageLineProps {
   isSender?: boolean;
@@ -28,15 +21,24 @@ const MessageLine = ({
   );
 };
 
-const Chatbox = () => {
+interface ChatboxProps {
+  partnerId: string;
+}
+
+const Chatbox = ({ partnerId }: ChatboxProps) => {
+  const { data: messages } = useGetHistoryMessageQuery({
+    partnerId: partnerId,
+  });
+
   return (
     <div className="flex-1 bg-white rounded shadow-sm m-4 flex flex-col gap-4 p-4 overflow-y-auto">
-      <MessageLine isSender={true} message="Hello!" />
-      <MessageLine isSender={false} message="Hi there!" />
-      <MessageLine />
-      <MessageLine />
-      <MessageLine />
-      <MessageLine />
+      {messages?.data.map((msg) => (
+        <MessageLine
+          key={msg._id}
+          isSender={msg.senderId !== partnerId}
+          message={msg.message}
+        />
+      ))}
     </div>
   );
 };

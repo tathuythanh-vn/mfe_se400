@@ -166,7 +166,10 @@ export default defineConfig({
   source: {
     define: {
       // Inject ENV giống HOME
-      'process.env.BACKEND_URL': JSON.stringify(process.env.VITE_BACKEND_URL),
+      //'process.env.BACKEND_URL': JSON.stringify(process.env.VITE_BACKEND_URL),
+      // 'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL),
+      //'process.env.BACKEND_URL': JSON.stringify(process.env.VITE_BACKEND_URL),
+      'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL),
     },
   },
 

@@ -31,6 +31,7 @@ export default defineConfig({
         admin: 'admin@http://localhost:3002/remoteEntry.js',
         manager: 'manager@http://localhost:3003/remoteEntry.js',
         member: 'member@http://localhost:3004/remoteEntry.js',
+        chat: 'chat@http://localhost:3005/remoteEntry.js',
       },
       exposes: {
         './MainLayout': './src/components/MainLayout.tsx',

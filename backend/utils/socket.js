@@ -1,10 +1,11 @@
 import { onlineUsers } from "./onlineUsers.js";
 import { verifyToken } from "./token.js";
 
-
 // socketInstance.js
 let ioInstance = null;
-export const setIO = (io) => { ioInstance = io };
+export const setIO = (io) => {
+  ioInstance = io;
+};
 export const getIO = () => ioInstance;
 
 export const handleSocket = (io) => {
@@ -23,22 +24,20 @@ export const handleSocket = (io) => {
         console.log("✅ User authenticated:", socket.userId);
         console.log("🟢 Online users:", onlineUsers);
 
- socket.on('chat', (data) => {
-
-      console.log(data,12)
-      if (onlineUsers[data.to]) { io.to(onlineUsers[data.to]).emit('chat', {senderId: socket.userId, message: data.text}) }
-
-    })
-
-
-
+        socket.on("chat", (data) => {
+          console.log(data, 12);
+          if (onlineUsers[data.to]) {
+            io.to(onlineUsers[data.to]).emit("chat", {
+              senderId: socket.userId,
+              message: data.text,
+            });
+          }
+        });
       } catch (err) {
         console.log("❌ Token không hợp lệ");
         socket.disconnect(); // Ngắt kết nối nếu token sai
       }
     });
-
-   
 
     // Khi client ngắt kết nối
     socket.on("disconnect", () => {
@@ -51,5 +50,3 @@ export const handleSocket = (io) => {
     });
   });
 };
-
-

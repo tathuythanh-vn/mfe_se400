@@ -17,3 +17,8 @@ declare module 'admin/AdminContent' {
   const AdminContent: React.ComponentType;
   export default AdminContent;
 }
+
+declare module 'chat/ChatContent' {
+  const ChatContent: React.ComponentType;
+  export default ChatContent;
+}

@@ -5,9 +5,9 @@ import {
   RouterProvider,
   Routes,
 } from 'react-router-dom';
-import App from '../App';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
+import '../App.css';
 
 const authRoutes = [
   {

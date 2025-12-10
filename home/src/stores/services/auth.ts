@@ -7,6 +7,8 @@ import type {
   RegisterRequest,
   RegisterResponse,
 } from '../interfaces/auth';
+import { SocketEvents } from '../interfaces/message';
+import { getSocket } from '../../utils/socket';
 
 // Define a service using a base URL and expected endpoints
 export const authApi = createApi({
@@ -28,6 +30,24 @@ export const authApi = createApi({
   endpoints: (builder) => ({
     getProfile: builder.query<GetProfileResponse, void>({
       query: () => ({ url: '' }),
+      async onCacheEntryAdded(
+        partnerId,
+        { cacheDataLoaded, cacheEntryRemoved, updateCachedData },
+      ) {
+        // You can implement WebSocket or SSE here for real-time updates
+        try {
+          // Wait for the initial query to resolve
+          await cacheDataLoaded;
+
+          // CONNECT SOCKET ON LOGIN
+          getSocket();
+
+          await cacheEntryRemoved;
+        } catch (e) {
+          // Handle error
+          console.error('Error in getHistoryMessage:', e);
+        }
+      },
     }),
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({

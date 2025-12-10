@@ -13,6 +13,7 @@ export interface Message {
 
 // Message history item (simplified format from backend)
 export interface MessageHistoryItem {
+  _id: string;
   senderId: string;
   message: string;
   status: 'unread' | 'read';

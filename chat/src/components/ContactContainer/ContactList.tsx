@@ -1,4 +1,4 @@
-import { useGetContactsQuery } from 'home/store';
+import { useGetContactsQuery, useGetProfileQuery } from 'home/store';
 
 import AvatarDefault from '../../assests/avatar.png';
 import type { Account } from '../../pages/Chat';
@@ -41,6 +41,7 @@ export const ContactItem = ({
   path,
   fullname,
   managerOf,
+  _id,
   setCurrentChatUser,
 }: ContactItemProps & {
   setCurrentChatUser?: (user: Account) => void;
@@ -50,7 +51,8 @@ export const ContactItem = ({
       className="flex gap-2 items-center hover:cursor-pointer hover:bg-blue-100 p-2 rounded-md"
       onClick={
         setCurrentChatUser &&
-        (() => setCurrentChatUser({ path, fullname, managerOf } as Account))
+        (() =>
+          setCurrentChatUser({ path, fullname, managerOf, _id } as Account))
       }
     >
       <Avatar path={path} />
@@ -81,13 +83,16 @@ const ContactGroup = ({
     );
   }
 
+  const { data } = useGetProfileQuery();
+  const userId = data?.data?._id;
+
   return (
     contacts.length > 0 && (
       <div>
         <h3 className={`font-bold my-2 text-blue-800`}>{title}</h3>
         {contacts.map((contact) => {
-          // BACKEND RETURN MIGHT NULL SO HANDLE NULL CONTACTS
-          if (contact) {
+          // HANDLE NULL CONTACTS + CURRENT USER
+          if (contact && contact._id !== userId) {
             return (
               <ContactItem
                 key={contact._id}

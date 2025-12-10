@@ -19,7 +19,7 @@ export default function AddChapter({ open }: AddChapterProps) {
     establishedAt: "",
   });
 
-  // 👉 RTK Query mutation
+  //  RTK Query mutation
   const [createChapter, { isLoading: adding }] = useCreateChapterMutation();
 
   const handleChange = (
@@ -31,15 +31,17 @@ export default function AddChapter({ open }: AddChapterProps) {
 
   const handleAdd = async () => {
     // Validate form
+    console.log("handleAdd chạy", data);
     const error = validateChapterForm(data);
     if (error) {
-      toast.error(error); // luôn là string
-      return;
+  const msg = Object.values(error).join(', ');
+  toast.error(msg);      return;
     }
 
     try {
       // unwrap() để nhận data thật sự hoặc throw error
       const result = await createChapter(data).unwrap();
+      console.log("API result:", result);
 
       if (result.success) {
         toast.success("Thêm chi đoàn thành công!");
@@ -63,7 +65,7 @@ export default function AddChapter({ open }: AddChapterProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-opacity-30 flex justify-center items-center z-50">
       <div className="bg-white w-4/5 max-w-3xl rounded-2xl p-10 relative shadow-xl">
 
         {/* Close button */}

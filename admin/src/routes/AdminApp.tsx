@@ -87,8 +87,6 @@ import { store } from '../../../home/src/stores';
 
 import '../App.css';
 
-import '../App.css'
-
 // Các route Admin
 const adminRoutes = [
   { path: "/", element: <Navigate to="accounts" replace /> },

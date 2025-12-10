@@ -10,11 +10,17 @@ import type {
   GetChapterStatisticResponse,
 } from '../interfaces/chapter';
 
+console.log("URL:", process.env.BACKEND_URL + '/chapters');
+const BASE_URL = process.env.BACKEND_URL;
+console.log("URL:", BASE_URL);
+
 export const chapterApi = createApi({
   reducerPath: 'chapterApi',
   tagTypes: ['Chapter'],
   baseQuery: fetchBaseQuery({
-    baseUrl: `${process.env.BACKEND_URL}/chapters`,
+    baseUrl : `${process.env.BACKEND_URL}/chapters`,
+    //baseUrl: process.env.BACKEND_URL + '/chapters',
+    // baseUrl: `${process.env.BACKEND_URL}/chapters`,
     //baseUrl: `${import.meta.env.VITE_BACKEND_URL}/chapters`,
 
     prepareHeaders: (headers) => {

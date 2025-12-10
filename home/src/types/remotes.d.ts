@@ -8,7 +8,17 @@ declare module 'member/MemberContent' {
   export default MemberContent;
 }
 
+declare module 'manager/ManagerContent' {
+  const ManagerContent: React.ComponentType;
+  export default ManagerContent;
+}
+
 declare module 'admin/AdminContent' {
   const AdminContent: React.ComponentType;
   export default AdminContent;
+}
+
+declare module 'chat/ChatContent' {
+  const ChatContent: React.ComponentType;
+  export default ChatContent;
 }

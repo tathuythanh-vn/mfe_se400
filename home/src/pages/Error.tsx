@@ -65,10 +65,10 @@ const ErrorPage: React.FC<ErrorPageProps> = ({
           {onGoHome && (
             <button
               onClick={onGoHome}
-              className="inline-flex items-center justify-center rounded-lg border border-input bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className="inline-flex items-center justify-center rounded-lg border border-red-300 bg-white px-6 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             >
-              <Home className="-ml-1 mr-2 h-4 w-4" />
-              Go Home
+              <Home className="-ml-1 mr-2 h-4 w-4" color="red" />
+              Home
             </button>
           )}
         </div>

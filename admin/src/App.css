@@ -105,3 +105,38 @@ body {
   }
 }
 
+
+@layer utilities {
+  .admin-override .bg-sidebar {
+    @apply backdrop-filter-none bg-[#1c4588] opacity-100;
+  }
+}
+
+/* .admin-scope {
+  all: revert; 
+  font-family: Arial, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  box-sizing: border-box;
+}
+
+.admin-scope * {
+  all: unset;       
+  all: revert-layer; 
+}
+
+
+.admin-scope .bg-card { @apply bg-card; }
+.admin-scope .text-card-foreground { @apply text-card-foreground; }
+.admin-scope .bg-primary { @apply bg-primary; } */
+
+.admin-scope, 
+.admin-scope * {
+  all: unset;          /* reset toàn bộ ảnh hưởng CSS từ Home */
+  all: revert-layer;   /* cho Tailwind của Admin hoạt động bình thường */
+}
+
+.admin-scope {
+  all: revert;
+  font-family: Arial, sans-serif;
+}

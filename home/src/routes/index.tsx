@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, useNavigate } from 'react-router-dom';
 import App from '../App';
 import { Suspense, lazy } from 'react';
 import RoleGuard from '../components/auth/RoleGuard';
@@ -18,9 +18,21 @@ const MemberContent = lazy(() =>
   })),
 );
 
+const ManagerContent = lazy(() =>
+  import('manager/ManagerContent').catch(() => ({
+    default: () => <ErrorPage message="Manager service is not available" />,
+  })),
+);
+
 const AdminContent = lazy(() =>
   import('admin/AdminContent').catch(() => ({
     default: () => <div>Admin service is not available</div>,
+  })),
+);
+
+const ChatContent = lazy(() =>
+  import('chat/ChatContent').catch(() => ({
+    default: () => <div>Chat service is not available</div>,
   })),
 );
 
@@ -41,7 +53,9 @@ export const router = createBrowserRouter([
     path: '/admin/*',
     element: (
       <Suspense fallback={<Loading message="Loading admin panel..." />}>
-        <AdminContent />
+        <RoleGuard roles={[ROLE.ADMIN]}>
+          <AdminContent />
+        </RoleGuard>
       </Suspense>
     ),
   },
@@ -49,7 +63,9 @@ export const router = createBrowserRouter([
     path: '/manager/*',
     element: (
       <Suspense fallback={<Loading message="Loading manager panel..." />}>
-        <AuthContent />
+        <RoleGuard roles={[ROLE.MANAGER]}>
+          <ManagerContent />
+        </RoleGuard>
       </Suspense>
     ),
   },
@@ -67,8 +83,17 @@ export const router = createBrowserRouter([
     path: '/chat/*',
     element: (
       <Suspense fallback={<Loading message="Loading chat..." />}>
-        <AuthContent />
+        <ChatContent />
       </Suspense>
+    ),
+  },
+  {
+    path: '*',
+    element: (
+      <ErrorPage
+        message="Page not found"
+        onGoHome={() => window.location.replace('/')}
+      />
     ),
   },
 ]);

@@ -5,10 +5,10 @@ export enum ROLE {
 }
 
 export const adminNavList = [
-  { navLabel: 'Tổng quan', route: '/admin/dashboard' },
-  { navLabel: 'Tài khoản', route: '/admin/accounts' },
-  { navLabel: 'Chi đoàn', route: '/admin/chapters' },
-  { navLabel: 'Chi đoàn', route: '/admin/chapters' },
+  { navLabel: 'Danh sách tài khoản', route: '/admin/accounts' },
+  { navLabel: 'Danh sách chi đoàn', route: '/admin/chapters' },
+  { navLabel: 'Yêu cầu phê duyệt', route: '/admin/request-accounts' },
+  { navLabel: 'Thống kê', route: '/admin/stastitic' },
   { navLabel: 'Nhắn tin', route: '/chat' },
 ];
 

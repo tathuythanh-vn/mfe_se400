@@ -1,5 +1,15 @@
 import type { ROLE } from '../../constants/nav-items';
 
+export interface AvatarData {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  path: string;
+  size: number;
+  filename: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -18,7 +28,7 @@ export interface GetProfileData {
   _id: string;
   email: string;
   phone: string;
-  avatar: string | null;
+  avatar: AvatarData | null;
   fullname: string;
   birthday: string;
   gender: 'male' | 'female' | 'other';

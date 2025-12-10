@@ -15,8 +15,6 @@ export const chapterApi = createApi({
   tagTypes: ['Chapter'],
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.BACKEND_URL}/chapters`,
-    //baseUrl: `${import.meta.env.VITE_BACKEND_URL}/chapters`,
-
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {

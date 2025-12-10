@@ -1,4 +1,4 @@
-import { useGetContactsQuery } from 'home/store';
+import { useGetContactsQuery, useGetProfileQuery } from 'home/store';
 
 import AvatarDefault from '../../assests/avatar.png';
 import type { Account } from '../../pages/Chat';
@@ -83,13 +83,16 @@ const ContactGroup = ({
     );
   }
 
+  const { data } = useGetProfileQuery();
+  const userId = data?.data?._id;
+
   return (
     contacts.length > 0 && (
       <div>
         <h3 className={`font-bold my-2 text-blue-800`}>{title}</h3>
         {contacts.map((contact) => {
-          // BACKEND RETURN MIGHT NULL SO HANDLE NULL CONTACTS
-          if (contact) {
+          // HANDLE NULL CONTACTS + CURRENT USER
+          if (contact && contact._id !== userId) {
             return (
               <ContactItem
                 key={contact._id}

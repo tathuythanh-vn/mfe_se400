@@ -15,6 +15,7 @@ const MessageController = () => {
       }).sort({ createdAt: 1 });
 
       const result = messages.map((item) => ({
+        _id: item._id,
         senderId: item.senderId,
         message: item.text,
         status: item.status,

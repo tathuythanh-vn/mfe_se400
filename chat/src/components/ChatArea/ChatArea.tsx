@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import type { Account } from '../../pages/Chat';
 import { ContactItem } from '../ContactContainer/ContactList';
 import Chatbox from './Chatbox';
 import { useCreateMessageMutation } from 'home/store';
+import { Send } from 'lucide-react';
 
 interface ChatAreaProps {
   currentChatUser: Account | null;
 }
 
 const ChatArea = ({ currentChatUser }: ChatAreaProps) => {
-  const [createMessage, { data }] = useCreateMessageMutation();
+  const [createMessage, { isLoading }] = useCreateMessageMutation();
+  const [messageText, setMessageText] = useState<string>('');
 
   if (!currentChatUser) {
     return (
@@ -16,15 +19,11 @@ const ChatArea = ({ currentChatUser }: ChatAreaProps) => {
         Chọn 1 người để bắt đầu trò chuyện
       </div>
     );
-  } else {
-    console.log('Current Chat User:', currentChatUser);
   }
 
   // HANDLE SEND MESSAGE
-  const onSendMessage = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-
-    const text = e.currentTarget.value.trim();
+  const onSendMessage = () => {
+    const text = messageText.trim();
     if (!text || !currentChatUser._id) {
       return;
     }
@@ -32,9 +31,10 @@ const ChatArea = ({ currentChatUser }: ChatAreaProps) => {
     try {
       // Emit message via socket
       createMessage({ partnerId: currentChatUser._id, text: text });
-      console.log('Message sent response:', data);
     } catch (error) {
       console.error('onSendMessage: ', error);
+    } finally {
+      setMessageText('');
     }
   };
 
@@ -53,16 +53,27 @@ const ChatArea = ({ currentChatUser }: ChatAreaProps) => {
 
       {/* Input messages */}
       <div className="p-2 px-4 border-t border-gray-300">
-        <input
-          type="text"
-          placeholder="Nhập nội dung tin nhắn..."
-          className="w-full p-2 bg-white"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              onSendMessage(e);
-            }
-          }}
-        />
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Nhập nội dung tin nhắn..."
+            className="w-full p-2 bg-white"
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                onSendMessage();
+              }
+            }}
+          />
+          <button
+            disabled={!messageText || isLoading}
+            className="p-2 bg-blue-500 rounded text-white hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
+            onClick={() => onSendMessage()}
+          >
+            <Send color="white" />
+          </button>
+        </div>
       </div>
     </div>
   );

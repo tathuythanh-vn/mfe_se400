@@ -30,6 +30,9 @@ export const messageApi = createApi({
       { partnerId: string }
     >({
       query: ({ partnerId }) => `/${partnerId}`,
+      providesTags: (result, error, { partnerId }) => [
+        { type: 'Message', id: partnerId },
+      ],
       async onCacheEntryAdded(
         partnerId,
         { cacheDataLoaded, cacheEntryRemoved, updateCachedData },
@@ -65,9 +68,12 @@ export const messageApi = createApi({
         method: 'POST',
         body: { text },
       }),
+      invalidatesTags: (result, error, { partnerId }) => [
+        { type: 'Message', id: partnerId },
+      ],
       async onCacheEntryAdded(
         { text, partnerId: to },
-        { cacheDataLoaded, cacheEntryRemoved, updateCachedData },
+        { cacheDataLoaded, cacheEntryRemoved },
       ) {
         try {
           await cacheDataLoaded;

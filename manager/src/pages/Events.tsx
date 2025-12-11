@@ -147,12 +147,9 @@ export default function Events() {
               <ClipLoader color="#36d7b7" size={50} />
               <p>Đang tải dữ liệu...</p>
             </div>
-          ) : (data?.data?.events?.length ?? 0) === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              Không có dữ liệu
-            </div>
           ) : (
-            (data?.data?.events ?? []).map((event: Event, idx: number) => (
+            data?.data?.data.length > 0 &&
+            data?.data?.data.map((event: Event, idx: number) => (
               <div
                 key={event._id}
                 className="flex border-t hover:bg-gray-50 cursor-pointer"

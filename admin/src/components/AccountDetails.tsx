@@ -87,33 +87,67 @@ export default function AccountDetails({
   // ===========================
   // HANDLE UPDATE
   // ===========================
-  const handleUpdate = async () => {
-    try {
-      const formData = new FormData();
+  // const handleUpdate = async () => {
+  //   try {
+  //     const formData = new FormData();
 
-      for (const key in update) {
-        const value = update[key];
+  //     for (const key in update) {
+  //       const value = update[key];
 
-        if (key === "infoMember") {
-          formData.append("infoMember", JSON.stringify(value));
-        } else {
-          formData.append(key, value);
-        }
+  //       if (key === "infoMember") {
+  //         formData.append("infoMember", JSON.stringify(value));
+  //       } else {
+  //         formData.append(key, value);
+  //       }
+  //     }
+
+  //     const result = await updateAccount({
+  //       id,
+  //       formData,
+  //     }).unwrap();
+
+  //     result.success
+  //       ? toast.success("Cập nhật thành công.")
+  //       : toast.error(result.message || "Cập nhật thất bại.");
+  //   } catch (err: any) {
+  //     console.log(err);
+  //     toast.error(err?.data?.message || "Cập nhật thất bại.");
+  //   }
+  // };
+const handleUpdate = async () => {
+  try {
+    const formData = new FormData();
+
+    // Lặp qua các field
+    Object.entries(update).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+
+      if (key === "infoMember") {
+        // Chỉ append khi object có giá trị
+        formData.append(key, JSON.stringify(value));
+      } else if (key === "avatar" && value instanceof File) {
+        formData.append("avatar", value);
+      } else {
+        formData.append(key, value);
       }
+    });
 
-      const result = await updateAccount({
-        id,
-        formData,
-      }).unwrap();
+    const result = await updateAccount({
+      id,
+      formData,
+    }).unwrap();
 
-      result.success
-        ? toast.success("Cập nhật thành công.")
-        : toast.error(result.message || "Cập nhật thất bại.");
-    } catch (err: any) {
-      console.log(err);
-      toast.error(err?.data?.message || "Cập nhật thất bại.");
+    if (result.success) {
+      toast.success("Cập nhật thành công.");
+    } else {
+      toast.error(result.message || "Cập nhật thất bại.");
     }
-  };
+  } catch (err: any) {
+    console.log(err);
+    toast.error(err?.data?.message || "Cập nhật thất bại.");
+  }
+};
+
 
   // ===========================
   // HANDLE INPUT CHANGE

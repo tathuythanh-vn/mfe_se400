@@ -17,8 +17,12 @@ export const chapterApi = createApi({
     baseUrl: `${process.env.BACKEND_URL}/chapters`,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
+      localStorage.getItem('token')
+
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
+        console.log("Token:", localStorage.getItem('token'));
+console.log("Headers:", headers);
       }
       return headers;
     },

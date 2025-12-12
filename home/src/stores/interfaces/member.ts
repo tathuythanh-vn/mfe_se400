@@ -8,18 +8,13 @@ export interface ApiResponse<T> {
 // Member model
 export interface Member {
   _id: string;
-  memberOf: string | null
-  position: "secretary" | "deputy_secretary" | "committee_member" | "member" | null
-  cardCode: string | null
-  joinedAt: string | null
-  address: string | null
-  hometown: string | null
-  ethnicity: string | null
-  religion: string | null
-  eduLevel: string | null
-  createdAt: string
-  updatedAt: string
-
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  role: 'admin' | 'member' | null;
+  chapterId: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Query parameters for getMembersInPage
@@ -27,10 +22,9 @@ export interface GetMembersInPageParams {
   page?: number;
   limit?: number;
   search?: string;
-  position?: 'secretary' | 'deputy_secretary' | 'committee_member' | 'member';
+  role?: 'admin' | 'member';
   chapterId?: string;
 }
-
 
 // Paginated members response
 export interface MembersPageData {
@@ -55,17 +49,15 @@ export type CreateMemberResponse = ApiResponse<null>;
 // Response for updateMemberById
 export type UpdateMemberByIdResponse = ApiResponse<Member>;
 
-// Member statistics
+// Member statistics (optional)
 export interface MemberStatistic {
-  name: string;
+  role: string;
   value: number;
 }
 
 export interface MemberStatisticData {
-  memberByGender: MemberStatistic[];
   membersByRole: MemberStatistic[];
-  memberByStatus: MemberStatistic[];
-  participationData: MemberStatistic[];
+  membersByChapter: MemberStatistic[];
 }
 
 export type GetMemberStatisticResponse = ApiResponse<MemberStatisticData>;

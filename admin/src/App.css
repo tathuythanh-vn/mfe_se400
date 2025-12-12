@@ -112,6 +112,24 @@ body {
   }
 }
 
+/* .admin-scope {
+  all: revert; 
+  font-family: Arial, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  box-sizing: border-box;
+}
+
+.admin-scope * {
+  all: unset;       
+  all: revert-layer; 
+}
+
+
+.admin-scope .bg-card { @apply bg-card; }
+.admin-scope .text-card-foreground { @apply text-card-foreground; }
+.admin-scope .bg-primary { @apply bg-primary; } */
+
 .admin-scope, 
 .admin-scope * {
   all: unset;          /* reset toàn bộ ảnh hưởng CSS từ Home */

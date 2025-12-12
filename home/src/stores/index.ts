@@ -10,6 +10,7 @@ import { eventRegistrationApi } from './services/eventRegistration';
 import { documentApi } from './services/document';
 import { notificationApi } from './services/notification';
 import { memberApi } from './services/member';
+import { messageApi } from './services/message';
 
 export const store = configureStore({
   reducer: {
@@ -22,7 +23,8 @@ export const store = configureStore({
     [eventRegistrationApi.reducerPath]: eventRegistrationApi.reducer,
     [documentApi.reducerPath]: documentApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
-    [memberApi.reducerPath]: memberApi.reducer, 
+    [memberApi.reducerPath]: memberApi.reducer,
+    [messageApi.reducerPath]: messageApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -35,7 +37,8 @@ export const store = configureStore({
       eventRegistrationApi.middleware,
       documentApi.middleware,
       notificationApi.middleware,
-      memberApi.middleware, 
+      memberApi.middleware,
+      messageApi.middleware,
     ),
 });
 
@@ -124,6 +127,13 @@ export {
   useUpdateMemberByIdMutation,
   useGetMemberStatisticQuery,
 } from './services/member';
+
+// Re-export the message API hooks
+export {
+  useGetHistoryMessageQuery,
+  useCreateMessageMutation,
+  useGetContactsQuery,
+} from './services/message';
 
 // Re-export TypeScript interfaces
 export type { Event, EventImage } from './interfaces/event';

@@ -15,12 +15,14 @@ export const chapterApi = createApi({
   tagTypes: ['Chapter'],
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.BACKEND_URL}/chapters`,
-    //baseUrl: `${import.meta.env.VITE_BACKEND_URL}/chapters`,
-
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
+      localStorage.getItem('token')
+
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
+        console.log("Token:", localStorage.getItem('token'));
+console.log("Headers:", headers);
       }
       return headers;
     },

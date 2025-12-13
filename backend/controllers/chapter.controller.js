@@ -7,6 +7,13 @@ const ChapterController = () => {
 
   const createChapter = async (req, res) => {
     try {
+      console.log("Received body:", req.body);
+    console.log(" Headers:", req.headers);
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+      console.log(" Body is EMPTY!");
+    }
+
       const form = req.body
       console.log(form)
 

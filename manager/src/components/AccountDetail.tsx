@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { IoCloseCircle } from "react-icons/io5";
-import avatarDefault from "../assests/avatar.png";
+import avatarDefault from "../assets/avatar.png";
 import { toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
 

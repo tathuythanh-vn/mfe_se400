@@ -11,5 +11,7 @@ MemberRoutes.get("/statistic",AuthMiddleware('manager'), memberController.getSta
 // MemberRoutes.get("/:memberId", MemberController.getMemberById);
 // MemberRoutes.put("/:memberId", MemberController.updateMemberById);
 // MemberRoutes.patch("/:memberId", MemberController.changeMemberStatus);
+MemberRoutes.get("/:id", AuthMiddleware('manager'), memberController.getMemberById);
+
 
 export default MemberRoutes;

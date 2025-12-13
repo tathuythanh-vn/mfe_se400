@@ -276,7 +276,28 @@ const members = infoMembers.map(item => {
   }
 };
 
+const getMemberById = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-return{getMembersInPage, getStatistic}
+    // Lấy thông tin member
+    const member = await Member.findById(id).lean();
+    if (!member) return sendResponse(res, 404, "Không tìm thấy đoàn viên");
+
+    // Lấy thông tin account liên quan
+    const account = await Account.findOne({ infoMember: member._id }).lean();
+
+    return sendResponse(res, 200, "Lấy thông tin đoàn viên thành công", {
+      ...member,
+      ...(account || {}),
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết đoàn viên:", error);
+    return sendResponse(res, 500, "Lỗi server");
+  }
+};
+
+
+return{getMembersInPage, getStatistic, getMemberById}
 }
 export default MemberController();

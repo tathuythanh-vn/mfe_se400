@@ -306,18 +306,30 @@ export default function Members() {
 
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
+//   const {
+//     data,
+//     isLoading,
+//     isError,
+//   } = useGetMembersInPageQuery({
+//     page: currentPage,
+//     limit: 6,
+//     search,
+//     position,
+//     status,
+//   });
+const statusMap: Record<string, string> = {
+  active: "active",
+  locked: "locked",
+  pending: "pending",
+};
 
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useGetMembersInPageQuery({
-    page: currentPage,
-    limit: 6,
-    search,
-    position,
-    status,
-  });
+const { data, isLoading, isError } = useGetMembersInPageQuery({
+  page: currentPage,
+  limit: 6,
+  search,
+  position,
+  status: status ? statusMap[status] : undefined, // chỉ gửi nếu có chọn
+});
 
   useEffect(() => {
     if (isError) {
@@ -333,6 +345,14 @@ export default function Members() {
     setSelectedMemberId(id);
     setOpenDetail(true);
   };
+    useEffect(() => {
+    setCurrentPage(1);
+  }, [search, position, status]);
+
+  // Nếu currentPage > totalPages (vd: search ra 0 kết quả), reset về 1
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [currentPage, totalPages]);
 
   return (
     <div className="p-6 space-y-6">

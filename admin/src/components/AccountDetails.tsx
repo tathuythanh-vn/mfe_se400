@@ -114,23 +114,72 @@ export default function AccountDetails({
   //     toast.error(err?.data?.message || "Cập nhật thất bại.");
   //   }
   // };
+// const handleUpdate = async () => {
+//   try {
+//     const formData = new FormData();
+
+//     // Lặp qua các field
+//     Object.entries(update).forEach(([key, value]) => {
+//       if (value === undefined || value === null) return;
+
+//       if (key === "infoMember") {
+//         // Chỉ append khi object có giá trị
+//         formData.append(key, JSON.stringify(value));
+//       } else if (key === "avatar" && value instanceof File) {
+//         formData.append("avatar", value);
+//       } else {
+//         formData.append(key, value);
+//       }
+//     });
+
+//     const result = await updateAccount({
+//       id,
+//       formData,
+//     }).unwrap();
+
+//     if (result.success) {
+//       toast.success("Cập nhật thành công.");
+//     } else {
+//       toast.error(result.message || "Cập nhật thất bại.");
+//     }
+//   } catch (err: any) {
+//     console.log(err);
+//     toast.error(err?.data?.message || "Cập nhật thất bại.");
+//   }
+// };
 const handleUpdate = async () => {
   try {
     const formData = new FormData();
 
-    // Lặp qua các field
-    Object.entries(update).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
+    // ===== AVATAR =====
+    if (update.avatar instanceof File) {
+      formData.append("avatar", update.avatar);
+    }
 
-      if (key === "infoMember") {
-        // Chỉ append khi object có giá trị
-        formData.append(key, JSON.stringify(value));
-      } else if (key === "avatar" && value instanceof File) {
-        formData.append("avatar", value);
-      } else {
-        formData.append(key, value);
+    // ===== BASIC FIELDS =====
+    const fields = [
+      "fullname",
+      "email",
+      "phone",
+      "birthday",
+      "status",
+      "role",
+      "managerOf",
+    ];
+
+    fields.forEach((field) => {
+      if (update[field] !== undefined) {
+        formData.append(field, update[field]);
       }
     });
+
+    // ===== INFO MEMBER =====
+    if (update.infoMember) {
+      formData.append(
+        "infoMember",
+        JSON.stringify(update.infoMember)
+      );
+    }
 
     const result = await updateAccount({
       id,
@@ -147,6 +196,7 @@ const handleUpdate = async () => {
     toast.error(err?.data?.message || "Cập nhật thất bại.");
   }
 };
+
 
 
   // ===========================

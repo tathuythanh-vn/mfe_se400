@@ -48,6 +48,7 @@ export default function Documents() {
     toast.error("Không thể tải danh sách văn bản");
   }
 
+  // ✅ FIXED: Đọc đúng cấu trúc API trả về
   const documents = data?.data?.documents ?? [];
   const totalPages = data?.data?.totalPages ?? 1;
 
@@ -81,7 +82,7 @@ export default function Documents() {
           >
             <option value="">Tất cả</option>
             <option value="private">Mật</option>
-            <option value="chapter">Chi đoàn</option>
+            <option value="chapter">Nội bộ</option>
           </select>
         </div>
 

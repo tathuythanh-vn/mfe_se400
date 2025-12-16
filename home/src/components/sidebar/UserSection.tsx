@@ -109,7 +109,12 @@ export default function UserSection() {
 
           {/* Notification List */}
           {showNotifications && (
-            <div className="absolute w-[600px] bottom-full left-full rounded-lg bg-(--light-blue)">
+            <>
+              <div>
+                <Bell size={24} color="yellow" />
+                <span>Yêu cầu phê duyệt</span>
+              </div>
+              <div className="absolute w-[600px] bottom-full left-full rounded-lg bg-stone-100 shadow-md">
               {notifications.length === 0 ? (
                 <div className="rounded-lg p-2.5 cursor-pointer">
                   <p className="text-(--dark-blue)">Không có thông báo mới</p>
@@ -133,6 +138,7 @@ export default function UserSection() {
                 ))
               )}
             </div>
+            </>
           )}
         </div>
 

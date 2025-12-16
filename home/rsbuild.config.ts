@@ -17,6 +17,7 @@ export default defineConfig({
   source: {
     define: {
       'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL),
+      'process.env.SOCKET_URL': JSON.stringify(process.env.SOCKET_URL),
     },
   },
 

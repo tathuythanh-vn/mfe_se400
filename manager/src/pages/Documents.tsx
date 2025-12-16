@@ -6,15 +6,7 @@ import Pagination from "../components/Pagination";
 import AddDocument from "../components/AddDocument";
 import DocumentDetails from "../components/DocumentDetails";
 // @ts-ignore - Module Federation remote
-import { useGetDocumentsInPageQuery } from "home/store";
-
-interface Document {
-  _id: string;
-  name: string;
-  docCode: string;
-  type: string;
-  scope: string;
-}
+import { useGetDocumentsInPageQuery, Document } from "home/store";
 
 const fields = [
   { flex: "w-1/12", label: "STT" },
@@ -50,14 +42,14 @@ export default function Documents() {
     scope,
   });
 
-  // ❗ Chỉ toast 1 lần, không để trong render chính
+  console.log("RTK Query Data:", data);
+
   if (error) {
     toast.error("Không thể tải danh sách văn bản");
   }
 
-  // 🔒 Luôn an toàn (tránh undefined.length)
-  const documents = data?.documents ?? [];
-  const totalPages = data?.totalPages ?? 1;
+  const documents = data?.data?.documents ?? [];
+  const totalPages = data?.data?.totalPages ?? 1;
 
   return (
     <div className="p-6 space-y-4">
@@ -108,7 +100,10 @@ export default function Documents() {
         {/* Header */}
         <div className="flex bg-gray-100">
           {fields.map((field, idx) => (
-            <div key={idx} className={`${field.flex} p-2 text-center font-semibold`}>
+            <div
+              key={idx}
+              className={`${field.flex} p-2 text-center font-semibold`}
+            >
               {field.label}
             </div>
           ))}
@@ -122,7 +117,9 @@ export default function Documents() {
               <p>Đang tải dữ liệu...</p>
             </div>
           ) : documents.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">Không có dữ liệu</div>
+            <div className="p-6 text-center text-gray-500">
+              Không có dữ liệu
+            </div>
           ) : (
             documents.map((doc: Document, idx: number) => (
               <div
@@ -137,9 +134,15 @@ export default function Documents() {
                   {idx + 1 + (currentPage - 1) * 6}
                 </div>
                 <div className={`${fields[1].flex} p-2`}>{doc.name}</div>
-                <div className={`${fields[2].flex} p-2 text-center`}>{doc.docCode}</div>
-                <div className={`${fields[3].flex} p-2 text-center`}>{typeMap[doc.type]}</div>
-                <div className={`${fields[4].flex} p-2 text-center`}>{scopeMap[doc.scope]}</div>
+                <div className={`${fields[2].flex} p-2 text-center`}>
+                  {doc.docCode}
+                </div>
+                <div className={`${fields[3].flex} p-2 text-center`}>
+                  {typeMap[doc.type]}
+                </div>
+                <div className={`${fields[4].flex} p-2 text-center`}>
+                  {scopeMap[doc.scope]}
+                </div>
               </div>
             ))
           )}
@@ -147,10 +150,16 @@ export default function Documents() {
       </div>
 
       {/* Pagination */}
-      <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
+      <Pagination
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        totalPages={totalPages}
+      />
 
       {/* Modals */}
-      {openDetails && <DocumentDetails id={selectedId} open={setOpenDetails} canEdit={true} />}
+      {openDetails && (
+        <DocumentDetails id={selectedId} open={setOpenDetails} canEdit={true} />
+      )}
       {openAdd && <AddDocument open={setOpenAdd} />}
     </div>
   );

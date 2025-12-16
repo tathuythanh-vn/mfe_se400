@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useGetEventByIdQuery,
   useUpdateEventByIdMutation,
   useListEventRegistrationsQuery,
   useGetCommentsQuery,
   useCreateCommentMutation,
-  useHideCommentMutation,
-  // @ts-ignore
+  useHideCommentMutation, // @ts-ignore
 } from "home/store";
 
 import { IoCloseCircle } from "react-icons/io5";
@@ -14,6 +13,7 @@ import { FaChevronCircleDown, FaChevronCircleUp } from "react-icons/fa";
 import ClipLoader from "react-spinners/ClipLoader";
 import { toast } from "react-toastify";
 import avatar from "../assets/avatar.png";
+import AttendeeItem from "../components/AttendeeItem";
 
 interface Props {
   id: string;
@@ -23,10 +23,11 @@ interface Props {
 export default function EventDetails({ id, open }: Props) {
   /* ===================== API ===================== */
   const { data: eventRes } = useGetEventByIdQuery(id, { skip: !id });
-  const { data: registrationRes } = useListEventRegistrationsQuery(
-    { eventId: id },
-    { skip: !id }
-  );
+  const { data: registrationRes, isLoading: loadingRegs } =
+    useListEventRegistrationsQuery(
+      { eventId: id },
+      { skip: !id }
+    );
   const { data: commentRes } = useGetCommentsQuery(
     { eventId: id },
     { skip: !id }
@@ -48,8 +49,12 @@ export default function EventDetails({ id, open }: Props) {
   const [showAttendee, setShowAttendee] = useState(false);
   const [showComment, setShowComment] = useState(false);
 
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+
+  /* ===================== DATA ===================== */
   const event = eventRes?.data;
-  const registrations = registrationRes?.data || [];
+  const registrations = registrationRes?.data?.registrations || [];
   const comments = commentRes?.data || [];
 
   /* ===================== EFFECT ===================== */
@@ -64,9 +69,25 @@ export default function EventDetails({ id, open }: Props) {
     }
   }, [event]);
 
+  /* ===================== FILTER ===================== */
+  const filteredRegistrations = useMemo(() => {
+    return registrations.filter((item: any) => {
+      const matchSearch =
+        item.fullname?.toLowerCase().includes(search.toLowerCase());
+
+      const matchStatus = filterStatus
+        ? item.status === filterStatus
+        : true;
+
+      return matchSearch && matchStatus;
+    });
+  }, [registrations, search, filterStatus]);
+
   /* ===================== HANDLERS ===================== */
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -76,17 +97,12 @@ export default function EventDetails({ id, open }: Props) {
     try {
       await updateEvent({
         id,
-        data: {
-          name: form.name,
-          status: form.status,
-          location: form.location,
-          description: form.description,
-        },
+        data: form,
       }).unwrap();
 
       toast.success("Cập nhật thành công");
       open(false);
-    } catch (err) {
+    } catch {
       toast.error("Cập nhật thất bại");
     }
   };
@@ -102,15 +118,10 @@ export default function EventDetails({ id, open }: Props) {
     setComment("");
   };
 
-  const handleHideComment = async (commentId: string) => {
-    await hideComment(commentId);
-  };
-
   /* ===================== UI ===================== */
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
       <div className="bg-white w-full max-w-4xl rounded-xl p-6 relative max-h-[90vh] overflow-y-auto">
-
         {/* CLOSE */}
         <button
           onClick={() => open(false)}
@@ -169,7 +180,7 @@ export default function EventDetails({ id, open }: Props) {
           />
         </div>
 
-        {/* UPDATE BUTTON */}
+        {/* UPDATE */}
         <button
           onClick={handleUpdate}
           disabled={isLoading}
@@ -179,8 +190,8 @@ export default function EventDetails({ id, open }: Props) {
           Cập nhật
         </button>
 
-        {/* ATTENDEES */}
-        <div className="mt-6">
+        {/* ================= ATTENDEES ================= */}
+        <div className="mt-8">
           <div
             className="flex gap-3 items-center cursor-pointer"
             onClick={() => setShowAttendee(!showAttendee)}
@@ -192,18 +203,48 @@ export default function EventDetails({ id, open }: Props) {
           </div>
 
           {showAttendee && (
-            <div className="mt-3 space-y-2">
-              {registrations.map((u: any) => (
-                <div key={u._id} className="border p-3 rounded">
-                  {u.accountId?.fullname}
-                </div>
-              ))}
-            </div>
+            <>
+              {/* TOOLBAR */}
+              <div className="flex gap-4 mt-4 mb-3">
+                <input
+                  type="search"
+                  placeholder="Tìm theo họ tên"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="border p-2 rounded flex-1"
+                />
+
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="border p-2 rounded w-48"
+                >
+                  <option value="">Tất cả</option>
+                  <option value="registered">Chưa có mặt</option>
+                  <option value="attended">Đã có mặt</option>
+                </select>
+              </div>
+
+              {/* LIST */}
+              <div className="border rounded divide-y">
+                {loadingRegs ? (
+                  <p className="text-center py-4">Đang tải...</p>
+                ) : filteredRegistrations.length > 0 ? (
+                  filteredRegistrations.map((item: any) => (
+                    <AttendeeItem key={item._id} item={item} />
+                  ))
+                ) : (
+                  <p className="text-center py-4 text-gray-500">
+                    Không có người tham gia
+                  </p>
+                )}
+              </div>
+            </>
           )}
         </div>
 
-        {/* COMMENTS */}
-        <div className="mt-6">
+        {/* ================= COMMENTS ================= */}
+        <div className="mt-8">
           <div
             className="flex gap-3 items-center cursor-pointer"
             onClick={() => setShowComment(!showComment)}
@@ -243,7 +284,7 @@ export default function EventDetails({ id, open }: Props) {
                       <p>{c.text}</p>
                     </div>
                     <button
-                      onClick={() => handleHideComment(c._id)}
+                      onClick={() => hideComment(c._id)}
                       className="text-red-500 text-sm"
                     >
                       {c.status === "active" ? "Ẩn" : "Đã ẩn"}

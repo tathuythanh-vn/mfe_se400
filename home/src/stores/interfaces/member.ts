@@ -1,63 +1,72 @@
-// Backend response structure
+// ====== COMMON ======
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
 }
 
-// Member model
+// ====== MEMBER ======
 export interface Member {
   _id: string;
-  name: string | null;
-  email: string | null;
-  phone: string | null;
-  role: 'admin' | 'member' | null;
-  chapterId: string | null;
+  memberOf: string | null;
+  position: "secretary" | "deputy_secretary" | "committee_member" | "member" | null;
+  cardCode: string | null;
+  joinedAt: string | null;
+  address: string | null;
+  hometown: string | null;
+  ethnicity: string | null;
+  religion: string | null;
+  eduLevel: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-// Query parameters for getMembersInPage
+// ====== MEMBER + ACCOUNT (backend gộp) ======
+export interface MemberWithAccount extends Member {
+  fullname?: string;
+  gender?: "male" | "female";
+  status?: "active" | "locked";
+  avatar?: {
+    path?: string;
+  };
+  email?: string;
+}
+
+// ====== GET MEMBERS ======
 export interface GetMembersInPageParams {
   page?: number;
   limit?: number;
   search?: string;
-  role?: 'admin' | 'member';
-  chapterId?: string;
+  position?: "secretary" | "deputy_secretary" | "committee_member" | "member";
 }
 
-// Paginated members response
 export interface MembersPageData {
-  members: Member[];
-  totalMembers: number;
+  result: MemberWithAccount[];
+  total: number;
   totalPages: number;
   currentPage: number;
-  limit: number;
 }
 
-export interface GetMembersInPageResponse {
-  message: string;
-  data: MembersPageData;
-}
+export type GetMembersInPageResponse = ApiResponse<MembersPageData>;
 
-// Response for getMemberById
-export type GetMemberByIdResponse = ApiResponse<Member>;
+// ====== MEMBER DETAIL ======
+export type GetMemberByIdResponse = ApiResponse<MemberWithAccount>;
 
-// Response for createMember (returns success/message)
+// ====== CREATE / UPDATE ======
 export type CreateMemberResponse = ApiResponse<null>;
+export type UpdateMemberByIdResponse = ApiResponse<MemberWithAccount>;
 
-// Response for updateMemberById
-export type UpdateMemberByIdResponse = ApiResponse<Member>;
-
-// Member statistics (optional)
+// ====== STATISTIC ======
 export interface MemberStatistic {
-  role: string;
+  name: string;
   value: number;
 }
 
 export interface MemberStatisticData {
-  membersByRole: MemberStatistic[];
-  membersByChapter: MemberStatistic[];
+  memberByGender: MemberStatistic[];
+  memberByStatus: MemberStatistic[];
+  memberByRole: MemberStatistic[];
+  participationData: MemberStatistic[];
 }
 
 export type GetMemberStatisticResponse = ApiResponse<MemberStatisticData>;

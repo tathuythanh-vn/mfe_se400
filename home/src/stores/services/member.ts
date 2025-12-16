@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type {
   GetMembersInPageParams,
   GetMembersInPageResponse,
@@ -6,70 +6,90 @@ import type {
   CreateMemberResponse,
   UpdateMemberByIdResponse,
   GetMemberStatisticResponse,
-} from '../interfaces/member';
+} from "../interfaces/member";
 
 export const memberApi = createApi({
-  reducerPath: 'memberApi',
+  reducerPath: "memberApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.BACKEND_URL}/members`,
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token');
-      if (token) headers.set('Authorization', `Bearer ${token}`);
+      const token = localStorage.getItem("token");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
       return headers;
     },
   }),
-  tagTypes: ['Member', 'MemberStatistic'],
+  tagTypes: ["Member", "MemberStatistic"],
   endpoints: (builder) => ({
-    // GET / - paginated members
-    getMembersInPage: builder.query<GetMembersInPageResponse, GetMembersInPageParams | void>({
+    /* ===================== GET MEMBERS ===================== */
+    getMembersInPage: builder.query<
+      GetMembersInPageResponse,
+      GetMembersInPageParams | void
+    >({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.search) queryParams.append('search', params.search);
-        if (params?.role) queryParams.append('role', params.role);
-        if (params?.chapterId) queryParams.append('chapterId', params.chapterId);
-        const queryString = queryParams.toString();
-        return queryString ? `/?${queryString}` : '/';
+
+        if (params?.page) queryParams.append("page", params.page.toString());
+        if (params?.limit) queryParams.append("limit", params.limit.toString());
+        if (params?.search) queryParams.append("search", params.search);
+        if (params?.position) queryParams.append("position", params.position);
+
+        const qs = queryParams.toString();
+        return qs ? `/?${qs}` : "/";
       },
       providesTags: (result) =>
         result
           ? [
-              ...result.data.members.map(({ _id }) => ({ type: 'Member' as const, id: _id })),
-              { type: 'Member', id: 'LIST' },
+              ...result.data.result.map((m) => ({
+                type: "Member" as const,
+                id: m._id,
+              })),
+              { type: "Member", id: "LIST" },
             ]
-          : [{ type: 'Member', id: 'LIST' }],
+          : [{ type: "Member", id: "LIST" }],
     }),
 
-    // GET /:id
+    /* ===================== GET MEMBER BY ID ===================== */
     getMemberById: builder.query<GetMemberByIdResponse, string>({
       query: (id) => `/${id}`,
-      providesTags: (_result, _error, id) => [{ type: 'Member', id }],
+      providesTags: (_res, _err, id) => [{ type: "Member", id }],
     }),
 
-    // POST /
+    /* ===================== CREATE ===================== */
     createMember: builder.mutation<CreateMemberResponse, FormData>({
-      query: (formData) => ({ url: '/', method: 'POST', body: formData }),
+      query: (formData) => ({
+        url: "/",
+        method: "POST",
+        body: formData,
+      }),
       invalidatesTags: [
-        { type: 'Member', id: 'LIST' },
-        { type: 'MemberStatistic' },
+        { type: "Member", id: "LIST" },
+        { type: "MemberStatistic" },
       ],
     }),
 
-    // PUT /:id
-    updateMemberById: builder.mutation<UpdateMemberByIdResponse, { id: string; formData: FormData }>({
-      query: ({ id, formData }) => ({ url: `/${id}`, method: 'PUT', body: formData }),
-      invalidatesTags: (_result, _error, { id }) => [
-        { type: 'Member', id },
-        { type: 'Member', id: 'LIST' },
-        { type: 'MemberStatistic' },
+    /* ===================== UPDATE ===================== */
+    updateMemberById: builder.mutation<
+      UpdateMemberByIdResponse,
+      { id: string; formData: FormData }
+    >({
+      query: ({ id, formData }) => ({
+        url: `/${id}`,
+        method: "PUT",
+        body: formData,
+      }),
+      invalidatesTags: (_res, _err, { id }) => [
+        { type: "Member", id },
+        { type: "Member", id: "LIST" },
+        { type: "MemberStatistic" },
       ],
     }),
 
-    // GET /statistic
+    /* ===================== STATISTIC ===================== */
     getMemberStatistic: builder.query<GetMemberStatisticResponse, void>({
-      query: () => '/statistic',
-      providesTags: [{ type: 'MemberStatistic' }],
+      query: () => "/statistic",
+      providesTags: [{ type: "MemberStatistic" }],
     }),
   }),
 });

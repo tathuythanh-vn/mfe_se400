@@ -1,77 +1,78 @@
-import React, { useState } from "react";
-import avatar from "../assets/avatar.png";
+import React, { useMemo } from "react";
+import avatarFallback from "../assets/avatar.png";
 // @ts-ignore - Module Federation remote
-import { useCheckinMutation } from "home/store";
+import { useCheckInToEventMutation, EventRegistrationWithAccount } from "home/store";
 
 interface AttendeeItemProps {
-  item: {
-    _id: string;
-    fullname: string;
-    memberOf: { name: string };
-    position: "secretary" | "deputy_secretary" | "commitee_member" | "member";
-    cardCode: string;
-    status: string;
-    avatar?: { path?: string };
-  };
+  item: EventRegistrationWithAccount;
 }
 
-const mapFields: Record<AttendeeItemProps["item"]["position"], string> = {
-  secretary: "Bí thư",
-  deputy_secretary: "Phó Bí thư",
-  commitee_member: "Ủy viên Ban chấp hành",
-  member: "Đoàn viên",
+const positionMap: Record<string, string> = {
+  secretary: 'Bí thư',
+  deputy_secretary: 'Phó Bí thư',
+  commitee_member: 'Ủy viên Ban chấp hành',
+  member: 'Đoàn viên',
 };
 
 const AttendeeItem: React.FC<AttendeeItemProps> = ({ item }) => {
-  const [checkin, setCheckin] = useState(item.status === "attended");
+  const [checkInToEvent, { isLoading }] = useCheckInToEventMutation();
 
-  // Mutation từ RTK Query
-  const [checkinUser, { isLoading }] = useCheckinMutation();
+  const isCheckedIn = useMemo(
+    () => item.status === 'attended',
+    [item.status]
+  );
 
-  const handleCheckin = async () => {
+  const handleCheckIn = async () => {
     try {
-      const res = await checkinUser(item._id).unwrap();
-      if (res.success) {
-        setCheckin(true);
-      }
+      await checkInToEvent(item._id).unwrap();
+      // Không cần setState vì RTK Query sẽ refetch nhờ invalidatesTags
     } catch (error) {
-      console.log("Checkin error:", error);
+      console.error('Check-in failed:', error);
     }
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 p-3 border-b border-gray-300">
+    <div className="flex items-center gap-4 rounded-xl border bg-white p-4 shadow-sm">
+      {/* Avatar */}
       <img
-        src={item?.avatar?.path || avatar}
+        src={item.avatar?.path || avatarFallback}
         alt="avatar"
-        className="w-16 h-16 rounded-full object-cover"
+        className="h-16 w-16 rounded-full object-cover border"
       />
 
-      <div className="flex-1 text-sm space-y-1">
+      {/* Info */}
+      <div className="flex-1 space-y-1 text-sm">
         <p>
-          <strong>Họ tên:</strong> {item.fullname}
+          <span className="font-semibold">Họ tên:</span>{' '}
+          {item.fullname || '—'}
         </p>
         <p>
-          <strong>Chi đoàn:</strong> {item.memberOf.name}
+          <span className="font-semibold">Chi đoàn:</span>{' '}
+          {item.memberOf?.name || '—'}
         </p>
         <p>
-          <strong>Chức vụ:</strong> {mapFields[item.position]}
+          <span className="font-semibold">Chức vụ:</span>{' '}
+          {positionMap[item.position as string] || '—'}
         </p>
         <p>
-          <strong>Số thẻ Đoàn:</strong> {item.cardCode}
+          <span className="font-semibold">Số thẻ Đoàn:</span>{' '}
+          {item.cardCode || '—'}
         </p>
       </div>
 
-      <div className="min-w-[120px] text-right">
-        {checkin ? (
-          <p className="text-green-600 font-bold">Đã có mặt</p>
+      {/* Action */}
+      <div>
+        {isCheckedIn ? (
+          <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+            ✅ Đã có mặt
+          </span>
         ) : (
           <button
-            onClick={handleCheckin}
+            onClick={handleCheckIn}
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-md disabled:opacity-50"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            {isLoading ? "Đang lưu..." : "Điểm danh"}
+            {isLoading ? 'Đang điểm danh...' : 'Điểm danh'}
           </button>
         )}
       </div>

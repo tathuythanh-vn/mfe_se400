@@ -153,5 +153,6 @@ export type {
 } from './interfaces/eventRegistration';
 export type { Document } from './interfaces/document';
 export type { Notification } from './interfaces/notification';
+export type { Member } from './interfaces/member';
 
 export default store;

@@ -1,163 +1,63 @@
-// // Backend response structure
-// export interface ApiResponse<T> {
-//   success: boolean;
-//   message: string;
-//   data: T;
-// }
-
-// // Member model
-// export interface Member {
-//   _id: string;
-//   name: string | null;
-//   email: string | null;
-//   phone: string | null;
-//   role: 'admin' | 'member' | null;
-//   chapterId: string | null;
-//   createdAt: string;
-//   updatedAt: string;
-// }
-
-// // Query parameters for getMembersInPage
-// export interface GetMembersInPageParams {
-//   page?: number;
-//   limit?: number;
-//   search?: string;
-//   role?: 'admin' | 'member';
-//   chapterId?: string;
-// }
-
-// // Paginated members response
-// export interface MembersPageData {
-//   members: Member[];
-//   totalMembers: number;
-//   totalPages: number;
-//   currentPage: number;
-//   limit: number;
-// }
-
-// export interface GetMembersInPageResponse {
-//   message: string;
-//   data: MembersPageData;
-// }
-
-// // Response for getMemberById
-// export type GetMemberByIdResponse = ApiResponse<Member>;
-
-// // Response for createMember (returns success/message)
-// export type CreateMemberResponse = ApiResponse<null>;
-
-// // Response for updateMemberById
-// export type UpdateMemberByIdResponse = ApiResponse<Member>;
-
-// // Member statistics (optional)
-// export interface MemberStatistic {
-//   role: string;
-//   value: number;
-// }
-
-// export interface MemberStatisticData {
-//   membersByRole: MemberStatistic[];
-//   membersByChapter: MemberStatistic[];
-// }
-
-// export type GetMemberStatisticResponse = ApiResponse<MemberStatisticData>;
-
-/* =========================
-   Base API response
-========================= */
+// ====== COMMON ======
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
 }
 
-/* =========================
-   DB MEMBER MODEL 
-========================= */
-export interface MemberModel {
-  _id: string;               
-  cardCode: string;
-  position: 'secretary' | 'deputy_secretary' | 'committee_member' | 'member';
-  memberOf: string;
+// ====== MEMBER ======
+export interface Member {
+  _id: string;
+  memberOf: string | null;
+  position: "secretary" | "deputy_secretary" | "committee_member" | "member" | null;
+  cardCode: string | null;
+  joinedAt: string | null;
+  address: string | null;
+  hometown: string | null;
+  ethnicity: string | null;
+  religion: string | null;
+  eduLevel: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-/* =========================
-   DB ACCOUNT MODEL 
-========================= */
-export interface AccountModel {
-  _id: string;                 // accountId
-  fullname: string;
-  email?: string;
-  phone?: string;
-  gender?: 'male' | 'female';
-  status: 'active' | 'locked' | 'pending';
+// ====== MEMBER + ACCOUNT (backend gộp) ======
+export interface MemberWithAccount extends Member {
+  fullname?: string;
+  gender?: "male" | "female";
+  status?: "active" | "locked";
   avatar?: {
-    path: string;
-  } | null;
-  infoMember: string;
+    path?: string;
+  };
+  email?: string;
 }
 
-/* =========================
-   API RESPONSE ITEM
-   (Member + Account JOIN)
-========================= */
-export interface MemberInPage {
-  _id: string; // accountId
-  fullname: string;
-  cardCode: string;
-  position: 'secretary' | 'deputy_secretary' | 'committee_member' | 'member';
-  status: 'active' | 'locked' | 'pending';
-  gender?: 'male' | 'female';
-  avatar?: {
-    path: string;
-  } | null;
-  email?: string;
-  phone?: string;
-  memberOf: string;
-  createdAt: string;
-}
-
-/* =========================
-   QUERY PARAMS
-========================= */
+// ====== GET MEMBERS ======
 export interface GetMembersInPageParams {
   page?: number;
   limit?: number;
   search?: string;
-  position?: MemberInPage['position'];
+  position?: "secretary" | "deputy_secretary" | "committee_member" | "member";
 }
 
-/* =========================
-   PAGINATION RESPONSE
-========================= */
 export interface MembersPageData {
-  result: MemberInPage[];
+  result: MemberWithAccount[];
   total: number;
-  currentPage: number;
   totalPages: number;
+  currentPage: number;
 }
 
-/* =========================
-   API RESPONSES
-========================= */
-export type GetMembersInPageResponse =
-  ApiResponse<MembersPageData>;
+export type GetMembersInPageResponse = ApiResponse<MembersPageData>;
 
-export type GetMemberByIdResponse =
-  ApiResponse<MemberInPage>;
+// ====== MEMBER DETAIL ======
+export type GetMemberByIdResponse = ApiResponse<MemberWithAccount>;
 
-export type CreateMemberResponse =
-  ApiResponse<null>;
+// ====== CREATE / UPDATE ======
+export type CreateMemberResponse = ApiResponse<null>;
+export type UpdateMemberByIdResponse = ApiResponse<MemberWithAccount>;
 
-export type UpdateMemberByIdResponse =
-  ApiResponse<MemberInPage>;
-
-/* =========================
-   STATISTIC TYPES
-========================= */
-export interface StatisticItem {
+// ====== STATISTIC ======
+export interface MemberStatistic {
   name: string;
   value: number;
 }
@@ -168,10 +68,10 @@ export interface ParticipationItem {
 }
 
 export interface MemberStatisticData {
-  memberByGender: StatisticItem[];
-  memberByStatus: StatisticItem[];
-  memberByRole: StatisticItem[];
-  participationData: ParticipationItem[];
+  memberByGender: MemberStatistic[];
+  memberByStatus: MemberStatistic[];
+  memberByRole: MemberStatistic[];
+  participationData: MemberStatistic[];
 }
 
 export type GetMemberStatisticResponse =

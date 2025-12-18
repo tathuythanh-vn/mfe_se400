@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import {
   useGetEventByIdQuery,
-  useUpdateEventMutation,
-  useGetRegistrationsQuery,
+  useUpdateEventByIdMutation,
+  useListEventRegistrationsQuery,
   useGetCommentsQuery,
   useCreateCommentMutation,
-  useHideCommentMutation,
-  // @ts-ignore - Module Federation remote
-} from 'home/store';
+  useHideCommentMutation, // @ts-ignore
+} from "home/store";
 
-import { IoCloseCircle } from 'react-icons/io5';
-import { FaChevronCircleDown, FaChevronCircleUp } from 'react-icons/fa';
-import ClipLoader from 'react-spinners/ClipLoader';
-import { toast } from 'react-toastify';
-import avatar from '../assets/avatar.png';
+import { IoCloseCircle } from "react-icons/io5";
+import { FaChevronCircleDown, FaChevronCircleUp } from "react-icons/fa";
+import ClipLoader from "react-spinners/ClipLoader";
+import { toast } from "react-toastify";
+import avatar from "../assets/avatar.png";
+import AttendeeItem from "../components/AttendeeItem";
 
 interface Props {
   id: string;
@@ -21,21 +21,91 @@ interface Props {
 }
 
 export default function EventDetails({ id, open }: Props) {
-  const { data: eventData } = useGetEventByIdQuery(id);
-  const { data: registrationData } = useGetRegistrationsQuery(id);
-  const { data: commentsData } = useGetCommentsQuery(id);
+  /* ===================== API ===================== */
+  const { data: eventRes } = useGetEventByIdQuery(id, { skip: !id });
+  const { data: registrationRes, isLoading: loadingRegs } =
+    useListEventRegistrationsQuery(
+      { eventId: id },
+      { skip: !id }
+    );
+  const { data: commentRes } = useGetCommentsQuery(
+    { eventId: id },
+    { skip: !id }
+  );
 
-  const [updateEvent] = useUpdateEventMutation();
+  const [updateEvent, { isLoading }] = useUpdateEventByIdMutation();
   const [createComment] = useCreateCommentMutation();
   const [hideComment] = useHideCommentMutation();
 
-  const [comment, setComment] = useState('');
+  /* ===================== STATE ===================== */
+  const [form, setForm] = useState({
+    name: "",
+    status: "pending",
+    location: "",
+    description: "",
+  });
+
+  const [comment, setComment] = useState("");
   const [showAttendee, setShowAttendee] = useState(false);
   const [showComment, setShowComment] = useState(false);
 
-  const event = eventData?.data;
-  const registrations = registrationData?.data || [];
-  const comments = commentsData?.data || [];
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+
+  /* ===================== DATA ===================== */
+  const event = eventRes?.data;
+  const registrations = registrationRes?.data?.registrations || [];
+  const comments = commentRes?.data || [];
+
+  /* ===================== EFFECT ===================== */
+  useEffect(() => {
+    if (event) {
+      setForm({
+        name: event.name || "",
+        status: event.status || "pending",
+        location: event.location || "",
+        description: event.description || "",
+      });
+    }
+  }, [event]);
+
+  /* ===================== FILTER ===================== */
+  const filteredRegistrations = useMemo(() => {
+    return registrations.filter((item: any) => {
+      const matchSearch =
+        item.fullname?.toLowerCase().includes(search.toLowerCase());
+
+      const matchStatus = filterStatus
+        ? item.status === filterStatus
+        : true;
+
+      return matchSearch && matchStatus;
+    });
+  }, [registrations, search, filterStatus]);
+
+  /* ===================== HANDLERS ===================== */
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await updateEvent({
+        id,
+        data: form,
+      }).unwrap();
+
+      toast.success("Cập nhật thành công");
+      open(false);
+    } catch {
+      toast.error("Cập nhật thất bại");
+    }
+  };
 
   const handleSendComment = async () => {
     if (!comment.trim()) return;
@@ -45,43 +115,41 @@ export default function EventDetails({ id, open }: Props) {
       text: comment,
     });
 
-    setComment('');
+    setComment("");
   };
 
-  const handleUpdate = async () => {
-    const form = new FormData();
-    form.append('name', event.name);
-
-    await updateEvent({ id, body: form });
-    toast.success('Cập nhật thành công');
-    open(false);
-  };
-
+  /* ===================== UI ===================== */
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center p-4 z-50">
-      <div className="bg-white w-full max-w-4xl rounded-xl p-6 shadow-lg overflow-y-auto max-h-[90vh] relative">
-        {/* Close button */}
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
+      <div className="bg-white w-full max-w-4xl rounded-xl p-6 relative max-h-[90vh] overflow-y-auto">
+        {/* CLOSE */}
         <button
           onClick={() => open(false)}
-          className="absolute right-4 top-4 hover:opacity-80"
+          className="absolute right-4 top-4"
         >
           <IoCloseCircle size={40} className="text-red-500" />
         </button>
 
         {/* NAME + STATUS */}
-        <div className="grid grid-cols-5 gap-4 my-4">
-          <div className="col-span-4 flex flex-col">
+        <div className="grid grid-cols-5 gap-4 mb-4">
+          <div className="col-span-4">
             <label className="font-semibold text-blue-700">Tên sự kiện</label>
             <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
               className="border p-2 rounded w-full"
-              value={event?.name || ''}
-              onChange={() => {}}
             />
           </div>
 
-          <div className="flex flex-col">
+          <div>
             <label className="font-semibold text-blue-700">Trạng thái</label>
-            <select className="border p-2 rounded">
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="border p-2 rounded w-full"
+            >
               <option value="pending">Sắp diễn ra</option>
               <option value="happening">Đang diễn ra</option>
               <option value="completed">Hoàn thành</option>
@@ -91,114 +159,140 @@ export default function EventDetails({ id, open }: Props) {
         </div>
 
         {/* LOCATION */}
-        <div className="my-3">
+        <div className="mb-4">
           <label className="font-semibold text-blue-700">Địa điểm</label>
-          <input className="border p-2 rounded w-full" />
+          <input
+            name="location"
+            value={form.location}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
         </div>
 
         {/* DESCRIPTION */}
-        <div className="my-3">
+        <div className="mb-4">
           <label className="font-semibold text-blue-700">Mô tả</label>
-          <textarea className="border p-2 rounded w-full h-24"></textarea>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            className="border p-2 rounded w-full h-24"
+          />
         </div>
 
-        {/* UPDATE BUTTON */}
-        <div className="mt-4">
-          <button
-            onClick={handleUpdate}
-            className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
-          >
-            <ClipLoader size={18} color="#fff" />
-            Cập nhật
-          </button>
-        </div>
+        {/* UPDATE */}
+        <button
+          onClick={handleUpdate}
+          disabled={isLoading}
+          className="bg-blue-600 text-white px-5 py-2 rounded flex items-center gap-2"
+        >
+          {isLoading && <ClipLoader size={18} color="#fff" />}
+          Cập nhật
+        </button>
 
-        {/* ATTENDEE LIST */}
-        <div className="mt-6">
+        {/* ================= ATTENDEES ================= */}
+        <div className="mt-8">
           <div
-            className="flex items-center cursor-pointer gap-3"
+            className="flex gap-3 items-center cursor-pointer"
             onClick={() => setShowAttendee(!showAttendee)}
           >
-            <p className="text-xl font-bold text-blue-700">
+            <p className="font-bold text-xl text-blue-700">
               Danh sách người tham gia
             </p>
-            {showAttendee ? (
-              <FaChevronCircleUp size={22} className="text-blue-700" />
-            ) : (
-              <FaChevronCircleDown size={22} className="text-blue-700" />
-            )}
+            {showAttendee ? <FaChevronCircleUp /> : <FaChevronCircleDown />}
           </div>
 
           {showAttendee && (
-            <div className="mt-3 space-y-2">
-              {registrations.map((u: any, i: number) => (
-                <div key={i} className="p-3 border rounded shadow">
-                  {u.accountId.fullname}
-                </div>
-              ))}
-            </div>
+            <>
+              {/* TOOLBAR */}
+              <div className="flex gap-4 mt-4 mb-3">
+                <input
+                  type="search"
+                  placeholder="Tìm theo họ tên"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="border p-2 rounded flex-1"
+                />
+
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="border p-2 rounded w-48"
+                >
+                  <option value="">Tất cả</option>
+                  <option value="registered">Chưa có mặt</option>
+                  <option value="attended">Đã có mặt</option>
+                </select>
+              </div>
+
+              {/* LIST */}
+              <div className="border rounded divide-y">
+                {loadingRegs ? (
+                  <p className="text-center py-4">Đang tải...</p>
+                ) : filteredRegistrations.length > 0 ? (
+                  filteredRegistrations.map((item: any) => (
+                    <AttendeeItem key={item._id} item={item} />
+                  ))
+                ) : (
+                  <p className="text-center py-4 text-gray-500">
+                    Không có người tham gia
+                  </p>
+                )}
+              </div>
+            </>
           )}
         </div>
 
-        {/* COMMENTS */}
-        <div className="mt-6">
+        {/* ================= COMMENTS ================= */}
+        <div className="mt-8">
           <div
-            className="flex items-center cursor-pointer gap-3"
+            className="flex gap-3 items-center cursor-pointer"
             onClick={() => setShowComment(!showComment)}
           >
-            <p className="text-xl font-bold text-blue-700">Bình luận</p>
-            {showComment ? (
-              <FaChevronCircleUp size={22} className="text-blue-700" />
-            ) : (
-              <FaChevronCircleDown size={22} className="text-blue-700" />
-            )}
+            <p className="font-bold text-xl text-blue-700">Bình luận</p>
+            {showComment ? <FaChevronCircleUp /> : <FaChevronCircleDown />}
           </div>
 
           {showComment && (
-            <div className="mt-3">
-              {/* Input comment */}
-              <div className="flex gap-2 mb-3">
+            <>
+              <div className="flex gap-2 my-3">
                 <input
-                  className="border p-2 rounded flex-1"
-                  placeholder="Viết bình luận..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
+                  placeholder="Viết bình luận..."
+                  className="border p-2 rounded flex-1"
                 />
                 <button
                   onClick={handleSendComment}
-                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                  className="bg-blue-600 text-white px-4 rounded"
                 >
                   Gửi
                 </button>
               </div>
 
-              {/* Comment list */}
               <div className="space-y-3">
                 {comments.map((c: any) => (
-                  <div
-                    key={c._id}
-                    className="p-3 border rounded flex items-start gap-3"
-                  >
+                  <div key={c._id} className="border p-3 rounded flex gap-3">
                     <img
                       src={c.accountId?.avatar?.path || avatar}
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-10 h-10 rounded-full"
                     />
                     <div className="flex-1">
-                      <div className="font-semibold">
+                      <p className="font-semibold">
                         {c.accountId?.fullname}
-                      </div>
-                      <div className="text-gray-700">{c.text}</div>
+                      </p>
+                      <p>{c.text}</p>
                     </div>
                     <button
                       onClick={() => hideComment(c._id)}
-                      className="text-sm text-red-500"
+                      className="text-red-500 text-sm"
                     >
-                      {c.status === 'active' ? 'Ẩn' : 'Đã ẩn'}
+                      {c.status === "active" ? "Ẩn" : "Đã ẩn"}
                     </button>
                   </div>
                 ))}
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>

@@ -1,19 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import 'pdfjs-dist/web/pdf_viewer.css';
+import "pdfjs-dist/web/pdf_viewer.css";
+import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
-import { IoCloseCircle } from "react-icons/io5";
-// @ts-ignore - Module Federation remote
+// @ts-ignore
 import { useCreateDocumentMutation } from "home/store";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface AddDocumentProps {
   open: (status: boolean) => void;
 }
 
-interface FormData {
+interface FormDataState {
   name: string;
   docCode: string;
   scope: "private" | "chapter";
@@ -21,11 +21,12 @@ interface FormData {
   description: string;
 }
 
-const AddDocument: React.FC<AddDocumentProps> = ({ open }) => {
+export default function AddDocument({ open }: AddDocumentProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [numPages, setNumPages] = useState<number | null>(null);
+  const [numPages, setNumPages] = useState(0);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState<FormData>({
+
+  const [formData, setFormData] = useState<FormDataState>({
     name: "",
     docCode: "",
     scope: "chapter",
@@ -35,26 +36,33 @@ const AddDocument: React.FC<AddDocumentProps> = ({ open }) => {
 
   const [addDocument, { isLoading }] = useCreateDocumentMutation();
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile?.type === "application/pdf") {
-      setFile(selectedFile);
-      setError("");
-    } else {
-      setFile(null);
-      setError("Vui lòng chọn một tệp PDF hợp lệ.");
-    }
-  };
-
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-  };
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+
+    if (selected.type !== "application/pdf") {
+      setError("Vui lòng chọn file PDF hợp lệ");
+      return;
+    }
+
+    setError("");
+    setFile(selected);
   };
 
   const handleSubmit = async () => {
@@ -73,147 +81,125 @@ const AddDocument: React.FC<AddDocumentProps> = ({ open }) => {
       data.append("description", formData.description);
 
       await addDocument(data).unwrap();
-      toast.success("Thêm tài liệu thành công!");
-      setFormData({
-        name: "",
-        docCode: "",
-        scope: "chapter",
-        type: "VBHC",
-        description: "",
-      });
-      setFile(null);
-      setNumPages(null);
+      toast.success("Thêm tài liệu thành công");
+      open(false);
     } catch (err: any) {
-      toast.error(err?.data?.message || "Đã xảy ra lỗi!");
+      toast.error(err?.data?.message || "Đã xảy ra lỗi");
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-400/50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-2xl p-8 w-11/12 max-w-4xl max-h-[90vh] overflow-auto relative flex flex-col gap-6">
-        {/* Close Button */}
-        <button
-          onClick={() => open(false)}
-          className="absolute top-4 right-4 cursor-pointer text-red-500 hover:scale-105 transition-transform"
-        >
-          <IoCloseCircle size={36} />
-        </button>
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-xl flex flex-col">
 
-        {/* Form */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="name" className="font-bold text-[#1C398E]">
-              Tên văn bản
-            </label>
-            <input
-              id="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Nhập tên văn bản"
-              className="border border-[#1C398E] rounded-lg p-2 outline-none"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="docCode" className="font-bold text-[#1C398E]">
-              Số hiệu
-            </label>
-            <input
-              id="docCode"
-              value={formData.docCode}
-              onChange={handleChange}
-              placeholder="Nhập số hiệu"
-              className="border border-[#1C398E] rounded-lg p-2 outline-none"
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-1 flex flex-col gap-2">
-              <label htmlFor="scope" className="font-bold text-[#1C398E]">
-                Phạm vi
-              </label>
-              <select
-                id="scope"
-                value={formData.scope}
-                onChange={handleChange}
-                className="border border-[#1C398E] rounded-lg p-2 outline-none"
-              >
-                <option value="private">Mật</option>
-                <option value="chapter">Nội bộ</option>
-              </select>
-            </div>
-
-            <div className="flex-1 flex flex-col gap-2">
-              <label htmlFor="type" className="font-bold text-[#1C398E]">
-                Loại tài liệu
-              </label>
-              <select
-                id="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="border border-[#1C398E] rounded-lg p-2 outline-none"
-              >
-                <option value="VBHC">Văn bản hành chính</option>
-                <option value="TLSH">Tài liệu sinh hoạt</option>
-                <option value="other">Khác</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="description" className="font-bold text-[#1C398E]">
-              Mô tả
-            </label>
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Nhập mô tả"
-              rows={3}
-              className="border border-[#1C398E] rounded-lg p-2 outline-none resize-none"
-            />
-          </div>
+        {/* ===== HEADER ===== */}
+        <div className="p-4 border-b flex justify-between items-center">
+          <h2 className="text-lg font-bold text-[#155DFC]">
+            Thêm tài liệu
+          </h2>
+          <button onClick={() => open(false)}>
+            <IoCloseCircle size={32} className="text-red-500" />
+          </button>
         </div>
 
-        {/* PDF Preview */}
-        <div className="flex flex-col gap-2">
-          <h2 className="text-[#1C398E] font-bold text-lg">Thêm tài liệu PDF</h2>
-          <label className="bg-[#1C398E] text-white py-1 px-4 rounded-lg cursor-pointer inline-block hover:bg-[#162f77]">
-            Chọn file PDF
-            <input type="file" accept="application/pdf" onChange={onFileChange} className="hidden" />
-          </label>
-          {error && <p className="text-red-500">{error}</p>}
+        {/* ===== BODY ===== */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              id="name"
+              placeholder="Tên văn bản"
+              value={formData.name}
+              onChange={handleChange}
+              className="border rounded-lg px-3 py-2"
+            />
+
+            <input
+              id="docCode"
+              placeholder="Số hiệu"
+              value={formData.docCode}
+              onChange={handleChange}
+              className="border rounded-lg px-3 py-2"
+            />
+
+            <select
+              id="scope"
+              value={formData.scope}
+              onChange={handleChange}
+              className="border rounded-lg px-3 py-2"
+            >
+              <option value="private">Mật</option>
+              <option value="chapter">Nội bộ</option>
+            </select>
+
+            <select
+              id="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="border rounded-lg px-3 py-2"
+            >
+              <option value="VBHC">Văn bản hành chính</option>
+              <option value="TLSH">Tài liệu sinh hoạt</option>
+              <option value="other">Khác</option>
+            </select>
+
+            <textarea
+              id="description"
+              placeholder="Mô tả"
+              value={formData.description}
+              onChange={handleChange}
+              rows={3}
+              className="border rounded-lg px-3 py-2 resize-none md:col-span-2"
+            />
+          </div>
+
+          {/* Upload */}
+          <div>
+            <label className="inline-block bg-[#155DFC] text-white px-4 py-2 rounded-lg cursor-pointer">
+              Chọn file PDF
+              <input
+                type="file"
+                accept="application/pdf"
+                hidden
+                onChange={onFileChange}
+              />
+            </label>
+            {error && <p className="text-red-500 mt-2">{error}</p>}
+          </div>
+
+          {/* Preview */}
           {file && (
-            <div className="mt-2 border-4 border-[#1C398E] rounded-lg p-2 overflow-auto bg-[#e5e8f8] max-h-[50vh]">
+            <div className="border-2 border-[#155DFC] rounded-xl p-3 h-[380px] overflow-auto bg-blue-50">
               <Document
                 file={file}
-                onLoadSuccess={onDocumentLoadSuccess}
-                onLoadError={() => setError("Không thể hiển thị PDF")}
+                renderMode="canvas"
+                onLoadSuccess={({ numPages }) => setNumPages(numPages)}
               >
-                {Array.from(new Array(numPages), (_, index) => (
-                  <Page key={`page_${index + 1}`} pageNumber={index + 1} width={400} />
+                {Array.from({ length: numPages }, (_, i) => (
+                  <Page
+                    key={i}
+                    pageNumber={i + 1}
+                    width={360}
+                    renderTextLayer={false}
+                    renderAnnotationLayer={false}
+                  />
                 ))}
               </Document>
             </div>
           )}
         </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-center mt-4">
+        {/* ===== FOOTER ===== */}
+        <div className="p-4 border-t flex justify-center">
           <button
-            type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className={`bg-[#1C398E] text-white font-bold rounded-lg py-2 px-6 w-28 text-center ${
-              isLoading ? "cursor-not-allowed opacity-70" : "cursor-pointer hover:bg-[#162f77]"
-            } flex justify-center items-center`}
+            className="bg-[#155DFC] text-white px-8 py-3 rounded-lg font-bold"
           >
-            {isLoading ? <ClipLoader size={16} color="#fff" /> : "Thêm"}
+            {isLoading ? <ClipLoader size={20} color="#fff" /> : "Thêm tài liệu"}
           </button>
         </div>
       </div>
     </div>
   );
-};
-
-export default AddDocument;
+}

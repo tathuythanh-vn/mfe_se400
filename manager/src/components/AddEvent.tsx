@@ -94,7 +94,6 @@ export default function AddEvent({ open }: AddEventProps) {
       ...files.map((file) => URL.createObjectURL(file)),
     ]);
 
-    // reset để chọn lại cùng file
     e.target.value = "";
   };
 
@@ -139,7 +138,7 @@ export default function AddEvent({ open }: AddEventProps) {
 
         {/* ===== HEADER ===== */}
         <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-lg font-bold text-[#1C398E]">
+          <h2 className="text-lg font-bold text-[#155DFC]">
             Thêm sự kiện
           </h2>
           <button onClick={() => open(false)}>
@@ -152,7 +151,7 @@ export default function AddEvent({ open }: AddEventProps) {
 
           {/* Name */}
           <div>
-            <label className="font-semibold text-[#1C398E]">
+            <label className="font-semibold text-[#155DFC]">
               Tên sự kiện
             </label>
             <input
@@ -165,7 +164,7 @@ export default function AddEvent({ open }: AddEventProps) {
 
           {/* Location */}
           <div>
-            <label className="font-semibold text-[#1C398E]">
+            <label className="font-semibold text-[#155DFC]">
               Địa điểm
             </label>
             <input
@@ -179,7 +178,7 @@ export default function AddEvent({ open }: AddEventProps) {
           {/* Scope & Time */}
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="font-semibold text-[#1C398E]">
+              <label className="font-semibold text-[#155DFC]">
                 Phạm vi
               </label>
               <select
@@ -194,7 +193,7 @@ export default function AddEvent({ open }: AddEventProps) {
             </div>
 
             <div className="flex-1">
-              <label className="font-semibold text-[#1C398E]">
+              <label className="font-semibold text-[#155DFC]">
                 Bắt đầu
               </label>
               <input
@@ -209,7 +208,7 @@ export default function AddEvent({ open }: AddEventProps) {
 
           {/* Description */}
           <div>
-            <label className="font-semibold text-[#1C398E]">
+            <label className="font-semibold text-[#155DFC]">
               Mô tả
             </label>
             <textarea
@@ -223,7 +222,7 @@ export default function AddEvent({ open }: AddEventProps) {
 
           {/* Tags */}
           <div>
-            <label className="font-semibold text-[#1C398E]">
+            <label className="font-semibold text-[#155DFC]">
               Hashtag
             </label>
             <div className="flex gap-2">
@@ -235,7 +234,7 @@ export default function AddEvent({ open }: AddEventProps) {
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="bg-[#1C398E] text-white px-4 rounded-lg"
+                className="bg-[#155DFC] text-white px-4 rounded-lg"
               >
                 Thêm
               </button>
@@ -245,7 +244,7 @@ export default function AddEvent({ open }: AddEventProps) {
               {form.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg flex items-center gap-1"
+                  className="bg-blue-100 text-[#155DFC] px-3 py-1 rounded-lg flex items-center gap-1"
                 >
                   {tag}
                   <button onClick={() => handleRemoveTag(tag)}>×</button>
@@ -256,22 +255,20 @@ export default function AddEvent({ open }: AddEventProps) {
 
           {/* Images */}
           <div>
-            <label className="font-semibold text-[#1C398E]">
+            <label className="font-semibold text-[#155DFC]">
               Hình ảnh
             </label>
 
-            {/* Button thêm ảnh nằm NGAY dưới label */}
             <div className="mt-2">
               <button
                 type="button"
                 onClick={handleAddImageClick}
-                className="bg-[#1C398E] text-white px-4 py-2 rounded-lg"
+                className="bg-[#155DFC] text-white px-4 py-2 rounded-lg"
               >
                 Thêm ảnh
               </button>
             </div>
 
-            {/* Input file hidden */}
             <input
               ref={fileInputRef}
               type="file"
@@ -281,7 +278,6 @@ export default function AddEvent({ open }: AddEventProps) {
               className="hidden"
             />
 
-            {/* Preview */}
             {previewImgs.length > 0 && (
               <div className="flex gap-3 flex-wrap mt-3">
                 {previewImgs.map((img, i) => (
@@ -309,7 +305,7 @@ export default function AddEvent({ open }: AddEventProps) {
           <button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="bg-[#1C398E] text-white px-8 py-3 rounded-lg font-bold"
+            className="bg-[#155DFC] text-white px-8 py-3 rounded-lg font-bold"
           >
             {isLoading ? (
               <ClipLoader size={20} color="#fff" />

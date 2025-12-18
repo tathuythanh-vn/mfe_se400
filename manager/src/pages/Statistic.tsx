@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-// @ts-ignore - Module Federation remote
+import React, { useEffect, useState } from "react";
 import {
   useGetMemberStatisticQuery,
   useGetEventStatisticQuery,
-  useGetDocumentStatisticQuery,  // @ts-ignore
+  useGetDocumentStatisticQuery, // @ts-ignore - Module Federation remote
 } from "home/store";
 
 import {
@@ -12,8 +11,8 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 
 import PieStatistic from "../components/PieStatistic";
@@ -58,37 +57,45 @@ const Statistic: React.FC = () => {
   const { data: eventStat } = useGetEventStatisticQuery();
   const { data: documentStat } = useGetDocumentStatisticQuery();
 
-  /* ===== MEMBER DATA ===== */
-  const memberByGender = memberStat?.data.memberByGender ?? [];
-  const memberByRole = memberStat?.data.memberByRole ?? [];
-  const memberByStatus = memberStat?.data.memberByStatus ?? [];
+  /* ================= MEMBER DATA ================= */
+  const memberByGender = memberStat?.data?.memberByGender ?? [];
+  const memberByRole = memberStat?.data?.memberByRole ?? [];
+  const memberByStatus = memberStat?.data?.memberByStatus ?? [];
 
-  const participationData =
-    memberStat?.data.participationData
-      ?.slice()
-      ?.sort((a: { name: string; value: number }, b: { name: string; value: number }) =>
-    b.value - a.value
-)
+  const rawParticipationData =
+    memberStat?.data?.participationData ?? [];
 
+  const participationData = rawParticipationData.filter(
+    (item: any) =>
+      item?.name &&
+      item.name.trim() !== "" &&
+      item.name !== "Unknown"
+  );
 
-  /* ===== EVENT DATA ===== */
-  const eventByStatus = eventStat?.data.eventByStatus ?? [];
-  const eventByType = eventStat?.data.eventByType ?? [];
-  const interactionData = eventStat?.data.interactionData ?? [];
+  useEffect(() => {
+    console.log("Participation raw:", rawParticipationData);
+    console.log("Participation filtered:", participationData);
+  }, [rawParticipationData, participationData]);
 
-  /* ===== DOCUMENT DATA ===== */
+  /* ================= EVENT DATA ================= */
+  const eventByStatus = eventStat?.data?.eventByStatus ?? [];
+  const eventByType = eventStat?.data?.eventByType ?? [];
+  const interactionData = eventStat?.data?.interactionData ?? [];
+
+  /* ================= DOCUMENT DATA ================= */
   const documentByType =
-    documentStat?.data.documentByType?.map((item: any) => ({
+    documentStat?.data?.documentByType?.map((item: any) => ({
       name: convertDocumentTypeLabel(item.name),
       value: item.value,
     })) ?? [];
 
   const documentByScope =
-    documentStat?.data.documentByScope?.map((item: any) => ({
+    documentStat?.data?.documentByScope?.map((item: any) => ({
       name: convertDocumentScopeLabel(item.name),
       value: item.value,
     })) ?? [];
 
+  /* ===================== UI ===================== */
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-blue-900 mb-6">
@@ -113,7 +120,7 @@ const Statistic: React.FC = () => {
         </select>
       </div>
 
-      {/* ================= MEMBER STATISTIC ================= */}
+      {/* ================= MEMBER ================= */}
       {selected === "members" && (
         <>
           <h2 className="text-xl font-semibold text-blue-900">
@@ -130,18 +137,35 @@ const Statistic: React.FC = () => {
             Số lượt tham gia của từng đoàn viên
           </h3>
 
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={participationData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#0d47a1" />
-            </BarChart>
-          </ResponsiveContainer>
+          {participationData.length === 0 ? (
+            <p className="text-gray-500 italic">
+              Không có dữ liệu hợp lệ
+            </p>
+          ) : (
+            <ResponsiveContainer width="100%" height={420}>
+              <BarChart data={participationData}>
+                <XAxis
+                  dataKey="name"
+                  interval={0}
+                  angle={-30}
+                  textAnchor="end"
+                  height={110}
+                />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Bar
+                  dataKey="participation"
+                  name="Số lượt tham gia"
+                  fill="#0d47a1"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </>
       )}
 
-      {/* ================= EVENT STATISTIC ================= */}
+      {/* ================= EVENT ================= */}
       {selected === "events" && (
         <>
           <h2 className="text-xl font-semibold text-blue-900">
@@ -154,7 +178,7 @@ const Statistic: React.FC = () => {
           </div>
 
           <h3 className="mt-10 mb-4 font-semibold text-blue-900">
-            Lượt tương tác của các sự kiện
+            Lượt tương tác
           </h3>
 
           <ResponsiveContainer width="100%" height={300}>
@@ -170,7 +194,7 @@ const Statistic: React.FC = () => {
         </>
       )}
 
-      {/* ================= DOCUMENT STATISTIC ================= */}
+      {/* ================= DOCUMENT ================= */}
       {selected === "documents" && (
         <>
           <h2 className="text-xl font-semibold text-blue-900">

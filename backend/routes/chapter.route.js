@@ -4,7 +4,8 @@ import ChapterController from "../controllers/chapter.controller.js";
 
 const ChapterRoutes = express.Router();
 
-ChapterRoutes.post("/", ChapterController.createChapter);
+//ChapterRoutes.post("/", ChapterController.createChapter);
+ChapterRoutes.post("", ChapterController.createChapter);
 ChapterRoutes.get("/", ChapterController.getChaptersInPage);
 ChapterRoutes.get("/statistic", ChapterController.getStatistic);
 // ChapterRoutes.get("/all", ChapterController.getAllChapterForComboBox);

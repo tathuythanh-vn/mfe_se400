@@ -83,6 +83,8 @@ console.log("Headers:", headers);
   }),
 });
 
+console.log("📌 API Base URL:", `${process.env.BACKEND_URL}/chapters`);
+
 export const {
   useGetChaptersInPageQuery,
   useGetStatisticQuery,

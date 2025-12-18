@@ -1,328 +1,340 @@
-import React, { useEffect, useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
-import "pdfjs-dist/web/pdf_viewer.css";
-import { IoCloseCircle } from "react-icons/io5";
-import { toast } from "react-toastify";
-import ClipLoader from "react-spinners/ClipLoader";
-
+import { useEffect, useMemo, useState } from "react";
 import {
-  useGetDocumentByIdQuery,
-  useUpdateDocumentByIdMutation, // @ts-ignore
+  useGetEventByIdQuery,
+  useUpdateEventByIdMutation,
+  useListEventRegistrationsQuery,
+  useGetCommentsQuery,
+  useCreateCommentMutation,
+  useHideCommentMutation, // @ts-ignore - Module Federation remote
 } from "home/store";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+import { IoCloseCircle } from "react-icons/io5";
+import { FaChevronCircleDown, FaChevronCircleUp } from "react-icons/fa";
+import ClipLoader from "react-spinners/ClipLoader";
+import { toast } from "react-toastify";
+import avatar from "../assets/avatar.png";
+import AttendeeItem from "../components/AttendeeItem";
+
+/* ===================== TYPES ===================== */
 
 interface Props {
   id: string;
-  open: (v: boolean) => void;
-  canEdit: boolean;
+  open: (val: boolean) => void;
 }
 
-export default function DocumentDetails({ id, open, canEdit }: Props) {
-  /* ================= RTK QUERY ================= */
-  const { data: docRes, refetch } = useGetDocumentByIdQuery(id);
-  const [updateDocument, { isLoading }] =
-    useUpdateDocumentByIdMutation();
+interface EventForm {
+  name: string;
+  status: string;
+  location: string;
+  description: string;
+}
 
-  const doc = docRes?.data;
+interface Registration {
+  _id: string;
+  fullname?: string;
+  status: "registered" | "attended";
+  memberOf?: {
+    name: string;
+  };
+}
 
-  /* ================= STATE ================= */
-  const [numPages, setNumPages] = useState(0);
-  const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState("");
+interface Comment {
+  _id: string;
+  text: string;
+  status: string;
+  accountId?: {
+    fullname?: string;
+    avatar?: {
+      path?: string;
+    };
+  };
+}
 
-  const [formData, setFormData] = useState({
+/* ===================== COMPONENT ===================== */
+
+export default function EventDetails({ id, open }: Props) {
+  /* ===================== API ===================== */
+
+  const { data: eventRes } = useGetEventByIdQuery(id, { skip: !id });
+
+  const {
+    data: registrationRes,
+    isLoading: loadingRegs,
+  } = useListEventRegistrationsQuery(
+    { eventId: id },
+    { skip: !id }
+  );
+
+  const { data: commentRes } = useGetCommentsQuery(
+    { eventId: id },
+    { skip: !id }
+  );
+
+  const [updateEvent, { isLoading }] = useUpdateEventByIdMutation();
+  const [createComment] = useCreateCommentMutation();
+  const [hideComment] = useHideCommentMutation();
+
+  /* ===================== STATE ===================== */
+
+  const [form, setForm] = useState<EventForm>({
     name: "",
-    docCode: "",
-    scope: "",
-    type: "VBHC",
+    status: "pending",
+    location: "",
     description: "",
   });
 
-  /* ================= LOAD PDF FROM URL ================= */
-  const loadPdfAsFile = async (url: string) => {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Fetch PDF failed");
+  const [comment, setComment] = useState("");
+  const [showAttendee, setShowAttendee] = useState(false);
+  const [showComment, setShowComment] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
 
-      const blob = await res.blob();
-      const pdfFile = new File([blob], "document.pdf", {
-        type: "application/pdf",
-      });
+  /* ===================== DATA ===================== */
 
-      setFile(pdfFile);
-      setError("");
-    } catch (err) {
-      console.error(err);
-      setFile(null);
-      setError("Không thể tải file PDF");
-    }
-  };
+  const event = eventRes?.data;
+  const registrations: Registration[] = registrationRes?.data || [];
+  const comments: Comment[] = commentRes?.data || [];
 
-  /* ================= INIT DATA ================= */
+  /* ===================== EFFECT ===================== */
+
   useEffect(() => {
-    if (!doc) return;
+    if (!event) return;
 
-    setFormData({
-      name: doc.name || "",
-      docCode: doc.docCode || "",
-      scope: doc.scope || "",
-      type: doc.type || "VBHC",
-      description: doc.description || "",
+    setForm({
+      name: event.name ?? "",
+      status: event.status ?? "pending",
+      location: event.location ?? "",
+      description: event.description ?? "",
     });
+  }, [event]);
 
-    if (doc.file?.path) {
-      loadPdfAsFile(doc.file.path);
-    }
-  }, [doc]);
+  /* ===================== FILTER ===================== */
 
-  /* ================= HANDLERS ================= */
+  const filteredRegistrations = useMemo(() => {
+    return registrations.filter((item) => {
+      const matchSearch = search
+        ? item.fullname?.toLowerCase().includes(search.toLowerCase())
+        : true;
+
+      const matchStatus = filterStatus
+        ? item.status === filterStatus
+        : true;
+
+      return matchSearch && matchStatus;
+    });
+  }, [registrations, search, filterStatus]);
+
+  /* ===================== HANDLERS ===================== */
+
   const handleChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
-
-    if (selected.type !== "application/pdf") {
-      setError("Vui lòng chọn file PDF hợp lệ");
-      return;
-    }
-
-    setFile(selected);
-    setError("");
-  };
-
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-  };
-
-  const handleSubmit = async () => {
-    if (!file) {
-      toast.error("Vui lòng chọn file PDF!");
-      return;
-    }
-
-    const body = new FormData();
-    body.append("name", formData.name);
-    body.append("docCode", formData.docCode);
-    body.append("scope", formData.scope);
-    body.append("type", formData.type);
-    body.append("description", formData.description);
-
-    if (file instanceof File) {
-      body.append("file", file);
-    }
-
+  const handleUpdate = async () => {
     try {
-      await updateDocument({ id, body }).unwrap();
-      toast.success("Cập nhật thành công!");
-      refetch();
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Có lỗi xảy ra");
+      await updateEvent({ id, data: form }).unwrap();
+      toast.success("Cập nhật thành công");
+      open(false);
+    } catch {
+      toast.error("Cập nhật thất bại");
     }
   };
 
-  /* ================= RENDER ================= */
-  return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[999]">
-      <div className="bg-white w-[80%] rounded-2xl p-10 relative max-h-[90vh] overflow-auto flex gap-6">
+  const handleSendComment = async () => {
+    if (!comment.trim()) return;
 
+    await createComment({
+      eventId: id,
+      text: comment,
+    });
+
+    setComment("");
+  };
+
+  /* ===================== UI ===================== */
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
+      <div className="bg-white w-full max-w-4xl rounded-xl p-6 relative max-h-[90vh] overflow-y-auto">
         {/* CLOSE */}
         <button
           onClick={() => open(false)}
-          className="absolute top-4 right-4"
+          className="absolute right-4 top-4"
         >
-          <IoCloseCircle size={42} className="text-red-500" />
+          <IoCloseCircle size={40} className="text-red-500" />
         </button>
 
-        {/* ================= LEFT ================= */}
-        <div className="flex-1 flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-blue-700">
-            Thông tin văn bản
-          </h2>
-
-          <Input
-            label="Tên văn bản"
-            id="name"
-            value={formData.name}
-            onChange={handleChange}
-            disabled={!canEdit}
-          />
-
-          <Input
-            label="Số hiệu"
-            id="docCode"
-            value={formData.docCode}
-            onChange={handleChange}
-            disabled={!canEdit}
-          />
-
-          <div className="flex gap-4">
-            <Select
-              label="Phạm vi"
-              id="scope"
-              value={formData.scope}
+        {/* NAME + STATUS */}
+        <div className="grid grid-cols-5 gap-4 mb-4">
+          <div className="col-span-4">
+            <label className="font-semibold text-blue-700">Tên sự kiện</label>
+            <input
+              name="name"
+              value={form.name}
               onChange={handleChange}
-              disabled={!canEdit}
-              options={[
-                { value: "private", label: "Mật" },
-                { value: "chapter", label: "Nội bộ" },
-              ]}
-            />
-
-            <Select
-              label="Loại tài liệu"
-              id="type"
-              value={formData.type}
-              onChange={handleChange}
-              disabled={!canEdit}
-              options={[
-                { value: "VBHC", label: "Văn bản hành chính" },
-                { value: "TLSH", label: "Tài liệu sinh hoạt" },
-                { value: "other", label: "Khác" },
-              ]}
+              className="border p-2 rounded w-full"
             />
           </div>
 
-          <Textarea
-            label="Mô tả"
-            id="description"
-            value={formData.description}
-            onChange={handleChange}
-            disabled={!canEdit}
-          />
-
-          {canEdit && (
-            <button
-              onClick={handleSubmit}
-              disabled={isLoading}
-              className="bg-blue-600 text-white font-bold px-6 py-3 rounded-lg w-fit"
+          <div>
+            <label className="font-semibold text-blue-700">Trạng thái</label>
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="border p-2 rounded w-full"
             >
-              {isLoading ? (
-                <ClipLoader size={18} color="#fff" />
-              ) : (
-                "Lưu thay đổi"
-              )}
-            </button>
+              <option value="pending">Sắp diễn ra</option>
+              <option value="happening">Đang diễn ra</option>
+              <option value="completed">Hoàn thành</option>
+              <option value="canceled">Hủy</option>
+            </select>
+          </div>
+        </div>
+
+        {/* LOCATION */}
+        <div className="mb-4">
+          <label className="font-semibold text-blue-700">Địa điểm</label>
+          <input
+            name="location"
+            value={form.location}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* DESCRIPTION */}
+        <div className="mb-4">
+          <label className="font-semibold text-blue-700">Mô tả</label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            className="border p-2 rounded w-full h-24"
+          />
+        </div>
+
+        {/* UPDATE */}
+        <button
+          onClick={handleUpdate}
+          disabled={isLoading}
+          className="bg-blue-600 text-white px-5 py-2 rounded flex items-center gap-2"
+        >
+          {isLoading && <ClipLoader size={18} color="#fff" />}
+          Cập nhật
+        </button>
+
+        {/* ================= ATTENDEES ================= */}
+        <div className="mt-8">
+          <div
+            className="flex gap-3 items-center cursor-pointer"
+            onClick={() => setShowAttendee(!showAttendee)}
+          >
+            <p className="font-bold text-xl text-blue-700">
+              Danh sách người tham gia
+            </p>
+            {showAttendee ? <FaChevronCircleUp /> : <FaChevronCircleDown />}
+          </div>
+
+          {showAttendee && (
+            <>
+              {/* TOOLBAR */}
+              <div className="flex gap-4 mt-4 mb-3">
+                <input
+                  type="search"
+                  placeholder="Tìm theo họ tên"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="border p-2 rounded flex-1"
+                />
+
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="border p-2 rounded w-48"
+                >
+                  <option value="">Tất cả</option>
+                  <option value="registered">Chưa có mặt</option>
+                  <option value="attended">Đã có mặt</option>
+                </select>
+              </div>
+
+              {/* LIST */}
+              <div className="border rounded divide-y">
+                {loadingRegs ? (
+                  <p className="text-center py-4">Đang tải...</p>
+                ) : filteredRegistrations.length > 0 ? (
+                  filteredRegistrations.map((item) => (
+                    <AttendeeItem key={item._id} item={item} />
+                  ))
+                ) : (
+                  <p className="text-center py-4 text-gray-500">
+                    Không có người tham gia
+                  </p>
+                )}
+              </div>
+            </>
           )}
         </div>
 
-        {/* ================= RIGHT ================= */}
-        <div className="w-[450px]">
-          <h2 className="text-xl font-bold text-blue-700 mb-3">
-            Xem tài liệu PDF
-          </h2>
+        {/* ================= COMMENTS ================= */}
+        <div className="mt-8">
+          <div
+            className="flex gap-3 items-center cursor-pointer"
+            onClick={() => setShowComment(!showComment)}
+          >
+            <p className="font-bold text-xl text-blue-700">Bình luận</p>
+            {showComment ? <FaChevronCircleUp /> : <FaChevronCircleDown />}
+          </div>
 
-          {canEdit && (
-            <label className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer inline-block mb-3">
-              Chọn file PDF
-              <input
-                type="file"
-                accept="application/pdf"
-                onChange={onFileChange}
-                className="hidden"
-              />
-            </label>
-          )}
+          {showComment && (
+            <>
+              <div className="flex gap-2 my-3">
+                <input
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Viết bình luận..."
+                  className="border p-2 rounded flex-1"
+                />
+                <button
+                  onClick={handleSendComment}
+                  className="bg-blue-600 text-white px-4 rounded"
+                >
+                  Gửi
+                </button>
+              </div>
 
-          {error && <p className="text-red-600">{error}</p>}
-
-          {file && (
-            <div className="border-4 border-blue-600 rounded-xl p-3 h-[500px] overflow-auto bg-blue-50">
-              <Document
-                file={file}
-                onLoadSuccess={onDocumentLoadSuccess}
-                onLoadError={() =>
-                  setError("Không thể hiển thị PDF")
-                }
-              >
-                {Array.from({ length: numPages }, (_, i) => (
-                  <Page
-                    key={i}
-                    pageNumber={i + 1}
-                    width={400}
-                  />
+              <div className="space-y-3">
+                {comments.map((c) => (
+                  <div key={c._id} className="border p-3 rounded flex gap-3">
+                    <img
+                      src={c.accountId?.avatar?.path || avatar}
+                      className="w-10 h-10 rounded-full"
+                    />
+                    <div className="flex-1">
+                      <p className="font-semibold">
+                        {c.accountId?.fullname}
+                      </p>
+                      <p>{c.text}</p>
+                    </div>
+                    <button
+                      onClick={() => hideComment(c._id)}
+                      className="text-red-500 text-sm"
+                    >
+                      {c.status === "active" ? "Ẩn" : "Đã ẩn"}
+                    </button>
+                  </div>
                 ))}
-              </Document>
-            </div>
+              </div>
+            </>
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-/* ================= REUSABLE COMPONENTS ================= */
-
-function Input({
-  label,
-  ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & {
-  label: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="font-semibold text-blue-600">
-        {label}
-      </label>
-      <input
-        {...props}
-        className="border border-blue-500 rounded-lg px-3 py-2 text-blue-600 outline-none"
-      />
-    </div>
-  );
-}
-
-function Select({
-  label,
-  options,
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement> & {
-  label: string;
-  options: { value: string; label: string }[];
-}) {
-  return (
-    <div className="flex-1 flex flex-col gap-1">
-      <label className="font-semibold text-blue-600">
-        {label}
-      </label>
-      <select
-        {...props}
-        className="border border-blue-500 rounded-lg px-3 py-2 text-blue-600 outline-none"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-function Textarea({
-  label,
-  ...props
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
-  label: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="font-semibold text-blue-600">
-        {label}
-      </label>
-      <textarea
-        {...props}
-        rows={4}
-        className="border border-blue-500 rounded-lg px-3 py-2 text-blue-600 outline-none resize-none"
-      />
     </div>
   );
 }

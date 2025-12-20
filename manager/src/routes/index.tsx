@@ -10,6 +10,7 @@ import MainLayout from 'home/MainLayout';
 import Events from '../pages/Events';
 import Documents from '../pages/Documents';
 import Statistic from '../pages/Statistic';
+import Members from '../pages/Members';
 import '../App.css';
 
 const managerRoutes = [
@@ -29,6 +30,11 @@ const managerRoutes = [
     path: 'statistic',
     element: <Statistic />,
   },
+    {
+    path: 'members',
+    element: <Members />,
+  },
+
 
 ];
 

@@ -62,6 +62,11 @@ export interface MemberStatistic {
   value: number;
 }
 
+export interface ParticipationItem {
+  name: string;
+  participation: number;
+}
+
 export interface MemberStatisticData {
   memberByGender: MemberStatistic[];
   memberByStatus: MemberStatistic[];
@@ -69,4 +74,5 @@ export interface MemberStatisticData {
   participationData: MemberStatistic[];
 }
 
-export type GetMemberStatisticResponse = ApiResponse<MemberStatisticData>;
+export type GetMemberStatisticResponse =
+  ApiResponse<MemberStatisticData>;

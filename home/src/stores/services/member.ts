@@ -38,6 +38,7 @@ export const memberApi = createApi({
         const qs = queryParams.toString();
         return qs ? `/?${qs}` : "/";
       },
+
       providesTags: (result) =>
         result
           ? [

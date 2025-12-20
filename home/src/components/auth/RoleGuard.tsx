@@ -20,7 +20,7 @@ const RoleGuard = ({ children, roles }: RoleGuardProps) => {
 
   // If no profile or no role, redirect to login (Unauthenticated)
   const userRole = data?.data?.role;
-  if (!userRole || isError) {
+  if (!userRole || isError || isLoading) {
     navigate('/auth/login');
   }
 

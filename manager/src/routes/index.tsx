@@ -16,7 +16,7 @@ import '../App.css';
 const managerRoutes = [
   {
     path: '/',
-    element: <Navigate to="events" replace />,
+    element: <Navigate to="members" replace />,
   },
   {
     path: 'events',

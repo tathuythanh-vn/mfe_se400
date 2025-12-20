@@ -1,8 +1,7 @@
 import React from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip } from "chart.js";
-import { useGetAccountStatisticQuery } from "home/store";
-import { useGetStatisticQuery } from "home/store";
+import { useGetAccountStatisticQuery, useGetStatisticQuery } from "home/store";
 
 ChartJS.register(ArcElement, Tooltip);
 
@@ -21,13 +20,10 @@ const CustomLegend = ({ labels, colors }: { labels: string[]; colors: string[] }
 );
 
 export default function AdminStatistic() {
-  // RTK Query
   const { data: accountStat, isLoading: loadingAccount } = useGetAccountStatisticQuery();
   const { data: chapterStat, isLoading: loadingChapter } = useGetStatisticQuery();
-
   const loading = loadingAccount || loadingChapter;
 
-  // nếu đang load thì hiển thị simple loading
   if (loading) {
     return (
       <div className="w-full h-full flex items-center justify-center text-blue-800 text-xl font-semibold">
@@ -36,7 +32,6 @@ export default function AdminStatistic() {
     );
   }
 
-  // chuẩn bị data
   const statusCounts = [
     accountStat?.data.status.active ?? 0,
     accountStat?.data.status.locked ?? 0,
@@ -59,8 +54,9 @@ export default function AdminStatistic() {
     chapterStat?.data.manager.noManager ?? 0,
   ];
 
-  const options = {
+  const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false, // quan trọng: fix lỗi quá to
     plugins: { legend: { display: false } },
   };
 
@@ -84,31 +80,29 @@ export default function AdminStatistic() {
     datasets: [{ data: chapterStatusCounts, backgroundColor: ["#0D47A1", "#64B5F6"] }],
   };
 
+  const renderChart = (data: any) => (
+    <div className="flex flex-col md:flex-row items-center gap-4">
+      <div className="relative w-full md:w-1/2 h-[200px]">
+        <Doughnut data={data} options={chartOptions} />
+      </div>
+      <CustomLegend labels={data.labels} colors={data.datasets[0].backgroundColor} />
+    </div>
+  );
+
   return (
     <div className="w-full h-full flex flex-col gap-10 p-10 box-border">
 
       {/* ============================ ACCOUNT SECTION ============================ */}
       <div className="w-full bg-blue-700 rounded-2xl shadow-md p-6 flex flex-col gap-6">
         <p className="text-white text-center font-bold text-2xl">Thống kê tài khoản</p>
-
-        <div className="grid grid-cols-2 gap-6">
-
-          {/* Status chart */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow p-5 flex flex-col gap-5">
             <h4 className="text-center text-blue-800 font-semibold">Theo trạng thái</h4>
-            <div className="flex justify-around items-center h-[200px]">
-              <Doughnut data={statusData} options={options} />
-              <CustomLegend labels={statusData.labels} colors={statusData.datasets[0].backgroundColor} />
-            </div>
+            {renderChart(statusData)}
           </div>
-
-          {/* Role chart */}
           <div className="bg-white rounded-lg shadow p-5 flex flex-col gap-5">
             <h4 className="text-center text-blue-800 font-semibold">Theo vai trò</h4>
-            <div className="flex justify-around items-center h-[200px]">
-              <Doughnut data={roleData} options={options} />
-              <CustomLegend labels={roleData.labels} colors={roleData.datasets[0].backgroundColor} />
-            </div>
+            {renderChart(roleData)}
           </div>
         </div>
       </div>
@@ -116,27 +110,15 @@ export default function AdminStatistic() {
       {/* ============================ CHAPTER SECTION ============================ */}
       <div className="w-full bg-blue-700 rounded-2xl shadow-md p-6 flex flex-col gap-6">
         <p className="text-white text-center font-bold text-2xl">Thống kê chi đoàn</p>
-
-        <div className="grid grid-cols-2 gap-6">
-
-          {/* Manager chart */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow p-5 flex flex-col gap-5">
             <h4 className="text-center text-blue-800 font-semibold">Trạng thái quản lý</h4>
-            <div className="flex justify-around items-center h-[200px]">
-              <Doughnut data={chapterManagerData} options={options} />
-              <CustomLegend labels={chapterManagerData.labels} colors={chapterManagerData.datasets[0].backgroundColor} />
-            </div>
+            {renderChart(chapterManagerData)}
           </div>
-
-          {/* Status chart */}
           <div className="bg-white rounded-lg shadow p-5 flex flex-col gap-5">
             <h4 className="text-center text-blue-800 font-semibold">Trạng thái hoạt động</h4>
-            <div className="flex justify-around items-center h-[200px]">
-              <Doughnut data={chapterStatusData} options={options} />
-              <CustomLegend labels={chapterStatusData.labels} colors={chapterStatusData.datasets[0].backgroundColor} />
-            </div>
+            {renderChart(chapterStatusData)}
           </div>
-
         </div>
       </div>
 

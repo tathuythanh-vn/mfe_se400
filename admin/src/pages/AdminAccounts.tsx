@@ -192,9 +192,17 @@ export default function AdminAccounts() {
       />
 
       {/* Modals */}
-      {openDetails && selectedId && (
+      {/* {openDetails && selectedId && (
         <AccountDetails id={selectedId} setOpen={setOpenDetails} />
-      )}
+      )} */}
+      {openDetails && selectedId && (
+  <AccountDetails
+    id={selectedId}
+    setOpen={setOpenDetails}
+    onUpdated={refetch}
+  />
+)}
+
     </div>
   );
 }

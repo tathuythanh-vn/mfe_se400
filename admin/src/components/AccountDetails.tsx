@@ -18,6 +18,7 @@ import type { Account } from "home/store";
 type AccountDetailsProps = {
   id: string;
   setOpen: (v: boolean) => void;
+  onUpdated?: () => void; 
   profile?: boolean;
 };
 
@@ -36,6 +37,7 @@ const infoMemberFields = [
 export default function AccountDetails({
   id,
   setOpen,
+  onUpdated,
   profile = false,
 }: AccountDetailsProps) {
   // Fetch account detail
@@ -87,112 +89,48 @@ export default function AccountDetails({
   // ===========================
   // HANDLE UPDATE
   // ===========================
-  // const handleUpdate = async () => {
-  //   try {
-  //     const formData = new FormData();
-
-  //     for (const key in update) {
-  //       const value = update[key];
-
-  //       if (key === "infoMember") {
-  //         formData.append("infoMember", JSON.stringify(value));
-  //       } else {
-  //         formData.append(key, value);
-  //       }
-  //     }
-
-  //     const result = await updateAccount({
-  //       id,
-  //       formData,
-  //     }).unwrap();
-
-  //     result.success
-  //       ? toast.success("Cập nhật thành công.")
-  //       : toast.error(result.message || "Cập nhật thất bại.");
-  //   } catch (err: any) {
-  //     console.log(err);
-  //     toast.error(err?.data?.message || "Cập nhật thất bại.");
-  //   }
-  // };
-// const handleUpdate = async () => {
-//   try {
-//     const formData = new FormData();
-
-//     // Lặp qua các field
-//     Object.entries(update).forEach(([key, value]) => {
-//       if (value === undefined || value === null) return;
-
-//       if (key === "infoMember") {
-//         // Chỉ append khi object có giá trị
-//         formData.append(key, JSON.stringify(value));
-//       } else if (key === "avatar" && value instanceof File) {
-//         formData.append("avatar", value);
-//       } else {
-//         formData.append(key, value);
-//       }
-//     });
-
-//     const result = await updateAccount({
-//       id,
-//       formData,
-//     }).unwrap();
-
-//     if (result.success) {
-//       toast.success("Cập nhật thành công.");
-//     } else {
-//       toast.error(result.message || "Cập nhật thất bại.");
-//     }
-//   } catch (err: any) {
-//     console.log(err);
-//     toast.error(err?.data?.message || "Cập nhật thất bại.");
-//   }
-// };
 const handleUpdate = async () => {
   try {
     const formData = new FormData();
 
-    // ===== AVATAR =====
+    // AVATAR
     if (update.avatar instanceof File) {
       formData.append("avatar", update.avatar);
     }
 
-    // ===== BASIC FIELDS =====
-    const fields = [
-      "fullname",
-      "email",
-      "phone",
-      "birthday",
-      "status",
-      "role",
-      "managerOf",
-    ];
-
-    fields.forEach((field) => {
-      if (update[field] !== undefined) {
+    // BASIC
+    ["fullname", "email", "phone", "status", "role"].forEach((field) => {
+      if (update[field]) {
         formData.append(field, update[field]);
       }
     });
 
-    // ===== INFO MEMBER =====
-    if (update.infoMember) {
+    // BIRTHDAY
+    if (update.birthday) {
+      formData.append("birthday", update.birthday);
+    }
+
+    // MANAGER
+    if (update.role === "manager" && update.managerOf) {
+      formData.append("managerOf", update.managerOf);
+    }
+
+    // MEMBER
+    if (update.role === "member" && update.infoMember) {
       formData.append(
         "infoMember",
         JSON.stringify(update.infoMember)
       );
     }
 
-    const result = await updateAccount({
-      id,
-      formData,
-    }).unwrap();
+    const result = await updateAccount({ id, formData }).unwrap();
 
-    if (result.success) {
-      toast.success("Cập nhật thành công.");
-    } else {
-      toast.error(result.message || "Cập nhật thất bại.");
-    }
+    toast.success("Cập nhật thành công.");
+    onUpdated?.();      // refresh list
+    setOpen(false);    
+
   } catch (err: any) {
-    console.log(err);
+    console.error(err);
     toast.error(err?.data?.message || "Cập nhật thất bại.");
   }
 };
@@ -248,9 +186,26 @@ const handleUpdate = async () => {
   };
 
   const avatarPreview = useMemo(() => {
-    if (update.avatar) return URL.createObjectURL(update.avatar);
-    return data?.avatar?.path || avatarDefault;
-  }, [update.avatar, data.avatar]);
+  // Ưu tiên preview ảnh vừa chọn
+  if (update.avatar instanceof File) {
+    return URL.createObjectURL(update.avatar);
+  }
+
+  const avatar = data?.avatar;
+
+  // Backend trả string
+  if (typeof avatar === "string") {
+    return avatar;
+  }
+
+  // Backend trả object multer
+  if (avatar && typeof avatar === "object") {
+    return avatar.path || avatar.url || avatar.secure_url || avatarDefault;
+  }
+
+  return avatarDefault;
+}, [update.avatar, data?.avatar]);
+
 
   // ===========================
   // LOADING UI

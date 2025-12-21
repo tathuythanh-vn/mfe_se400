@@ -56,8 +56,6 @@ export default function Events() {
   if (error) toast.error("Không thể tải danh sách sự kiện");
 
   const events: Event[] = data?.data?.data ?? [];
-  debugger
-
   const totalPages = data?.data?.totalPages ?? 1;
 
   return (

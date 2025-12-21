@@ -164,7 +164,6 @@ export default function EventDetails({ id, open }: Props) {
   };
 
   /* ===================== UI ===================== */
-
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
       <div className="bg-white w-full max-w-4xl rounded-xl p-6 relative max-h-[90vh] overflow-y-auto">
@@ -276,7 +275,7 @@ export default function EventDetails({ id, open }: Props) {
                 {loadingRegs ? (
                   <p className="text-center py-4">Đang tải...</p>
                 ) : filteredRegistrations.length > 0 ? (
-                  filteredRegistrations.map((item) => (
+                  filteredRegistrations.map((item: any) => (
                     <AttendeeItem key={item._id} item={item} />
                   ))
                 ) : (
@@ -317,7 +316,7 @@ export default function EventDetails({ id, open }: Props) {
               </div>
 
               <div className="space-y-3">
-                {comments.map((c) => (
+                {comments.map((c: any) => (
                   <div key={c._id} className="border p-3 rounded flex gap-3">
                     <img
                       src={c.accountId?.avatar?.path || avatar}

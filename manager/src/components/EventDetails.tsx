@@ -5,7 +5,7 @@ import {
   useListEventRegistrationsQuery,
   useGetCommentsQuery,
   useCreateCommentMutation,
-  useHideCommentMutation, // @ts-ignore
+  useHideCommentMutation, // @ts-ignore - Module Federation remote
 } from "home/store";
 
 import { IoCloseCircle } from "react-icons/io5";
@@ -15,19 +15,56 @@ import { toast } from "react-toastify";
 import avatar from "../assets/avatar.png";
 import AttendeeItem from "../components/AttendeeItem";
 
+/* ===================== TYPES ===================== */
+
 interface Props {
   id: string;
   open: (val: boolean) => void;
 }
 
+interface EventForm {
+  name: string;
+  status: string;
+  location: string;
+  description: string;
+}
+
+interface Registration {
+  _id: string;
+  fullname?: string;
+  status: "registered" | "attended";
+  memberOf?: {
+    name: string;
+  };
+}
+
+interface Comment {
+  _id: string;
+  text: string;
+  status: string;
+  accountId?: {
+    fullname?: string;
+    avatar?: {
+      path?: string;
+    };
+  };
+}
+
+/* ===================== COMPONENT ===================== */
+
 export default function EventDetails({ id, open }: Props) {
   /* ===================== API ===================== */
+
   const { data: eventRes } = useGetEventByIdQuery(id, { skip: !id });
-  const { data: registrationRes, isLoading: loadingRegs } =
-    useListEventRegistrationsQuery(
-      { eventId: id },
-      { skip: !id }
-    );
+
+  const {
+    data: registrationRes,
+    isLoading: loadingRegs,
+  } = useListEventRegistrationsQuery(
+    { eventId: id },
+    { skip: !id }
+  );
+
   const { data: commentRes } = useGetCommentsQuery(
     { eventId: id },
     { skip: !id }
@@ -38,7 +75,8 @@ export default function EventDetails({ id, open }: Props) {
   const [hideComment] = useHideCommentMutation();
 
   /* ===================== STATE ===================== */
-  const [form, setForm] = useState({
+
+  const [form, setForm] = useState<EventForm>({
     name: "",
     status: "pending",
     location: "",
@@ -48,32 +86,42 @@ export default function EventDetails({ id, open }: Props) {
   const [comment, setComment] = useState("");
   const [showAttendee, setShowAttendee] = useState(false);
   const [showComment, setShowComment] = useState(false);
-
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
   /* ===================== DATA ===================== */
+
   const event = eventRes?.data;
-  const registrations = registrationRes?.data?.registrations || [];
-  const comments = commentRes?.data || [];
+  const registrations: Registration[] = registrationRes?.data || [];
+  const comments: Comment[] = commentRes?.data || [];
 
   /* ===================== EFFECT ===================== */
+
   useEffect(() => {
-    if (event) {
-      setForm({
-        name: event.name || "",
-        status: event.status || "pending",
-        location: event.location || "",
-        description: event.description || "",
-      });
-    }
+    if (!event) return;
+
+    setForm({
+      name: event.name ?? "",
+      status: event.status ?? "pending",
+      location: event.location ?? "",
+      description: event.description ?? "",
+    });
   }, [event]);
 
+  useEffect(() => {
+  if (registrationRes) {
+    console.log("RTK Query Data (Registrations):", registrationRes);
+  }
+}, [registrationRes]);
+
+
   /* ===================== FILTER ===================== */
+
   const filteredRegistrations = useMemo(() => {
-    return registrations.filter((item: any) => {
-      const matchSearch =
-        item.fullname?.toLowerCase().includes(search.toLowerCase());
+    return registrations.filter((item) => {
+      const matchSearch = search
+        ? item.fullname?.toLowerCase().includes(search.toLowerCase())
+        : true;
 
       const matchStatus = filterStatus
         ? item.status === filterStatus
@@ -84,6 +132,7 @@ export default function EventDetails({ id, open }: Props) {
   }, [registrations, search, filterStatus]);
 
   /* ===================== HANDLERS ===================== */
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -95,11 +144,7 @@ export default function EventDetails({ id, open }: Props) {
 
   const handleUpdate = async () => {
     try {
-      await updateEvent({
-        id,
-        data: form,
-      }).unwrap();
-
+      await updateEvent({ id, data: form }).unwrap();
       toast.success("Cập nhật thành công");
       open(false);
     } catch {

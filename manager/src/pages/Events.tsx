@@ -24,7 +24,7 @@ const scopeMap: Record<string, string> = {
 
 const statusMap: Record<string, string> = {
   completed: "Hoàn thành",
-  doing: "Đang diễn ra",
+  happening: "Đang diễn ra",
   pending: "Sắp diễn ra",
   canceled: "Đã hủy",
 };
@@ -32,7 +32,7 @@ const statusMap: Record<string, string> = {
 const statusColor: Record<string, string> = {
   completed: "green",
   canceled: "red",
-  doing: "#ff8f00",
+  happening: "#1e88e5",
   pending: "#ff8f00",
 };
 
@@ -104,7 +104,7 @@ export default function Events() {
           >
             <option value="">Tất cả</option>
             <option value="completed">Hoàn thành</option>
-            <option value="doing">Đang diễn ra</option>
+            <option value="happening">Đang diễn ra</option>
             <option value="pending">Sắp diễn ra</option>
             <option value="canceled">Đã hủy</option>
           </select>

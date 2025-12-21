@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ROLE } from '../../constants/nav-items';
 import { useGetProfileQuery } from '../../stores';
@@ -14,18 +14,28 @@ const RoleGuard = ({ children, roles }: RoleGuardProps) => {
   const { data, isLoading, isError } = useGetProfileQuery();
   const navigate = useNavigate();
 
+  const userRole = data?.data?.role;
+  const isUnauthenticated = !userRole || isError;
+
+  // Handle navigation in useEffect (proper side effect handling)
+  useEffect(() => {
+    if (!isLoading && isUnauthenticated) {
+      navigate('/auth/login', { replace: true });
+    }
+  }, [isLoading, isUnauthenticated, navigate]);
+
   if (isLoading) {
     return <Loading />;
   }
 
-  // If no profile or no role, redirect to login (Unauthenticated)
-  const userRole = data?.data?.role;
-  if (!userRole || isError || isLoading) {
-    navigate('/auth/login');
+  // Return null while redirecting to prevent content flash
+  if (!isLoading && isUnauthenticated) {
+    navigate('/auth/login', { replace: true });
+    return null;
   }
 
   // Only allow if user's role is in the allowed roles (Unauthorized)
-  if (userRole && !roles.includes(userRole)) {
+  if (!isLoading && (!userRole || !roles.includes(userRole))) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">

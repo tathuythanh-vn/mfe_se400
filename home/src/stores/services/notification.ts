@@ -4,6 +4,7 @@ import type {
   UpdateStatusNotificationsResponse,
   Notification,
 } from '../interfaces/notification';
+import { getSocket } from '../../utils/socket';
 
 export const notificationApi = createApi({
   reducerPath: 'notificationApi',
@@ -22,6 +23,29 @@ export const notificationApi = createApi({
     // GET /notifications - Get user's notifications (limit 10)
     getNotifications: builder.query<GetNotificationsResponse, void>({
       query: () => '/',
+      async onCacheEntryAdded(
+        partnerId,
+        { cacheDataLoaded, cacheEntryRemoved, updateCachedData },
+      ) {
+        // You can implement WebSocket or SSE here for real-time updates
+        try {
+          // Wait for the initial query to resolve
+          await cacheDataLoaded;
+
+          // const socket = getSocket();
+          // socket.on(SocketEvents.CHAT, (newMessage) => {
+          //   // Update the cache with the new message
+          //   updateCachedData((draft) => {
+          //     draft.data.push(newMessage);
+          //   });
+          // });
+
+          await cacheEntryRemoved;
+        } catch (e) {
+          // Handle error
+          console.error('Error in getHistoryMessage:', e);
+        }
+      },
       providesTags: (result) =>
         result?.data
           ? [

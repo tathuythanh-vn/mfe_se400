@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, LogOut, User } from 'lucide-react';
+import { Bell, Dot, LogOut, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -37,14 +37,16 @@ export default function UserSection() {
 
   const handleClickNotification = async (item: Notification) => {
     // Handle notification click
-    console.log('Notification clicked:', item);
+    markNotificationsAsRead([item]);
+    setShowNotifications(false);
+    navigate('/admin/request-accounts');
   };
 
-  const markNotificationsAsRead = async () => {
+  const markNotificationsAsRead = async (items: Notification[]) => {
     if (unreadCount === 0) return;
 
     try {
-      await updateNotificationsStatus(notifications).unwrap();
+      await updateNotificationsStatus(items).unwrap();
     } catch (error) {
       console.error('Failed to mark notifications as read:', error);
       toast.error('Không thể cập nhật trạng thái thông báo');
@@ -93,7 +95,6 @@ export default function UserSection() {
           className="relative p-1.5 cursor-pointer"
           onClick={() => {
             setShowNotifications((prev) => !prev);
-            markNotificationsAsRead();
           }}
         >
           <Bell size={24} color="white" />
@@ -110,34 +111,40 @@ export default function UserSection() {
           {/* Notification List */}
           {showNotifications && (
             <>
-              <div>
-                <Bell size={24} color="yellow" />
-                <span>Yêu cầu phê duyệt</span>
-              </div>
               <div className="absolute w-[600px] bottom-full left-full rounded-lg bg-stone-100 shadow-md">
-              {notifications.length === 0 ? (
-                <div className="rounded-lg p-2.5 cursor-pointer">
-                  <p className="text-(--dark-blue)">Không có thông báo mới</p>
+                <div className="flex items-center gap-4 bg-sidebar-hover p-3">
+                  <Bell size={24} color="yellow" fill="yellow" />
+                  <span className="text-white text-lg font-bold">
+                    Yêu cầu phê duyệt
+                  </span>
                 </div>
-              ) : (
-                notifications.map((item) => (
-                  <div
-                    key={item._id}
-                    onClick={() => handleClickNotification(item)}
-                    className="rounded-lg p-2.5 cursor-pointer hover:bg-(--weight-blue)"
-                  >
-                    <p
-                      style={{
-                        fontWeight:
-                          item.status === 'unread' ? 'bold' : 'normal',
-                      }}
-                    >
-                      {item.text}
-                    </p>
+
+                {notifications.length === 0 ? (
+                  <div className="rounded-lg p-2.5 cursor-pointer">
+                    <p className="text-(--dark-blue)">Không có thông báo mới</p>
                   </div>
-                ))
-              )}
-            </div>
+                ) : (
+                  notifications.map((item) => (
+                    <div
+                      key={item._id}
+                      onClick={() => handleClickNotification(item)}
+                      className={`flex justify-between items-center p-2 px-4 cursor-pointer hover:bg-gray-400  ${item.status === 'unread' ? 'bg-transparent' : 'bg-gray-300'}`}
+                    >
+                      <p
+                        style={{
+                          fontWeight:
+                            item.status === 'unread' ? 'bold' : 'normal',
+                        }}
+                      >
+                        {item.text}
+                      </p>
+                      {item.status === 'unread' && (
+                        <div className="rounded-full bg-blue-500 w-2 h-2" />
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </>
           )}
         </div>

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { IoCloseCircle } from "react-icons/io5";
-import { toast } from "react-toastify";
-import ClipLoader from "react-spinners/ClipLoader";
-import { useCreateChapterMutation } from "home/store";
-import { validateChapterForm } from "../utils/validate";
+import React, { useState } from 'react';
+import { IoCloseCircle } from 'react-icons/io5';
+import { toast } from 'react-toastify';
+import ClipLoader from 'react-spinners/ClipLoader';
+import { useCreateChapterMutation } from 'home/store';
+import { validateChapterForm } from '../utils/validate';
 
 interface AddChapterProps {
   open: (value: boolean) => void;
@@ -11,11 +11,13 @@ interface AddChapterProps {
 
 export default function AddChapter({ open }: AddChapterProps) {
   const [data, setData] = useState({
-    name: "",
-    address: "",
-    affiliated: "",
-    establishedAt: "",
+    name: '',
+    address: '',
+    affiliated: '',
+    establishedAt: '',
   });
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [createChapter, { isLoading: adding }] = useCreateChapterMutation();
 
@@ -25,36 +27,41 @@ export default function AddChapter({ open }: AddChapterProps) {
   };
 
   const handleAdd = async () => {
-    console.log("handleAdd chạy", data);
-
     // Validate form
     const error = validateChapterForm(data);
-    if (error) {
-      const msg = Object.values(error).join(", ");
-      toast.error(msg);
+
+    if (
+      error.name ||
+      error.address ||
+      error.affiliated ||
+      error.establishedAt
+    ) {
+      const msg = Object.values(error).join(', ');
+      setErrorMessage(msg);
       return;
     }
 
     try {
       // Gọi RTK Query mutation
       const result = await createChapter(data).unwrap();
-      console.log("API result:", result);
+      console.log('API result:', result);
 
       if (result.success) {
-        toast.success("Thêm chi đoàn thành công!");
+        toast.success('Thêm chi đoàn thành công!');
         setData({
-          name: "",
-          address: "",
-          affiliated: "",
-          establishedAt: "",
+          name: '',
+          address: '',
+          affiliated: '',
+          establishedAt: '',
         });
         open(false);
       } else {
-        toast.error(result.message || "Thêm chi đoàn thất bại.");
+        toast.error(result.message || 'Thêm chi đoàn thất bại.');
       }
     } catch (err: any) {
       console.error(err);
-      const msg = err?.data?.message || err?.message || "Lỗi khi thêm chi đoàn.";
+      const msg =
+        err?.data?.message || err?.message || 'Lỗi khi thêm chi đoàn.';
       toast.error(String(msg));
     }
   };
@@ -84,7 +91,9 @@ export default function AddChapter({ open }: AddChapterProps) {
 
           <div className="flex gap-6">
             <div className="flex flex-col gap-2 w-3/4">
-              <label className="text-blue-800 font-semibold">Đơn vị trực thuộc</label>
+              <label className="text-blue-800 font-semibold">
+                Đơn vị trực thuộc
+              </label>
               <input
                 id="affiliated"
                 type="text"
@@ -96,12 +105,14 @@ export default function AddChapter({ open }: AddChapterProps) {
             </div>
 
             <div className="flex flex-col gap-2 w-1/4">
-              <label className="text-blue-800 font-semibold">Ngày thành lập</label>
+              <label className="text-blue-800 font-semibold">
+                Ngày thành lập
+              </label>
               <input
-              title="date"
+                title="date"
                 id="establishedAt"
                 type="date"
-                value={data.establishedAt || ""}
+                value={data.establishedAt || ''}
                 onChange={handleChange}
                 className="border border-blue-600 text-blue-800 rounded-lg h-10 px-3 outline-none"
               />
@@ -120,13 +131,15 @@ export default function AddChapter({ open }: AddChapterProps) {
             />
           </div>
 
+          {errorMessage && <p className="text-red-600">{errorMessage}</p>}
+
           <div className="flex justify-center mt-4">
             <button
               onClick={handleAdd}
               disabled={adding}
               className="bg-blue-700 hover:bg-blue-800 transition text-white font-bold px-6 h-11 rounded-lg shadow-md w-60 flex items-center justify-center disabled:bg-blue-400"
             >
-              {adding ? <ClipLoader size={20} color="#fff" /> : "Thêm mới"}
+              {adding ? <ClipLoader size={20} color="#fff" /> : 'Thêm mới'}
             </button>
           </div>
         </div>

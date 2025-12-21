@@ -1,36 +1,49 @@
-import Notification from "../models/notification.model.js"
-import { sendResponse } from "../utils/response.js"
+import Notification from '../models/notification.model.js';
+import { sendResponse } from '../utils/response.js';
 
-const NotificationController = ()=>{
-
-  const getNotifications = async(req,res)=>{
-   
+const NotificationController = () => {
+  const getNotifications = async (req, res) => {
     try {
-      const notifications = await Notification.find({accountId:req.account._id}).limit(10)
+      const notifications = await Notification.find({
+        accountId: req.account._id,
+      })
+        .limit(10)
+        .sort({ status: -1, createdAt: -1 });
 
-      return sendResponse(res,200,'Lấy danh sách thông báo thành công', notifications)
+      return sendResponse(
+        res,
+        200,
+        'Lấy danh sách thông báo thành công',
+        notifications
+      );
     } catch (error) {
-      console.log(error)
-      return sendResponse(res,500,'Có lỗi  xảy ra khi lấy thông báo')
+      console.log(error);
+      return sendResponse(res, 500, 'Có lỗi  xảy ra khi lấy thông báo');
     }
-  }
-const updateStatusNotifications = async(req,res)=>{
+  };
+  const updateStatusNotifications = async (req, res) => {
     try {
-      const notifications = req.body
-      console.log(notifications)
+      const notifications = req.body;
+      console.log(notifications);
 
-      await Promise.all(notifications.map(async(item)=>{
-        await Notification.findByIdAndUpdate(item._id, {status:'read'})
-      }))
+      await Promise.all(
+        notifications.map(async (item) => {
+          await Notification.findByIdAndUpdate(item._id, { status: 'read' });
+        })
+      );
 
-
-      return sendResponse(res,200,'Lấy danh sách thông báo thành công', notifications)
+      return sendResponse(
+        res,
+        200,
+        'Lấy danh sách thông báo thành công',
+        notifications
+      );
     } catch (error) {
-      console.log(error)
-      return sendResponse(res,500,'Có lỗi  xảy ra khi lấy thông báo')
+      console.log(error);
+      return sendResponse(res, 500, 'Có lỗi  xảy ra khi lấy thông báo');
     }
-}
-  return{getNotifications, updateStatusNotifications}
-}
+  };
+  return { getNotifications, updateStatusNotifications };
+};
 
-export default NotificationController()
+export default NotificationController();

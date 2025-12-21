@@ -24,7 +24,7 @@ export interface UserData {
 export const validateForm = (
   data: UserData,
   role: 'admin' | 'manager' | 'member',
-  isUpdate = false
+  isUpdate = false,
 ): string | null => {
   const isEmpty = (val: unknown): boolean =>
     val === null || val === undefined || val === '';
@@ -50,17 +50,45 @@ export const validateForm = (
     avatar: 'Ảnh đại diện',
   };
 
-  const requiredFieldsByRole: Record<
-    'admin' | 'manager' | 'member',
-    string[]
-  > = {
-    admin: ['email', 'phone', 'fullname', 'birthday', 'gender', 'role', 'password'],
-    manager: ['email', 'phone', 'fullname', 'birthday', 'gender', 'role', 'password', 'managerOf'],
-    member: [
-      'email', 'phone', 'fullname', 'birthday', 'gender', 'role', 'password',
-      'cardCode', 'joinedAt', 'address', 'hometown', 'ethnicity', 'religion', 'eduLevel', 'memberOf',
-    ],
-  };
+  const requiredFieldsByRole: Record<'admin' | 'manager' | 'member', string[]> =
+    {
+      admin: [
+        'email',
+        'phone',
+        'fullname',
+        'birthday',
+        'gender',
+        'role',
+        'password',
+      ],
+      manager: [
+        'email',
+        'phone',
+        'fullname',
+        'birthday',
+        'gender',
+        'role',
+        'password',
+        'managerOf',
+      ],
+      member: [
+        'email',
+        'phone',
+        'fullname',
+        'birthday',
+        'gender',
+        'role',
+        'password',
+        'cardCode',
+        'joinedAt',
+        'address',
+        'hometown',
+        'ethnicity',
+        'religion',
+        'eduLevel',
+        'memberOf',
+      ],
+    };
 
   if (!isUpdate) {
     if (!role || !requiredFieldsByRole[role]) {
@@ -86,7 +114,8 @@ export const validateForm = (
   }
 
   if (!isEmpty(data.fullname)) {
-    if (data.fullname!.trim().length < 2) return 'Họ tên phải có ít nhất 2 ký tự';
+    if (data.fullname!.trim().length < 2)
+      return 'Họ tên phải có ít nhất 2 ký tự';
   }
 
   if (!isEmpty(data.birthday)) {
@@ -94,7 +123,8 @@ export const validateForm = (
   }
 
   if (!isEmpty(data.gender)) {
-    if (!['male', 'female', 'other'].includes(data.gender!)) return 'Giới tính không hợp lệ';
+    if (!['male', 'female', 'other'].includes(data.gender!))
+      return 'Giới tính không hợp lệ';
   }
 
   if (!isEmpty(data.role)) {
@@ -106,14 +136,22 @@ export const validateForm = (
   }
 
   if (!isEmpty(data.cardCode)) {
-    if (data.cardCode!.trim().length < 4) return 'Mã thẻ phải có ít nhất 4 ký tự';
+    if (data.cardCode!.trim().length < 4)
+      return 'Mã thẻ phải có ít nhất 4 ký tự';
   }
 
   if (!isEmpty(data.joinedAt)) {
     if (isNaN(Date.parse(data.joinedAt!))) return 'Ngày vào đoàn không hợp lệ';
   }
 
-  const stringFields = ['position', 'address', 'hometown', 'ethnicity', 'religion', 'eduLevel'];
+  const stringFields = [
+    'position',
+    'address',
+    'hometown',
+    'ethnicity',
+    'religion',
+    'eduLevel',
+  ];
   for (const field of stringFields) {
     const value = (data as any)[field];
     if (!isEmpty(value) && typeof value !== 'string') {
@@ -135,12 +173,16 @@ export const validateChapterForm = (values: any) => {
     errors.name = 'Tên chi đoàn là bắt buộc';
   }
 
-  if (!values.leader || values.leader.trim() === '') {
-    errors.leader = 'Tên bí thư là bắt buộc';
+  if (!values.affiliated || values.affiliated.trim() === '') {
+    errors.affiliated = 'Đơn vị trực thuộc là bắt buộc';
   }
 
-  if (!values.phone || !/^[0-9]{10}$/.test(values.phone)) {
-    errors.phone = 'Số điện thoại không hợp lệ';
+  if (!values.address || values.address.trim() === '') {
+    errors.address = 'Địa chỉ là bắt buộc';
+  }
+
+  if (!values.establishedAt) {
+    errors.establishedAt = 'Ngày thành lập là bắt buộc';
   }
 
   return errors;

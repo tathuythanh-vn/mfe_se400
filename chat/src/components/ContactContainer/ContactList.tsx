@@ -9,7 +9,7 @@ const contactGroups = [
     title: 'Quản trị viên',
   },
   {
-    type: 'managers',
+    type: 'manager',
     title: 'Quản lý chi đoàn',
   },
   {
@@ -66,7 +66,7 @@ export const ContactItem = ({
 
 interface ContactGroupProps {
   title: string;
-  contacts: Account[];
+  contacts: Account[] | Account;
   searchValue?: string;
   setCurrentChatUser?: (user: Account) => void;
 }
@@ -77,8 +77,10 @@ const ContactGroup = ({
   searchValue,
   setCurrentChatUser,
 }: ContactGroupProps) => {
+  let filteredContacts = Array.isArray(contacts) ? contacts : [contacts];
+  
   if (searchValue?.trim()) {
-    contacts = contacts.filter((contact) =>
+    filteredContacts = filteredContacts.filter((contact) =>
       contact.fullname?.toLowerCase().includes(searchValue.toLowerCase()),
     );
   }
@@ -87,10 +89,10 @@ const ContactGroup = ({
   const userId = data?.data?._id;
 
   return (
-    contacts.length > 0 && (
+    filteredContacts.length > 0 && (
       <div>
         <h3 className={`font-bold my-2 text-blue-800`}>{title}</h3>
-        {contacts.map((contact) => {
+        {filteredContacts.map((contact) => {
           // HANDLE NULL CONTACTS + CURRENT USER
           if (contact && contact._id !== userId) {
             return (

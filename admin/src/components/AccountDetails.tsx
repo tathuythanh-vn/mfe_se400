@@ -8,8 +8,6 @@ import ClipLoader from "react-spinners/ClipLoader";
 import {
   useGetAccountByIdQuery,
   useUpdateAccountByIdMutation,
-} from "home/store";
-import {
   useGetChaptersInPageQuery,
 } from "home/store";
 
@@ -18,9 +16,88 @@ import type { Account } from "home/store";
 type AccountDetailsProps = {
   id: string;
   setOpen: (v: boolean) => void;
-  onUpdated?: () => void; 
+  onUpdated?: () => void;
   profile?: boolean;
 };
+
+const ETHNICITIES = [
+  "Kinh",
+  "Tày",
+  "Thái",
+  "Hoa",
+  "Khmer",
+  "Mường",
+  "Nùng",
+  "H'Mông",
+  "Dao",
+  "Gia Rai",
+  "Ê Đê",
+  "Ba Na",
+  "Xơ Đăng",
+  "Sán Chay",
+  "Cơ Ho",
+  "Chăm",
+  "Sán Dìu",
+  "Hrê",
+  "Mnông",
+  "Ra Glai",
+  "Xtiêng",
+  "Bru - Vân Kiều",
+  "Thổ",
+  "Giáy",
+  "Cơ Tu",
+  "Gié Triêng",
+  "Mạ",
+  "Khơ Mú",
+  "Co",
+  "Tà Ôi",
+  "Chơ Ro",
+  "Kháng",
+  "Xinh Mun",
+  "Hà Nhì",
+  "Chu Ru",
+  "Lào",
+  "La Chí",
+  "Phù Lá",
+  "La Hủ",
+  "La Ha",
+  "Pà Thẻn",
+  "Lự",
+  "Ngái",
+  "Chứt",
+  "Lô Lô",
+  "Mảng",
+  "Cờ Lao",
+  "Bố Y",
+  "Cống",
+  "Si La",
+  "Pu Péo",
+  "Rơ Măm",
+  "Brâu",
+  "Ơ Đu",
+];
+
+
+const RELIGIONS = [
+  "Không",
+  "Phật giáo",
+  "Công giáo",
+  "Tin Lành",
+  "Cao Đài",
+  "Hòa Hảo",
+  "Khác",
+];
+
+const EDU_LEVELS = [
+  "Tiểu học",
+  "THCS",
+  "THPT",
+  "Trung cấp",
+  "Cao đẳng",
+  "Đại học",
+  "Sau đại học",
+];
+
 
 const infoMemberFields = [
   "memberOf",
@@ -40,10 +117,8 @@ export default function AccountDetails({
   onUpdated,
   profile = false,
 }: AccountDetailsProps) {
-  // Fetch account detail
   const { data: accountRes, isLoading } = useGetAccountByIdQuery(id);
 
-  // Fetch chapters
   const { data: chaptersRes } = useGetChaptersInPageQuery({
     page: 1,
     limit: 10000,
@@ -55,9 +130,6 @@ export default function AccountDetails({
   const [data, setData] = useState<Partial<Account>>({});
   const [update, setUpdate] = useState<Record<string, any>>({});
 
-  // ===========================
-  // INIT DATA WHEN API RETURN
-  // ===========================
   useEffect(() => {
     if (!accountRes?.data) return;
 
@@ -73,73 +145,45 @@ export default function AccountDetails({
       eduLevel: accountRes.data.eduLevel ?? "",
     };
 
-    setData({
-      ...accountRes.data,
-      infoMember: info,
-    });
-
-    setUpdate({
-      ...accountRes.data,
-      infoMember: info,
-    });
-
-    console.log("ACCOUNT DETAIL RAW:", accountRes.data);
+    setData({ ...accountRes.data, infoMember: info });
+    setUpdate({ ...accountRes.data, infoMember: info });
   }, [accountRes]);
 
-  // ===========================
-  // HANDLE UPDATE
-  // ===========================
-const handleUpdate = async () => {
-  try {
-    const formData = new FormData();
+  const handleUpdate = async () => {
+    try {
+      const formData = new FormData();
 
-    // AVATAR
-    if (update.avatar instanceof File) {
-      formData.append("avatar", update.avatar);
-    }
-
-    // BASIC
-    ["fullname", "email", "phone", "status", "role"].forEach((field) => {
-      if (update[field]) {
-        formData.append(field, update[field]);
+      if (update.avatar instanceof File) {
+        formData.append("avatar", update.avatar);
       }
-    });
 
-    // BIRTHDAY
-    if (update.birthday) {
-      formData.append("birthday", update.birthday);
+      ["fullname", "email", "phone", "status", "role"].forEach((field) => {
+        if (update[field]) formData.append(field, update[field]);
+      });
+
+      if (update.birthday) {
+        formData.append("birthday", update.birthday);
+      }
+
+      if (update.role === "manager" && update.managerOf) {
+        formData.append("managerOf", update.managerOf);
+      }
+
+      if (update.role === "member" && update.infoMember) {
+        formData.append("infoMember", JSON.stringify(update.infoMember));
+      }
+
+      await updateAccount({ id, formData }).unwrap();
+
+      toast.success("Cập nhật thành công.");
+      onUpdated?.();
+      setOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.data?.message || "Cập nhật thất bại.");
     }
+  };
 
-    // MANAGER
-    if (update.role === "manager" && update.managerOf) {
-      formData.append("managerOf", update.managerOf);
-    }
-
-    // MEMBER
-    if (update.role === "member" && update.infoMember) {
-      formData.append(
-        "infoMember",
-        JSON.stringify(update.infoMember)
-      );
-    }
-
-    const result = await updateAccount({ id, formData }).unwrap();
-
-    toast.success("Cập nhật thành công.");
-    onUpdated?.();      // refresh list
-    setOpen(false);    
-
-  } catch (err: any) {
-    console.error(err);
-    toast.error(err?.data?.message || "Cập nhật thất bại.");
-  }
-};
-
-
-
-  // ===========================
-  // HANDLE INPUT CHANGE
-  // ===========================
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -149,31 +193,18 @@ const handleUpdate = async () => {
     setData((prev: any) => ({
       ...prev,
       ...(isInfoMemberField
-        ? {
-            infoMember: {
-              ...(prev.infoMember ?? {}),
-              [id]: value,
-            },
-          }
+        ? { infoMember: { ...(prev.infoMember ?? {}), [id]: value } }
         : { [id]: value }),
     }));
 
     setUpdate((prev: any) => ({
       ...prev,
       ...(isInfoMemberField
-        ? {
-            infoMember: {
-              ...(prev.infoMember ?? {}),
-              [id]: value,
-            },
-          }
+        ? { infoMember: { ...(prev.infoMember ?? {}), [id]: value } }
         : { [id]: value }),
     }));
   };
 
-  // ===========================
-  // AVATAR CHANGE
-  // ===========================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -181,35 +212,24 @@ const handleUpdate = async () => {
     if (file.size < 5 * 1024 * 1024) {
       setUpdate((prev) => ({ ...prev, avatar: file }));
     } else {
-      toast.info("Ảnh vượt quá 5MB. Vui lòng chọn ảnh nhỏ hơn.");
+      toast.info("Ảnh vượt quá 5MB.");
     }
   };
 
   const avatarPreview = useMemo(() => {
-  // Ưu tiên preview ảnh vừa chọn
-  if (update.avatar instanceof File) {
-    return URL.createObjectURL(update.avatar);
-  }
+    if (update.avatar instanceof File) {
+      return URL.createObjectURL(update.avatar);
+    }
 
-  const avatar = data?.avatar;
+    const avatar = data?.avatar;
+    if (typeof avatar === "string") return avatar;
+    if (avatar && typeof avatar === "object") {
+      return avatar.path || avatar.url || avatar.secure_url || avatarDefault;
+    }
 
-  // Backend trả string
-  if (typeof avatar === "string") {
-    return avatar;
-  }
+    return avatarDefault;
+  }, [update.avatar, data?.avatar]);
 
-  // Backend trả object multer
-  if (avatar && typeof avatar === "object") {
-    return avatar.path || avatar.url || avatar.secure_url || avatarDefault;
-  }
-
-  return avatarDefault;
-}, [update.avatar, data?.avatar]);
-
-
-  // ===========================
-  // LOADING UI
-  // ===========================
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-10 gap-4 text-gray-600">
@@ -222,115 +242,106 @@ const handleUpdate = async () => {
   const chapters =
     chaptersRes?.data?.result?.map((i: any) => ({
       value: i._id,
-      name: i.name,
+      label: i.name,
     })) ?? [];
 
   return (
-    <div className="fixed inset-0 bg-[rgba(0,0,0,0.45)] flex justify-center items-center z-50">
-      <div className="relative w-4/5 bg-white rounded-2xl p-10 max-h-[90vh] overflow-hidden shadow-xl">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+      <div className="relative w-4/5 bg-white rounded-2xl p-10 max-h-[90vh] shadow-xl">
         <button
-          className="absolute top-3 right-3 text-red-500 hover:text-red-600 active:-translate-y-1"
+          className="absolute top-3 right-3 text-red-500 hover:text-red-600"
           onClick={() => setOpen(false)}
         >
           <IoCloseCircle size={40} />
         </button>
 
         <div className="overflow-auto max-h-[80vh] pr-3">
-          {/* =============================== */}
-          {/* TOP SECTION */}
-          {/* =============================== */}
-
           <div className="flex gap-6">
-            <div className="w-[180px] px-5 flex flex-col items-center gap-5">
+            <div className="w-[180px] flex flex-col items-center gap-4">
               <img
                 src={avatarPreview}
-                alt="avatar"
-                className="w-full aspect-square rounded-full shadow-md object-cover border"
+                className="w-full aspect-square rounded-full object-cover border"
               />
 
               <label
                 htmlFor="avatar"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer active:-translate-y-1"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer"
               >
-                Thay ảnh đại diện
+                Thay ảnh
               </label>
 
               <input
-                type="file"
                 id="avatar"
-                className="hidden"
+                type="file"
+                hidden
                 onChange={handleFileChange}
               />
             </div>
 
-            {/* MAIN INFO */}
-            <div className="flex-1 flex flex-col gap-5">
-              <div className="grid grid-cols-2 gap-5">
-                <Input
-                  label="Họ và tên"
-                  id="fullname"
-                  value={data.fullname}
-                  onChange={handleChange}
-                />
+            <div className="flex-1 grid grid-cols-2 gap-5">
+              <Input
+                label="Họ và tên"
+                id="fullname"
+                value={data.fullname}
+                onChange={handleChange}
+                placeholder="Nhập họ và tên"
+              />
 
-                {!profile && (
-                  <Select
-                    label="Trạng thái"
-                    id="status"
-                    value={data.status}
-                    onChange={handleChange}
-                    options={[
-                      { value: "active", label: "Hoạt động" },
-                      { value: "locked", label: "Khóa" },
-                      { value: "pending", label: "Chờ duyệt" },
-                    ]}
-                  />
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-5">
-                <Input
-                  label="Email"
-                  id="email"
-                  value={data.email}
-                  onChange={handleChange}
-                />
-                <Input
-                  label="Số điện thoại"
-                  id="phone"
-                  value={data.phone}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-5">
-                <Input
-                  label="Ngày sinh"
-                  id="birthday"
-                  type="date"
-                  value={data.birthday?.substring(0, 10)}
-                  onChange={handleChange}
-                />
-
+              {!profile && (
                 <Select
-                  label="Vai trò"
-                  id="role"
-                  disabled={profile}
-                  value={data.role}
+                  label="Trạng thái"
+                  id="status"
+                  value={data.status}
                   onChange={handleChange}
                   options={[
-                    { value: "admin", label: "Quản trị viên" },
-                    { value: "manager", label: "Quản lý chi đoàn" },
-                    { value: "member", label: "Đoàn viên" },
+                    { value: "active", label: "Hoạt động" },
+                    { value: "locked", label: "Khóa" },
+                    { value: "pending", label: "Chờ duyệt" },
                   ]}
                 />
-              </div>
+              )}
+
+              <Input
+                label="Email"
+                id="email"
+                value={data.email}
+                onChange={handleChange}
+                placeholder="example@email.com"
+              />
+
+              <Input
+                label="Số điện thoại"
+                id="phone"
+                value={data.phone}
+                onChange={handleChange}
+                placeholder="0123456789"
+              />
+
+              <Input
+                label="Ngày sinh"
+                id="birthday"
+                type="date"
+                value={data.birthday?.substring(0, 10)}
+                onChange={handleChange}
+              />
+
+              <Select
+                label="Vai trò"
+                id="role"
+                disabled={profile}
+                value={data.role}
+                onChange={handleChange}
+                options={[
+                  { value: "admin", label: "Quản trị viên" },
+                  { value: "manager", label: "Quản lý chi đoàn" },
+                  { value: "member", label: "Đoàn viên" },
+                ]}
+              />
             </div>
           </div>
 
-          {/* MANAGER */}
           {data.role === "manager" && (
-            <div className="mt-4">
+            <div className="mt-5">
               <Select
                 label="Chi đoàn quản lý"
                 id="managerOf"
@@ -341,13 +352,117 @@ const handleUpdate = async () => {
             </div>
           )}
 
-          {/* MEMBER */}
-          {data.role === "member" && (
-            <div className="grid gap-6 mt-6">
+{data.role === "member" && (
+  <div className="grid gap-4 mt-6">
+    <Select
+      label="Chi đoàn sinh hoạt"
+      id="memberOf"
+      value={data.infoMember?.memberOf}
+      onChange={handleChange}
+      options={chapters}
+    />
+
+    <div className="grid grid-cols-3 gap-4">
+      <Input
+        label="Số thẻ đoàn"
+        id="cardCode"
+        value={data.infoMember?.cardCode}
+        onChange={handleChange}
+        placeholder="VD: DV2025-01"
+      />
+
+      <Input
+        label="Ngày vào đoàn"
+        id="joinedAt"
+        type="date"
+        value={data.infoMember?.joinedAt?.substring(0, 10)}
+        onChange={handleChange}
+      />
+
+      <Select
+        label="Chức vụ"
+        id="position"
+        value={data.infoMember?.position}
+        onChange={handleChange}
+        options={[
+          { value: "secretary", label: "Bí thư" },
+          { value: "deputy_secretary", label: "Phó Bí thư" },
+          { value: "committee_member", label: "Ủy viên BCH" },
+          { value: "member", label: "Đoàn viên" },
+        ]}
+      />
+    </div>
+
+    <Input
+      label="Địa chỉ"
+      id="address"
+      value={data.infoMember?.address}
+      onChange={handleChange}
+      placeholder="Nhập địa chỉ"
+    />
+
+    <Input
+      label="Quê quán"
+      id="hometown"
+      value={data.infoMember?.hometown}
+      onChange={handleChange}
+      placeholder="Nhập quê quán"
+    />
+
+    <div className="grid grid-cols-2 gap-4">
+      <Select
+        label="Dân tộc"
+        id="ethnicity"
+        value={data.infoMember?.ethnicity}
+        onChange={handleChange}
+        options={ETHNICITIES.map((e) => ({
+          value: e,
+          label: e,
+        }))}
+      />
+
+      <Select
+        label="Tôn giáo"
+        id="religion"
+        value={data.infoMember?.religion}
+        onChange={handleChange}
+        options={RELIGIONS.map((r) => ({
+          value: r,
+          label: r,
+        }))}
+      />
+    </div>
+
+    <Select
+      label="Trình độ học vấn"
+      id="eduLevel"
+      value={data.infoMember?.eduLevel}
+      onChange={handleChange}
+      options={EDU_LEVELS.map((e) => ({
+        value: e,
+        label: e,
+      }))}
+    />
+
+    <div className="flex justify-end">
+      <button
+        onClick={handleUpdate}
+        disabled={updating}
+        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+      >
+        {updating ? <ClipLoader size={20} color="#fff" /> : "Lưu"}
+      </button>
+    </div>
+  </div>
+)}
+
+
+          {/* {data.role === "member" && (
+            <div className="grid gap-4 mt-6">
               <Select
                 label="Chi đoàn sinh hoạt"
                 id="memberOf"
-                value={data.infoMember?.memberOf || ""}
+                value={data.infoMember?.memberOf}
                 onChange={handleChange}
                 options={chapters}
               />
@@ -356,20 +471,23 @@ const handleUpdate = async () => {
                 <Input
                   label="Số thẻ đoàn"
                   id="cardCode"
-                  value={data.infoMember?.cardCode || ""}
+                  value={data.infoMember?.cardCode}
                   onChange={handleChange}
+                  placeholder="VD: DV2025-01"
                 />
+
                 <Input
                   label="Ngày vào đoàn"
                   id="joinedAt"
                   type="date"
-                  value={data.infoMember?.joinedAt?.substring(0, 10) || ""}
+                  value={data.infoMember?.joinedAt?.substring(0, 10)}
                   onChange={handleChange}
                 />
+
                 <Select
                   label="Chức vụ"
                   id="position"
-                  value={data.infoMember?.position || ""}
+                  value={data.infoMember?.position}
                   onChange={handleChange}
                   options={[
                     { value: "secretary", label: "Bí thư" },
@@ -383,49 +501,56 @@ const handleUpdate = async () => {
               <Input
                 label="Địa chỉ"
                 id="address"
-                value={data.infoMember?.address || ""}
+                value={data.infoMember?.address}
                 onChange={handleChange}
+                placeholder="Nhập địa chỉ"
               />
+
               <Input
                 label="Quê quán"
                 id="hometown"
-                value={data.infoMember?.hometown || ""}
+                value={data.infoMember?.hometown}
                 onChange={handleChange}
+                placeholder="Nhập quê quán"
               />
 
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Dân tộc"
                   id="ethnicity"
-                  value={data.infoMember?.ethnicity || ""}
+                  value={data.infoMember?.ethnicity}
                   onChange={handleChange}
+                  placeholder="Kinh"
                 />
+
                 <Input
                   label="Tôn giáo"
                   id="religion"
-                  value={data.infoMember?.religion || ""}
+                  value={data.infoMember?.religion}
                   onChange={handleChange}
+                  placeholder="Không"
                 />
               </div>
 
               <Input
                 label="Trình độ học vấn"
                 id="eduLevel"
-                value={data.infoMember?.eduLevel || ""}
+                value={data.infoMember?.eduLevel}
                 onChange={handleChange}
+                placeholder="Đại học"
               />
 
               <div className="flex justify-end">
                 <button
                   onClick={handleUpdate}
                   disabled={updating}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 disabled:opacity-50 active:scale-95"
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                 >
                   {updating ? <ClipLoader size={20} color="#fff" /> : "Lưu"}
                 </button>
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
@@ -433,39 +558,53 @@ const handleUpdate = async () => {
 }
 
 // ===========================
-// INPUT COMPONENTS
+// INPUT / SELECT
 // ===========================
-function Input({ label, id, value, onChange, type = "text" }: any) {
+function Input({ label, id, value, onChange, type = "text", placeholder }: any) {
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <label className="text-blue-600 font-bold">{label}</label>
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-semibold text-blue-600">{label}</label>
       <input
         id={id}
-        title="input"
         type={type}
         value={value || ""}
         onChange={onChange}
-        className="input"
+        placeholder={placeholder}
+        className="w-full px-4 py-2 rounded-lg border border-gray-300
+                   placeholder-gray-400 focus:ring-2 focus:ring-blue-500
+                   focus:border-blue-500 outline-none transition"
       />
     </div>
   );
 }
 
-function Select({ label, id, value, onChange, options, disabled = false }: any) {
+function Select({
+  label,
+  id,
+  value,
+  onChange,
+  options,
+  disabled = false,
+}: any) {
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <label className="text-blue-600 font-bold">{label}</label>
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-semibold text-blue-600">{label}</label>
       <select
+      title="select"
         id={id}
-        title="select"
         value={value || ""}
         onChange={onChange}
         disabled={disabled}
-        className="input"
+        className="w-full px-4 py-2 rounded-lg border border-gray-300
+                   bg-white focus:ring-2 focus:ring-blue-500
+                   focus:border-blue-500 outline-none transition"
       >
+        <option value="" disabled>
+          — Chọn —
+        </option>
         {options.map((opt: any) => (
           <option key={opt.value} value={opt.value}>
-            {opt.label || opt.name}
+            {opt.label}
           </option>
         ))}
       </select>

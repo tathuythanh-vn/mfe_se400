@@ -245,316 +245,209 @@ export default function AccountDetails({
       label: i.name,
     })) ?? [];
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="relative w-4/5 bg-white rounded-2xl p-10 max-h-[90vh] shadow-xl">
-        <button
-          className="absolute top-3 right-3 text-red-500 hover:text-red-600"
-          onClick={() => setOpen(false)}
-        >
-          <IoCloseCircle size={40} />
-        </button>
+return (
+  <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+    <div className="relative w-4/5 bg-white rounded-2xl p-10 max-h-[90vh] shadow-xl">
+      {/* Close button */}
+      <button
+        className="absolute top-3 right-3 text-red-500 hover:text-red-600"
+        onClick={() => setOpen(false)}
+      >
+        <IoCloseCircle size={40} />
+      </button>
 
-        <div className="overflow-auto max-h-[80vh] pr-3">
-          <div className="flex gap-6">
-            <div className="w-[180px] flex flex-col items-center gap-4">
-              <img
-                src={avatarPreview}
-                className="w-full aspect-square rounded-full object-cover border"
-              />
+      {/* Form content */}
+      <div className="overflow-auto max-h-[80vh] pr-3">
+        <div className="flex gap-6">
+          {/* Avatar */}
+          <div className="w-[180px] flex flex-col items-center gap-4">
+            <img
+            title="img"
+              src={avatarPreview}
+              className="w-full aspect-square rounded-full object-cover border"
+            />
+            <label
+              htmlFor="avatar"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer"
+            >
+              Thay ảnh
+            </label>
+            <input
+              id="avatar"
+              type="file"
+              hidden
+              onChange={handleFileChange}
+            />
+          </div>
 
-              <label
-                htmlFor="avatar"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer"
-              >
-                Thay ảnh
-              </label>
-
-              <input
-                id="avatar"
-                type="file"
-                hidden
-                onChange={handleFileChange}
-              />
-            </div>
-
-            <div className="flex-1 grid grid-cols-2 gap-5">
-              <Input
-                label="Họ và tên"
-                id="fullname"
-                value={data.fullname}
-                onChange={handleChange}
-                placeholder="Nhập họ và tên"
-              />
-
-              {!profile && (
-                <Select
-                  label="Trạng thái"
-                  id="status"
-                  value={data.status}
-                  onChange={handleChange}
-                  options={[
-                    { value: "active", label: "Hoạt động" },
-                    { value: "locked", label: "Khóa" },
-                    { value: "pending", label: "Chờ duyệt" },
-                  ]}
-                />
-              )}
-
-              <Input
-                label="Email"
-                id="email"
-                value={data.email}
-                onChange={handleChange}
-                placeholder="example@email.com"
-              />
-
-              <Input
-                label="Số điện thoại"
-                id="phone"
-                value={data.phone}
-                onChange={handleChange}
-                placeholder="0123456789"
-              />
-
-              <Input
-                label="Ngày sinh"
-                id="birthday"
-                type="date"
-                value={data.birthday?.substring(0, 10)}
-                onChange={handleChange}
-              />
-
+          {/* Basic info */}
+          <div className="flex-1 grid grid-cols-2 gap-5">
+            <Input
+              label="Họ và tên"
+              id="fullname"
+              value={data.fullname}
+              onChange={handleChange}
+              placeholder="Nhập họ và tên"
+            />
+            {!profile && (
               <Select
-                label="Vai trò"
-                id="role"
-                disabled={profile}
-                value={data.role}
+                label="Trạng thái"
+                id="status"
+                value={data.status}
                 onChange={handleChange}
                 options={[
-                  { value: "admin", label: "Quản trị viên" },
-                  { value: "manager", label: "Quản lý chi đoàn" },
+                  { value: "active", label: "Hoạt động" },
+                  { value: "locked", label: "Khóa" },
+                  { value: "pending", label: "Chờ duyệt" },
+                ]}
+              />
+            )}
+            <Input
+              label="Email"
+              id="email"
+              value={data.email}
+              onChange={handleChange}
+              placeholder="example@email.com"
+            />
+            <Input
+              label="Số điện thoại"
+              id="phone"
+              value={data.phone}
+              onChange={handleChange}
+              placeholder="0123456789"
+            />
+            <Input
+              label="Ngày sinh"
+              id="birthday"
+              type="date"
+              value={data.birthday?.substring(0, 10)}
+              onChange={handleChange}
+            />
+            <Select
+              label="Vai trò"
+              id="role"
+              disabled={profile}
+              value={data.role}
+              onChange={handleChange}
+              options={[
+                { value: "admin", label: "Quản trị viên" },
+                { value: "manager", label: "Quản lý chi đoàn" },
+                { value: "member", label: "Đoàn viên" },
+              ]}
+            />
+          </div>
+        </div>
+
+        {/* Manager fields */}
+        {data.role === "manager" && (
+          <div className="mt-5">
+            <Select
+              label="Chi đoàn quản lý"
+              id="managerOf"
+              value={data.managerOf}
+              onChange={handleChange}
+              options={chapters}
+            />
+          </div>
+        )}
+
+        {/* Member fields */}
+        {data.role === "member" && (
+          <div className="grid gap-4 mt-6">
+            <Select
+              label="Chi đoàn sinh hoạt"
+              id="memberOf"
+              value={data.infoMember?.memberOf}
+              onChange={handleChange}
+              options={chapters}
+            />
+
+            <div className="grid grid-cols-3 gap-4">
+              <Input
+                label="Số thẻ đoàn"
+                id="cardCode"
+                value={data.infoMember?.cardCode}
+                onChange={handleChange}
+                placeholder="VD: DV2025-01"
+              />
+              <Input
+                label="Ngày vào đoàn"
+                id="joinedAt"
+                type="date"
+                value={data.infoMember?.joinedAt?.substring(0, 10)}
+                onChange={handleChange}
+              />
+              <Select
+                label="Chức vụ"
+                id="position"
+                value={data.infoMember?.position}
+                onChange={handleChange}
+                options={[
+                  { value: "secretary", label: "Bí thư" },
+                  { value: "deputy_secretary", label: "Phó Bí thư" },
+                  { value: "committee_member", label: "Ủy viên BCH" },
                   { value: "member", label: "Đoàn viên" },
                 ]}
               />
             </div>
+
+            <Input
+              label="Địa chỉ"
+              id="address"
+              value={data.infoMember?.address}
+              onChange={handleChange}
+              placeholder="Nhập địa chỉ"
+            />
+            <Input
+              label="Quê quán"
+              id="hometown"
+              value={data.infoMember?.hometown}
+              onChange={handleChange}
+              placeholder="Nhập quê quán"
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <Select
+                label="Dân tộc"
+                id="ethnicity"
+                value={data.infoMember?.ethnicity}
+                onChange={handleChange}
+                options={ETHNICITIES.map((e) => ({ value: e, label: e }))}
+              />
+              <Select
+                label="Tôn giáo"
+                id="religion"
+                value={data.infoMember?.religion}
+                onChange={handleChange}
+                options={RELIGIONS.map((r) => ({ value: r, label: r }))}
+              />
+            </div>
+
+            <Select
+              label="Trình độ học vấn"
+              id="eduLevel"
+              value={data.infoMember?.eduLevel}
+              onChange={handleChange}
+              options={EDU_LEVELS.map((e) => ({ value: e, label: e }))}
+            />
           </div>
+        )}
 
-          {data.role === "manager" && (
-            <div className="mt-5">
-              <Select
-                label="Chi đoàn quản lý"
-                id="managerOf"
-                value={data.managerOf}
-                onChange={handleChange}
-                options={chapters}
-              />
-            </div>
-          )}
-
-{data.role === "member" && (
-  <div className="grid gap-4 mt-6">
-    <Select
-      label="Chi đoàn sinh hoạt"
-      id="memberOf"
-      value={data.infoMember?.memberOf}
-      onChange={handleChange}
-      options={chapters}
-    />
-
-    <div className="grid grid-cols-3 gap-4">
-      <Input
-        label="Số thẻ đoàn"
-        id="cardCode"
-        value={data.infoMember?.cardCode}
-        onChange={handleChange}
-        placeholder="VD: DV2025-01"
-      />
-
-      <Input
-        label="Ngày vào đoàn"
-        id="joinedAt"
-        type="date"
-        value={data.infoMember?.joinedAt?.substring(0, 10)}
-        onChange={handleChange}
-      />
-
-      <Select
-        label="Chức vụ"
-        id="position"
-        value={data.infoMember?.position}
-        onChange={handleChange}
-        options={[
-          { value: "secretary", label: "Bí thư" },
-          { value: "deputy_secretary", label: "Phó Bí thư" },
-          { value: "committee_member", label: "Ủy viên BCH" },
-          { value: "member", label: "Đoàn viên" },
-        ]}
-      />
-    </div>
-
-    <Input
-      label="Địa chỉ"
-      id="address"
-      value={data.infoMember?.address}
-      onChange={handleChange}
-      placeholder="Nhập địa chỉ"
-    />
-
-    <Input
-      label="Quê quán"
-      id="hometown"
-      value={data.infoMember?.hometown}
-      onChange={handleChange}
-      placeholder="Nhập quê quán"
-    />
-
-    <div className="grid grid-cols-2 gap-4">
-      <Select
-        label="Dân tộc"
-        id="ethnicity"
-        value={data.infoMember?.ethnicity}
-        onChange={handleChange}
-        options={ETHNICITIES.map((e) => ({
-          value: e,
-          label: e,
-        }))}
-      />
-
-      <Select
-        label="Tôn giáo"
-        id="religion"
-        value={data.infoMember?.religion}
-        onChange={handleChange}
-        options={RELIGIONS.map((r) => ({
-          value: r,
-          label: r,
-        }))}
-      />
-    </div>
-
-    <Select
-      label="Trình độ học vấn"
-      id="eduLevel"
-      value={data.infoMember?.eduLevel}
-      onChange={handleChange}
-      options={EDU_LEVELS.map((e) => ({
-        value: e,
-        label: e,
-      }))}
-    />
-
-    <div className="flex justify-end">
-      <button
-        onClick={handleUpdate}
-        disabled={updating}
-        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-      >
-        {updating ? <ClipLoader size={20} color="#fff" /> : "Lưu"}
-      </button>
-    </div>
-  </div>
-)}
-
-
-          {/* {data.role === "member" && (
-            <div className="grid gap-4 mt-6">
-              <Select
-                label="Chi đoàn sinh hoạt"
-                id="memberOf"
-                value={data.infoMember?.memberOf}
-                onChange={handleChange}
-                options={chapters}
-              />
-
-              <div className="grid grid-cols-3 gap-4">
-                <Input
-                  label="Số thẻ đoàn"
-                  id="cardCode"
-                  value={data.infoMember?.cardCode}
-                  onChange={handleChange}
-                  placeholder="VD: DV2025-01"
-                />
-
-                <Input
-                  label="Ngày vào đoàn"
-                  id="joinedAt"
-                  type="date"
-                  value={data.infoMember?.joinedAt?.substring(0, 10)}
-                  onChange={handleChange}
-                />
-
-                <Select
-                  label="Chức vụ"
-                  id="position"
-                  value={data.infoMember?.position}
-                  onChange={handleChange}
-                  options={[
-                    { value: "secretary", label: "Bí thư" },
-                    { value: "deputy_secretary", label: "Phó Bí thư" },
-                    { value: "committee_member", label: "Ủy viên BCH" },
-                    { value: "member", label: "Đoàn viên" },
-                  ]}
-                />
-              </div>
-
-              <Input
-                label="Địa chỉ"
-                id="address"
-                value={data.infoMember?.address}
-                onChange={handleChange}
-                placeholder="Nhập địa chỉ"
-              />
-
-              <Input
-                label="Quê quán"
-                id="hometown"
-                value={data.infoMember?.hometown}
-                onChange={handleChange}
-                placeholder="Nhập quê quán"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Dân tộc"
-                  id="ethnicity"
-                  value={data.infoMember?.ethnicity}
-                  onChange={handleChange}
-                  placeholder="Kinh"
-                />
-
-                <Input
-                  label="Tôn giáo"
-                  id="religion"
-                  value={data.infoMember?.religion}
-                  onChange={handleChange}
-                  placeholder="Không"
-                />
-              </div>
-
-              <Input
-                label="Trình độ học vấn"
-                id="eduLevel"
-                value={data.infoMember?.eduLevel}
-                onChange={handleChange}
-                placeholder="Đại học"
-              />
-
-              <div className="flex justify-end">
-                <button
-                  onClick={handleUpdate}
-                  disabled={updating}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                >
-                  {updating ? <ClipLoader size={20} color="#fff" /> : "Lưu"}
-                </button>
-              </div>
-            </div>
-          )} */}
+        {/* Save button – hiển thị cho tất cả role */}
+        <div className="flex justify-end mt-6">
+          <button
+            onClick={handleUpdate}
+            disabled={updating}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          >
+            {updating ? <ClipLoader size={20} color="#fff" /> : "Lưu"}
+          </button>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
+
 }
 
 // ===========================

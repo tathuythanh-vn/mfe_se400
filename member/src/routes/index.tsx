@@ -55,6 +55,8 @@ type MemberAppProps = {
 
 export default function MemberApp({ standalone = false }: MemberAppProps) {
   if (standalone) {
+    // TODO: MEMBER TOKEN
+
     localStorage.setItem(
       'token',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiI2OTI5Y2EwNGNiMGI1MzMyODcxZjcwYzMiLCJpYXQiOjE3NjY0OTYwNjIsImV4cCI6MTc2NjU2MDg2Mn0.bYrbKitZZnAefmmp1LzaXhXHLasfkJeh-lHDHYMiXcc',

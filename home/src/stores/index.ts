@@ -1,6 +1,9 @@
+// Re-export the chatAI API hooks
+export { useGetMessagesQuery, useSendMessageMutation } from './services/chatAI';
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { authApi } from './services/auth';
+import { chatAIApi } from './services/chatAI';
 import { accountApi } from './services/account';
 import { chapterApi } from './services/chapter';
 import { eventApi } from './services/event';
@@ -25,6 +28,7 @@ export const store = configureStore({
     [notificationApi.reducerPath]: notificationApi.reducer,
     [memberApi.reducerPath]: memberApi.reducer,
     [messageApi.reducerPath]: messageApi.reducer,
+    [chatAIApi.reducerPath]: chatAIApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -39,6 +43,7 @@ export const store = configureStore({
       notificationApi.middleware,
       memberApi.middleware,
       messageApi.middleware,
+      chatAIApi.middleware,
     ),
 });
 

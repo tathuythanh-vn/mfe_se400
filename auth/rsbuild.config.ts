@@ -7,6 +7,11 @@ export default defineConfig({
     port: 3001,
   },
 
+  html: {
+    title: 'AUTH',
+    favicon: './assets/logo.webp',
+  },
+
   output: {
     assetPrefix: 'http://localhost:3001/',
   },

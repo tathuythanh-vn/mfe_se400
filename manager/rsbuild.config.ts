@@ -7,6 +7,11 @@ export default defineConfig({
     port: 3003,
   },
 
+  html: {
+    title: 'MANAGER',
+    favicon: './assets/logo.webp',
+  },
+
   output: {
     assetPrefix: 'http://localhost:3003/',
   },

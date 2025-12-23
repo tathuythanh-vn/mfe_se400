@@ -10,6 +10,11 @@ export default defineConfig({
     port: 3005,
   },
 
+  html: {
+    title: 'CHAT',
+    favicon: './assets/logo.webp',
+  },
+
   output: {
     assetPrefix: 'http://localhost:3005/',
   },

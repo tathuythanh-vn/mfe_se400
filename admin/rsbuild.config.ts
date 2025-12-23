@@ -158,6 +158,11 @@ export default defineConfig({
     port: 3002,
   },
 
+  html: {
+    title: 'ADMIN',
+    favicon: './assets/logo.webp',
+  },
+
   output: {
     assetPrefix: 'http://localhost:3002/',
   },

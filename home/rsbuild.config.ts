@@ -10,6 +10,11 @@ export default defineConfig({
     port: 3000,
   },
 
+  html: {
+    title: 'QUẢN LÝ ĐOÀN VIÊN',
+    favicon: './src/assets/logo.webp',
+  },
+
   output: {
     assetPrefix: 'http://localhost:3000/',
   },

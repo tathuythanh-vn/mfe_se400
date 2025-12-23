@@ -89,6 +89,21 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+} */
 body {
   background: var(--background);
   color: var(--foreground);
@@ -103,4 +118,40 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+@layer utilities {
+  .manager-override .bg-sidebar {
+    @apply backdrop-filter-none bg-[#1c4588] opacity-100;
+  }
+}
+
+/* .admin-scope {
+  all: revert; 
+  font-family: Arial, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  box-sizing: border-box;
+}
+
+.admin-scope * {
+  all: unset;       
+  all: revert-layer; 
+}
+
+
+.admin-scope .bg-card { @apply bg-card; }
+.admin-scope .text-card-foreground { @apply text-card-foreground; }
+.admin-scope .bg-primary { @apply bg-primary; } */
+
+.manager-scope, 
+.manager-scope * {
+  all: unset;          /* reset toàn bộ ảnh hưởng CSS từ Home */
+  all: revert-layer;   /* cho Tailwind của Manager hoạt động bình thường */
+}
+
+.manager-scope {
+  all: revert;
+  font-family: Arial, sans-serif;
 }

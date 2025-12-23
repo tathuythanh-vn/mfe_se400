@@ -192,9 +192,6 @@ export default function AdminAccounts() {
       />
 
       {/* Modals */}
-      {/* {openDetails && selectedId && (
-        <AccountDetails id={selectedId} setOpen={setOpenDetails} />
-      )} */}
       {openDetails && selectedId && (
   <AccountDetails
     id={selectedId}

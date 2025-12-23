@@ -65,3 +65,4 @@ export default function ManagerApp({ standalone = false }: ManagerAppProps) {
     </MainLayout>
   );
 }
+

@@ -37,7 +37,8 @@ export const accountApi = createApi({
   tagTypes: ['Account', 'AccountStatistic'],
 
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.BACKEND_URL + '/accounts',
+    baseUrl:
+      (process.env.BACKEND_URL || 'http://localhost:5000/api') + '/accounts',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {

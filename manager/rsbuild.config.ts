@@ -22,13 +22,28 @@ export default defineConfig({
       exposes: {
         './ManagerContent': './src/routes/index.tsx',
       },
-      shared: [
-        'react',
-        'react-dom',
-        'react-router-dom',
-        'react-redux',
-        '@reduxjs/toolkit',
-      ],
+      shared: {
+        react: {
+          singleton: true,
+          eager: true,
+        },
+        'react-dom': {
+          singleton: true,
+          eager: true,
+        },
+        'react-router-dom': {
+          singleton: true,
+          eager: true,
+        },
+        'react-redux': {
+          singleton: true,
+          eager: true,
+        },
+        '@reduxjs/toolkit': {
+          singleton: true,
+          eager: true,
+        },
+      },
     }),
   ],
 });

@@ -39,7 +39,7 @@ export default function UserSection() {
     // Handle notification click
     markNotificationsAsRead([item]);
     setShowNotifications(false);
-    navigate('/admin/request-accounts');
+    navigate('/admin/accounts?status=pending');
   };
 
   const markNotificationsAsRead = async (items: Notification[]) => {

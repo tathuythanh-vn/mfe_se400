@@ -6,7 +6,10 @@ import {
 } from 'react-router-dom';
 import Chat from '../pages/Chat';
 import '../App.css';
+
+import { Provider } from 'react-redux';
 import MainLayout from 'home/MainLayout';
+import { store } from 'home/store';
 
 const chatRoutes = [
   {
@@ -15,10 +18,21 @@ const chatRoutes = [
   },
 ];
 
-// Router
-const router = createBrowserRouter(chatRoutes, {
-  basename: '/chat',
-});
+// Router standalone
+const standaloneRouter = createBrowserRouter([
+  {
+    path: '/chat/*',
+    element: (
+      <Provider store={store}>
+        <Routes>
+          {chatRoutes.map((r) => (
+            <Route key={r.path} path={r.path} element={r.element} />
+          ))}
+        </Routes>
+      </Provider>
+    ),
+  },
+]);
 
 type ChatAppProps = {
   standalone?: boolean;
@@ -26,11 +40,7 @@ type ChatAppProps = {
 
 export default function ChatApp({ standalone = false }: ChatAppProps) {
   if (standalone) {
-    return (
-      <MainLayout>
-        <RouterProvider router={router} />
-      </MainLayout>
-    );
+    return <RouterProvider router={standaloneRouter} />;
   }
 
   return (

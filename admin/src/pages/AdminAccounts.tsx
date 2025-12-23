@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import avatar from '../assests/avatar.png';
 import Pagination from '../components/Pagination';
 import ClipLoader from 'react-spinners/ClipLoader';
@@ -23,14 +24,30 @@ export default function AdminAccounts() {
     pending: 'Chờ duyệt',
   };
 
-  // UI state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [role, setRole] = useState('');
-  const [status, setStatus] = useState('');
+  // URL search params
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read initial values from URL
+  const [currentPage, setCurrentPage] = useState(() => {
+    const page = searchParams.get('page');
+    return page ? parseInt(page) : 1;
+  });
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [role, setRole] = useState(() => searchParams.get('role') || '');
+  const [status, setStatus] = useState(() => searchParams.get('status') || '');
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [openDetails, setOpenDetails] = useState(false);
+
+  // Sync filters to URL
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (currentPage > 1) params.page = currentPage.toString();
+    if (search) params.search = search;
+    if (role) params.role = role;
+    if (status) params.status = status;
+    setSearchParams(params, { replace: true });
+  }, [currentPage, search, role, status, setSearchParams]);
 
   // Gọi API bằng RTK Query
   const { data, isLoading, isFetching, refetch } = useGetAccountsInPageQuery({
@@ -56,7 +73,6 @@ export default function AdminAccounts() {
 
   return (
     <div className="w-full h-full flex flex-col items-center p-5 gap-10 box-border">
-
       {/* Toolbar */}
       <div className="flex w-4/5 gap-5">
         {/* Search */}
@@ -75,7 +91,7 @@ export default function AdminAccounts() {
         <div className="flex flex-col w-full gap-1">
           <label className="text-blue-800 font-semibold">Vai trò</label>
           <select
-            title='role'
+            title="role"
             className="h-12 border-2 border-blue-700 rounded-lg px-3 text-blue-700"
             value={role}
             onChange={(e) => setRole(e.target.value)}
@@ -91,7 +107,7 @@ export default function AdminAccounts() {
         <div className="flex flex-col w-full gap-1">
           <label className="text-blue-800 font-semibold">Trạng thái</label>
           <select
-            title='status'
+            title="status"
             className="h-12 border-2 border-blue-700 rounded-lg px-3 text-blue-700"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
@@ -136,11 +152,17 @@ export default function AdminAccounts() {
                   setOpenDetails(true);
                 }}
               >
-                <div style={{ flex: fields[0].flex }} className="text-center pr-10">
+                <div
+                  style={{ flex: fields[0].flex }}
+                  className="text-center pr-10"
+                >
                   {index + 1 + (currentPage - 1) * 6}
                 </div>
 
-                <div style={{ flex: fields[1].flex }} className="flex items-center gap-3 px-4">
+                <div
+                  style={{ flex: fields[1].flex }}
+                  className="flex items-center gap-3 px-4"
+                >
                   <img
                     src={item.avatar?.path || avatar}
                     alt="Avatar"
@@ -150,7 +172,9 @@ export default function AdminAccounts() {
                 </div>
 
                 <div style={{ flex: fields[2].flex }}>{item.email}</div>
-                <div style={{ flex: fields[3].flex }}>{mapFields[item.role]}</div>
+                <div style={{ flex: fields[3].flex }}>
+                  {mapFields[item.role]}
+                </div>
 
                 <div style={{ flex: fields[4].flex }}>
                   <p
@@ -160,8 +184,8 @@ export default function AdminAccounts() {
                         item.status === 'active'
                           ? 'green'
                           : item.status === 'locked'
-                          ? 'red'
-                          : '#ff8f00',
+                            ? 'red'
+                            : '#ff8f00',
                     }}
                   >
                     <span
@@ -171,8 +195,8 @@ export default function AdminAccounts() {
                           item.status === 'active'
                             ? 'green'
                             : item.status === 'locked'
-                            ? 'red'
-                            : '#ff8f00',
+                              ? 'red'
+                              : '#ff8f00',
                       }}
                     ></span>
                     {mapFields[item.status]}
@@ -196,13 +220,12 @@ export default function AdminAccounts() {
         <AccountDetails id={selectedId} setOpen={setOpenDetails} />
       )} */}
       {openDetails && selectedId && (
-  <AccountDetails
-    id={selectedId}
-    setOpen={setOpenDetails}
-    onUpdated={refetch}
-  />
-)}
-
+        <AccountDetails
+          id={selectedId}
+          setOpen={setOpenDetails}
+          onUpdated={refetch}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,8 @@
-import { useGetContactsQuery, useGetProfileQuery } from 'home/store';
+import {
+  useGetContactsQuery,
+  useGetProfileQuery,
+  useGetChapterByIdQuery,
+} from 'home/store';
 
 import AvatarDefault from '../../assests/avatar.png';
 import type { Account } from '../../pages/Chat';
@@ -22,9 +26,7 @@ interface ContactItemProps {
   path?: string;
   fullname?: string;
   _id?: string;
-  managerOf?: {
-    name: string;
-  };
+  managerOf?: string;
 }
 
 export const Avatar = ({ path }: { path?: string }) => {
@@ -46,6 +48,11 @@ export const ContactItem = ({
 }: ContactItemProps & {
   setCurrentChatUser?: (user: Account) => void;
 }) => {
+  if (managerOf) {
+    const { data: chapterRes } = useGetChapterByIdQuery(managerOf);
+    managerOf = chapterRes?.data.name;
+  }
+
   return (
     <div
       className="flex gap-2 items-center hover:cursor-pointer hover:bg-blue-100 p-2 rounded-md"
@@ -58,7 +65,7 @@ export const ContactItem = ({
       <Avatar path={path} />
       <div>
         <p className="text-blue-800 w-40 font-bold">{fullname || 'Unknown'}</p>
-        <p>{managerOf?.name}</p>
+        <p>{managerOf}</p>
       </div>
     </div>
   );
@@ -78,7 +85,7 @@ const ContactGroup = ({
   setCurrentChatUser,
 }: ContactGroupProps) => {
   let filteredContacts = Array.isArray(contacts) ? contacts : [contacts];
-  
+
   if (searchValue?.trim()) {
     filteredContacts = filteredContacts.filter((contact) =>
       contact.fullname?.toLowerCase().includes(searchValue.toLowerCase()),
@@ -98,7 +105,10 @@ const ContactGroup = ({
             return (
               <ContactItem
                 key={contact._id}
-                {...contact}
+                path={contact.avatar?.path}
+                fullname={contact.fullname}
+                managerOf={contact.managerOf as any}
+                _id={contact._id}
                 setCurrentChatUser={setCurrentChatUser}
               />
             );

@@ -5,13 +5,16 @@ import {
   Routes,
   Navigate,
 } from 'react-router-dom';
-// @ts-ignore - Module Federation remote
-import MainLayout from 'home/MainLayout';
+
 import Events from '../pages/Events';
 import Documents from '../pages/Documents';
 import Statistic from '../pages/Statistic';
 import Members from '../pages/Members';
 import '../App.css';
+
+import { Provider } from 'react-redux';
+import MainLayout from 'home/MainLayout';
+import { store } from 'home/store';
 
 const managerRoutes = [
   {
@@ -30,17 +33,27 @@ const managerRoutes = [
     path: 'statistic',
     element: <Statistic />,
   },
-    {
+  {
     path: 'members',
     element: <Members />,
   },
-
-
 ];
 
-const router = createBrowserRouter(managerRoutes, {
-  basename: '/manager',
-});
+// Router standalone
+const standaloneRouter = createBrowserRouter([
+  {
+    path: '/manager/*',
+    element: (
+      <Provider store={store}>
+        <Routes>
+          {managerRoutes.map((r) => (
+            <Route key={r.path} path={r.path} element={r.element} />
+          ))}
+        </Routes>
+      </Provider>
+    ),
+  },
+]);
 
 type ManagerAppProps = {
   standalone?: boolean;
@@ -48,11 +61,7 @@ type ManagerAppProps = {
 
 export default function ManagerApp({ standalone = false }: ManagerAppProps) {
   if (standalone) {
-    return (
-      <MainLayout>
-        <RouterProvider router={router} />
-      </MainLayout>
-    );
+    return <RouterProvider router={standaloneRouter} />;
   }
 
   return (

@@ -44,12 +44,13 @@ const ChatArea = ({ currentChatUser }: ChatAreaProps) => {
         <ContactItem
           path={currentChatUser.path}
           fullname={currentChatUser.fullname}
-          managerOf={currentChatUser.managerOf}
+          // managerOf=
+          // avatar={currentChatUser.path}
         />
       </div>
 
       {/* Chat messages */}
-      <Chatbox partnerId={currentChatUser._id} />
+      <Chatbox partnerId={currentChatUser._id} partner={currentChatUser} />
 
       {/* Input messages */}
       <div className="p-2 px-4 border-t border-gray-300">

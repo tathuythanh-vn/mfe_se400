@@ -102,7 +102,6 @@
 //   ],
 // });
 
-
 // import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
 // import { defineConfig } from '@rsbuild/core';
 // import { pluginReact } from '@rsbuild/plugin-react';
@@ -189,13 +188,28 @@ export default defineConfig({
         home: 'home@http://localhost:3000/remoteEntry.js',
       },
 
-      shared: [
-        'react',
-        'react-dom',
-        'react-router-dom',
-        'react-redux',
-        '@reduxjs/toolkit',
-      ],
+      shared: {
+        react: {
+          singleton: true,
+          eager: true,
+        },
+        'react-dom': {
+          singleton: true,
+          eager: true,
+        },
+        'react-router-dom': {
+          singleton: true,
+          eager: true,
+        },
+        'react-redux': {
+          singleton: true,
+          eager: true,
+        },
+        '@reduxjs/toolkit': {
+          singleton: true,
+          eager: true,
+        },
+      },
     }),
   ],
 });

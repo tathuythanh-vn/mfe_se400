@@ -9,6 +9,10 @@ import Login from '../pages/Login';
 import Signup from '../pages/Signup';
 import '../App.css';
 
+import { Provider } from 'react-redux';
+import MainLayout from 'home/MainLayout';
+import { store } from 'home/store';
+
 const authRoutes = [
   {
     path: '/',
@@ -24,9 +28,21 @@ const authRoutes = [
   },
 ];
 
-const router = createBrowserRouter(authRoutes, {
-  basename: '/auth',
-});
+// Router standalone
+const standaloneRouter = createBrowserRouter([
+  {
+    path: '/auth/*',
+    element: (
+      <Provider store={store}>
+        <Routes>
+          {authRoutes.map((r) => (
+            <Route key={r.path} path={r.path} element={r.element} />
+          ))}
+        </Routes>
+      </Provider>
+    ),
+  },
+]);
 
 type AuthAppProps = {
   standalone?: boolean;
@@ -34,14 +50,18 @@ type AuthAppProps = {
 
 export default function AuthApp({ standalone = false }: AuthAppProps) {
   if (standalone) {
-    return <RouterProvider router={router} />;
+    return <RouterProvider router={standaloneRouter} />;
   }
 
   return (
-    <Routes>
-      {authRoutes.map((route) => (
-        <Route key={route.path} path={route.path} element={route.element} />
-      ))}
-    </Routes>
+    <div>
+      <Provider store={store}>
+        <Routes>
+          {authRoutes.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
+        </Routes>
+      </Provider>
+    </div>
   );
 }

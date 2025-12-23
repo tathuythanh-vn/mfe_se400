@@ -5,25 +5,27 @@ import { useGetHistoryMessageQuery } from 'home/store';
 interface MessageLineProps {
   isSender?: boolean;
   message?: string;
+  path?: string;
 }
 
 const MessageLine = ({
   isSender = true,
   message = 'Test message',
+  path,
 }: MessageLineProps) => {
   return (
     <div
       className={`flex gap-2 w-full ${isSender ? 'justify-end' : 'justify-start'}`}
     >
-      {!isSender && <Avatar />}
+      {!isSender && <Avatar path={path} />}
       <div className="bg-white p-2 border shadow-sm rounded">{message}</div>
-      {isSender && <Avatar />}
     </div>
   );
 };
 
 interface ChatboxProps {
   partnerId: string;
+  partner: any;
 }
 
 interface Message {
@@ -33,7 +35,7 @@ interface Message {
   status: 'read' | 'unread';
 }
 
-const Chatbox = ({ partnerId }: ChatboxProps) => {
+const Chatbox = ({ partnerId, partner }: ChatboxProps) => {
   const { data: messages } = useGetHistoryMessageQuery({
     partnerId: partnerId,
   });
@@ -57,6 +59,7 @@ const Chatbox = ({ partnerId }: ChatboxProps) => {
           key={msg._id}
           isSender={msg.senderId !== partnerId}
           message={msg.message}
+          path={partner?.path}
         />
       ))}
     </div>
